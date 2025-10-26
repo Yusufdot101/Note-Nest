@@ -7,6 +7,6 @@ describe("addTwoNumbers function", () => {
         expect(addTwoNumbers(225, 75)).toBe(300)
     })
     it("incorrect example", () => {
-        expect(addTwoNumbers(77, 33)).toBe(100)
+        expect(addTwoNumbers(77, 33)).toBe(110)
     })
 })
