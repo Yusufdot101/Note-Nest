@@ -23,7 +23,7 @@ func TestAddTwoNumbers(t *testing.T) {
 			name: "77+33",
 			a:    77,
 			b:    33,
-			want: 100,
+			want: 110,
 		},
 	}
 
