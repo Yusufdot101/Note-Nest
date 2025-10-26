@@ -5,8 +5,13 @@ import (
 	"net/http"
 )
 
+func addTwoNumbers(a, b int) int {
+	return a + b
+}
+
 func handleMain(w http.ResponseWriter, r *http.Request) {
-	msg := "helllo mate"
+	a, b := 1, 2
+	msg := fmt.Sprintf("helllo mate, %d + %d = %d\n", a, b, addTwoNumbers(a, b))
 	w.Write([]byte(msg))
 }
 
