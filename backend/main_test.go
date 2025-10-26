@@ -14,6 +14,12 @@ func TestAddTwoNumbers(t *testing.T) {
 			want: 3,
 		},
 		{
+			name: "225+75",
+			a:    225,
+			b:    75,
+			want: 300,
+		},
+		{
 			name: "77+33",
 			a:    77,
 			b:    33,
