@@ -1,0 +1,58 @@
+services:
+    notenest-backend:
+        build:
+            context: .
+        image: notenest-backend
+        ports:
+            - "8080:8080"
+        depends_on:
+            notenest-db:
+                condition: service_healthy
+        networks:
+            - notenest-backend-net
+
+    migrate:
+        image: migrate/migrate
+        restart: no
+        container_name: db-migrate
+        depends_on:
+            notenest-db:
+                condition: service_healthy
+        networks:
+            - notenest-backend-net
+        volumes:
+            - ./db/migrations:/migrations
+        command:
+            [
+                "-path",
+                "/migrations",
+                "-database",
+                "postgres://myuser:mypassword@notenest-db:5432/mydb?sslmode=disable",
+                "up",
+            ]
+
+    notenest-db:
+        image: postgres:17.6-alpine
+        container_name: notenest-db
+        environment:
+            POSTGRES_USER: myuser
+            POSTGRES_PASSWORD: mypassword
+            POSTGRES_DB: mydb
+        ports:
+            - "5433:5432" #optional, for host access. use 5433 cause 5432 is used by local postgres
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+            interval: 5s
+            timeout: 3s
+            retries: 5
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            - notenest-backend-net
+
+volumes:
+    pgdata:
+
+networks:
+    notenest-backend-net:
+        driver: bridge
