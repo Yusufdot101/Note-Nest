@@ -3,7 +3,7 @@ name: Backend CI
 on:
     push:
         paths:
-            - "backend/***"
+            - "backend/**"
 
 jobs:
     test-backend:
