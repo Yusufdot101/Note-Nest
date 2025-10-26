@@ -1,0 +1,40 @@
+name: Frontend CI (React + Vite)
+
+on:
+    push:
+        paths:
+            - "frontend/**"
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: set up Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            # cache the node_modules
+            - name: cache node modules
+              uses: actions/cache@v3
+              with:
+                  path: frontend/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+
+            - name: install dependices
+              run: |
+                  cd frontend
+                  npm ci
+
+            - name: run tests
+              run: |
+                  cd frontend
+                  npm test
+
+            - name: build
+              run: |
+                  cd frontend
+                  npm run build
