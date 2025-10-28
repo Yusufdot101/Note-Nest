@@ -3,6 +3,7 @@ package validator
 import (
 	"errors"
 	"regexp"
+	"strings"
 )
 
 var ErrFailedValidation = errors.New("failed validation")
@@ -20,6 +21,9 @@ func (v *Validator) IsValid() bool {
 }
 
 func (v *Validator) AddError(key, value string) {
+	if strings.TrimSpace(key) == "" || strings.TrimSpace(value) == "" {
+		return
+	}
 	if _, exists := v.Errors[key]; !exists {
 		v.Errors[key] = value
 	}
