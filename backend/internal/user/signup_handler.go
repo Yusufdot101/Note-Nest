@@ -50,6 +50,7 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request, _ htt
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
+			_ = jsonutil.WriteJSON(w, jsonutil.Message{"errors": v.Errors}, http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 		default:
 			log.Println(err)
