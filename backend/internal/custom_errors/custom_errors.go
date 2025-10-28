@@ -38,3 +38,8 @@ func MethodNotAllowedErrorResponse(w http.ResponseWriter, r *http.Request) {
 func FailedValidationErrorResponse(w http.ResponseWriter, errors map[string]string) {
 	errorResponse(w, errors, http.StatusBadRequest)
 }
+
+func DuplicateEmailErrorResponse(w http.ResponseWriter) {
+	msg := "a user with this email already exists"
+	errorResponse(w, msg, http.StatusConflict)
+}

@@ -46,6 +46,8 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request, _ htt
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
 			custom_errors.FailedValidationErrorResponse(w, v.Errors)
+		case errors.Is(err, ErrDuplicateEmail):
+			custom_errors.DuplicateEmailErrorResponse(w)
 		default:
 			custom_errors.ServerErrorResponse(w, err)
 		}
