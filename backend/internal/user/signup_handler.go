@@ -1,6 +1,9 @@
 package user
 
 import (
+	"database/sql"
+	"errors"
+	"log"
 	"net/http"
 
 	"github.com/Yusufdot101/note-nest/internal/jsonutil"
@@ -12,14 +15,16 @@ type userHandler struct {
 	svc *UserService
 }
 
-func NewHandler(s *UserService) *userHandler {
+func NewHandler(svc *UserService) *userHandler {
 	return &userHandler{
-		svc: s,
+		svc: svc,
 	}
 }
 
-func RegisterRoutes(router *httprouter.Router) {
-	h := NewHandler(&UserService{})
+func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
+	h := NewHandler(&UserService{
+		repo: &Repository{DB: DB},
+	})
 	router.POST("/users/signup", h.RegisterUser)
 }
 
@@ -33,33 +38,29 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request, _ htt
 	if err != nil {
 		err = jsonutil.WriteJSON(w, jsonutil.Message{"error": err.Error()}, http.StatusBadRequest)
 		if err != nil {
+			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		return
 	}
+
 	v := validator.NewValidator()
-	validateName(v, input.Name)
-	validatePassword(v, input.Password)
-	validateEmail(v, input.Email)
-	if !v.IsValid() {
-		err = jsonutil.WriteJSON(w, jsonutil.Message{"errors": v.Errors}, http.StatusBadRequest)
-		if err != nil {
+	err = h.svc.registerUser(v, input.Name, input.Email, input.Password)
+	if err != nil {
+		switch {
+		case errors.Is(err, validator.ErrFailedValidation):
+			w.WriteHeader(http.StatusBadRequest)
+		default:
+			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
-	u := &User{
-		Name:  input.Name,
-		Email: input.Email,
-	}
-	err = u.Password.Set(input.Password)
+
+	err = jsonutil.WriteJSON(w, jsonutil.Message{"message": "user created successfully"}, http.StatusCreated)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	err = jsonutil.WriteJSON(w, jsonutil.Message{"input": input}, http.StatusCreated)
-	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

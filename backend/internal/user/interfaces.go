@@ -2,26 +2,37 @@ package user
 
 import (
 	"regexp"
+	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/validator"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var EmailRX = regexp.MustCompile(
 	"^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
 )
 
+const hashingCost = 12
+
 type User struct {
-	ID          int
-	Name, Email string
-	Password    password
+	ID                   int
+	CreatedAt, UpdatedAt time.Time
+	Name, Email          string
+	Password             password
 }
 
 type password struct {
 	plaintext *string // it is easier to check if the password was given using plaintext == nil
+	hash      []byte
 }
 
 func (p *password) Set(plaintextPassword string) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), hashingCost)
+	if err != nil {
+		return err
+	}
 	p.plaintext = &plaintextPassword
+	p.hash = hash
 	return nil
 }
 

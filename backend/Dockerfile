@@ -9,8 +9,9 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main .
+RUN go build -o main ./cmd/api
 
+# final stage
 FROM alpine:latest
 
 WORKDIR /usr/src/app

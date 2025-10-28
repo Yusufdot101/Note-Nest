@@ -2,9 +2,11 @@ services:
     notenest-backend:
         build:
             context: .
-        image: notenest-backend
         ports:
             - "8080:8080"
+        environment:
+            DSN: "postgres://notenest_user:notenest_user_password@notenest-db:5432/notenest_db?sslmode=disable"
+
         depends_on:
             notenest-db:
                 condition: service_healthy
@@ -14,26 +16,24 @@ services:
     migrate:
         image: migrate/migrate
         restart: no
-        container_name: db-migrate
         depends_on:
             notenest-db:
                 condition: service_healthy
         networks:
             - notenest-backend-net
         volumes:
-            - ./db/migrations:/migrations
+            - ./db/migrations:/db/migrations
         command:
             [
                 "-path",
-                "/migrations",
+                "/db/migrations",
                 "-database",
-                "postgres://myuser:mypassword@notenest-db:5432/mydb?sslmode=disable",
+                "postgres://notenest_user:notenest_user_password@notenest-db:5432/notenest_db?sslmode=disable",
                 "up",
             ]
 
     notenest-db:
         image: postgres:17.6-alpine
-        container_name: notenest-db
         environment:
             POSTGRES_USER: myuser
             POSTGRES_PASSWORD: mypassword
@@ -46,6 +46,7 @@ services:
             timeout: 3s
             retries: 5
         volumes:
+            - ./db/init:/docker-entrypoint-initdb.d
             - pgdata:/var/lib/postgresql/data
         networks:
             - notenest-backend-net

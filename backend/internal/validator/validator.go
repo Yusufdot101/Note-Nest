@@ -1,6 +1,11 @@
 package validator
 
-import "regexp"
+import (
+	"errors"
+	"regexp"
+)
+
+var ErrFailedValidation = errors.New("FAILED VALIDATION")
 
 type Validator struct {
 	Errors map[string]string
