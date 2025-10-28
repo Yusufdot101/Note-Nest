@@ -2,7 +2,6 @@ package user
 
 import (
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/validator"
@@ -38,16 +37,16 @@ func (p *password) Set(plaintextPassword string) error {
 }
 
 func validateName(v *validator.Validator, name string) {
-	v.CheckAddError(strings.Trim(name, " ") != "", "name", "must be provided")
+	v.CheckAddError(name != "", "name", "must be provided")
 }
 
 func validatePassword(v *validator.Validator, plaintextPassword string) {
-	v.CheckAddError(strings.Trim(plaintextPassword, " ") != "", "password", "must be provided")
+	v.CheckAddError(plaintextPassword != "", "password", "must be provided")
 	v.CheckAddError(len(plaintextPassword) >= 8, "password", "cannot be less than 8 characters long")
-	v.CheckAddError(len(plaintextPassword) <= 72, "password", "cannot be more than 72 characters long") // bcrypt only does 72 bytes
+	v.CheckAddError(len(plaintextPassword) <= 72, "password", "cannot be more than 72 characters long") // bcrypt reasons
 }
 
 func validateEmail(v *validator.Validator, email string) {
-	v.CheckAddError(strings.Trim(email, " ") != "", "email", "must be provided")
+	v.CheckAddError(email != "", "email", "must be provided")
 	v.CheckAddError(validator.Matches(EmailRX, email), "email", "must be valid email address")
 }
