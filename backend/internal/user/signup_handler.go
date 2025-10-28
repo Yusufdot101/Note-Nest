@@ -38,6 +38,17 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request, _ htt
 		}
 		return
 	}
+	v := validator.NewValidator()
+	validateName(v, input.Name)
+	validatePassword(v, input.Password)
+	validateEmail(v, input.Email)
+	if !v.IsValid() {
+		err = jsonutil.WriteJSON(w, jsonutil.Message{"errors": v.Errors}, http.StatusBadRequest)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
 	u := &User{
 		Name:  input.Name,
 		Email: input.Email,
@@ -47,18 +58,7 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request, _ htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	v := validator.NewValidator()
-	validateName(v, u.Name)
-	validatePassword(v, *u.Password.plaintext)
-	validateEmail(v, u.Email)
-	if !v.IsValid() {
-		err = jsonutil.WriteJSON(w, jsonutil.Message{"errors": v.Errors}, 400)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-		return
-	}
-	err = jsonutil.WriteJSON(w, jsonutil.Message{"input": input}, 200)
+	err = jsonutil.WriteJSON(w, jsonutil.Message{"input": input}, http.StatusCreated)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}

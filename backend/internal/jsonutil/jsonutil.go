@@ -24,8 +24,8 @@ func WriteJSON(w http.ResponseWriter, message Message, statusCode int) error {
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	// prevent large requests from hogging system resources
-	const BODY_MAX_BYTES = 1_048_576
-	http.MaxBytesReader(w, r.Body, BODY_MAX_BYTES)
+	const BodyMaxSizeBytes = 1_000_000
+	r.Body = http.MaxBytesReader(w, r.Body, BodyMaxSizeBytes)
 
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -50,12 +50,14 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 			}
 			return fmt.Errorf("body contains incorrect type at character: %d", unmarshalTypeErr.Offset)
 
-		case strings.HasPrefix(err.Error(), "json: unknown "):
-			fieldName := strings.TrimPrefix(err.Error(), "json: unknown ")
+		case strings.HasPrefix(err.Error(), "json: unknown field "):
+			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
+			fieldName = strings.Trim(fieldName, "\"")
 			return fmt.Errorf("body contains unknown key: %s", fieldName)
 
 		case err.Error() == "http: request body too large":
-			return fmt.Errorf("body cannot be larger than %dMB ", BODY_MAX_BYTES)
+			BodyMaxSizeMB := float64(BodyMaxSizeBytes) / 1_000_000
+			return fmt.Errorf("body cannot be larger than %f.2MB ", BodyMaxSizeMB)
 
 		case errors.Is(err, io.EOF):
 			return fmt.Errorf("body cannot be empty")
