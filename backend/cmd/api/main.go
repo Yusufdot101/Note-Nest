@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
@@ -18,6 +19,8 @@ const PORT = ":8080"
 func main() {
 	dsn := os.Getenv("DSN")
 	router := httprouter.New()
+	router.NotFound = http.HandlerFunc(custom_errors.NotFoundErrorResponse)
+	router.MethodNotAllowed = http.HandlerFunc(custom_errors.MethodNotAllowedErrorResponse)
 	DB, err := openDB(dsn)
 	if err != nil {
 		log.Fatal(err)
