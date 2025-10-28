@@ -12,6 +12,7 @@ import (
 type Message map[string]any
 
 func WriteJSON(w http.ResponseWriter, message Message, statusCode int) error {
+	w.Header().Add("Content-Type", "application/json")
 	JSON, err := json.Marshal(message)
 	if err != nil {
 		return err

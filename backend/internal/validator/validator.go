@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-var ErrFailedValidation = errors.New("FAILED VALIDATION")
+var ErrFailedValidation = errors.New("failed validation")
 
 type Validator struct {
 	Errors map[string]string

@@ -3,8 +3,11 @@ package user
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 )
+
+var ErrDuplicateEmail = errors.New("duplicate email")
 
 type Repository struct {
 	DB *sql.DB
@@ -32,7 +35,12 @@ func (r *Repository) insertUser(u *User) error {
 		&u.CreatedAt,
 	)
 	if err != nil {
-		return err
+		switch {
+		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
+			return ErrDuplicateEmail
+		default:
+			return err
+		}
 	}
 	return nil
 }

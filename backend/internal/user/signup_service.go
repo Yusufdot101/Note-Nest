@@ -1,6 +1,8 @@
 package user
 
 import (
+	"strings"
+
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -13,9 +15,9 @@ type UserService struct {
 }
 
 func (us *UserService) registerUser(v *validator.Validator, name, email, password string) error {
-	validateName(v, name)
-	validatePassword(v, password)
-	validateEmail(v, email)
+	validatePassword(v, strings.TrimSpace(password)) // prevent passwords like , "        ", from being accepted
+	validateName(v, strings.TrimSpace(name))
+	validateEmail(v, strings.TrimSpace(email))
 	if !v.IsValid() {
 		return validator.ErrFailedValidation
 	}
