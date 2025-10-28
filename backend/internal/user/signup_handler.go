@@ -3,9 +3,9 @@ package user
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"net/http"
 
+	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/jsonutil"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 	"github.com/julienschmidt/httprouter"
@@ -36,12 +36,7 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request, _ htt
 	}
 	err := jsonutil.ReadJSON(w, r, &input)
 	if err != nil {
-		err = jsonutil.WriteJSON(w, jsonutil.Message{"error": err.Error()}, http.StatusBadRequest)
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+		custom_errors.BadRequestErrorResponse(w, err)
 		return
 	}
 
@@ -50,18 +45,15 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request, _ htt
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
-			_ = jsonutil.WriteJSON(w, jsonutil.Message{"errors": v.Errors}, http.StatusBadRequest)
-			w.WriteHeader(http.StatusBadRequest)
+			custom_errors.FailedValidationErrorResponse(w, v.Errors)
 		default:
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			custom_errors.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	err = jsonutil.WriteJSON(w, jsonutil.Message{"message": "user created successfully"}, http.StatusCreated)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		custom_errors.ServerErrorResponse(w, err)
 	}
 }
