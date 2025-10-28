@@ -1,10 +1,13 @@
+x-db-ur: &db_url postgres://notenest_user:notenest_user_password@notenest-db:5432/notenest_db?sslmode=disable
 services:
     notenest-backend:
         build:
             context: .
-        image: notenest-backend
         ports:
             - "8080:8080"
+        environment:
+            DSN: *db_url
+
         depends_on:
             notenest-db:
                 condition: service_healthy
@@ -14,26 +17,17 @@ services:
     migrate:
         image: migrate/migrate
         restart: no
-        container_name: db-migrate
         depends_on:
             notenest-db:
                 condition: service_healthy
         networks:
             - notenest-backend-net
         volumes:
-            - ./db/migrations:/migrations
-        command:
-            [
-                "-path",
-                "/migrations",
-                "-database",
-                "postgres://myuser:mypassword@notenest-db:5432/mydb?sslmode=disable",
-                "up",
-            ]
+            - ./db/migrations:/db/migrations
+        command: ["-path", "/db/migrations", "-database", *db_url, "up"]
 
     notenest-db:
         image: postgres:17.6-alpine
-        container_name: notenest-db
         environment:
             POSTGRES_USER: myuser
             POSTGRES_PASSWORD: mypassword
@@ -41,11 +35,12 @@ services:
         ports:
             - "5433:5432" #optional, for host access. use 5433 cause 5432 is used by local postgres
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+            test: ["CMD-SHELL", "pg_isready -U notenest_user -d notenest_db"]
             interval: 5s
             timeout: 3s
             retries: 5
         volumes:
+            - ./db/init:/docker-entrypoint-initdb.d
             - pgdata:/var/lib/postgresql/data
         networks:
             - notenest-backend-net
