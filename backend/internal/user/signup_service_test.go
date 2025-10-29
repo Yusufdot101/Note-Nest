@@ -52,6 +52,9 @@ func TestRegisterUser(t *testing.T) {
 				if !errors.Is(err, test.expectedErr) {
 					t.Fatalf("expected error = %v, got error = %v", test.expectedErr, err)
 				}
+				if repo.insertUserCalled {
+					t.Fatal("expected repo.insertUser not to be called on error")
+				}
 				return
 			} else {
 				if err != nil {
