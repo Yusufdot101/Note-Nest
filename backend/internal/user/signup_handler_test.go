@@ -27,7 +27,7 @@ func TestRegisterUserHandler(t *testing.T) {
 		t.Fatalf("unexpected error = %v", err)
 	}
 
-	h.RegisterUser(rr, req, nil)
+	h.RegisterUser(rr, req)
 
 	if !repo.insertUserCalled {
 		t.Fatal("expected repo.insertUser to be called")
