@@ -9,10 +9,12 @@ import (
 
 type mockRepo struct {
 	insertUserCalled bool
+	insertedUser     *User
 }
 
 func (mr *mockRepo) insertUser(u *User) error {
 	mr.insertUserCalled = true
+	mr.insertedUser = u
 	return nil
 }
 
