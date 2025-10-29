@@ -22,8 +22,7 @@ type User struct {
 }
 
 type password struct {
-	plaintext *string // it is easier to check if the password was given using plaintext == nil
-	hash      []byte
+	hash []byte
 }
 
 func (p *password) Set(plaintextPassword string) error {
@@ -31,7 +30,6 @@ func (p *password) Set(plaintextPassword string) error {
 	if err != nil {
 		return err
 	}
-	p.plaintext = &plaintextPassword
 	p.hash = hash
 	return nil
 }
