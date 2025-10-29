@@ -7,6 +7,7 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/jsonutil"
+	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
@@ -25,10 +26,10 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 	h := NewHandler(&UserService{
 		repo: &Repository{DB: DB},
 	})
-	router.POST("/users/signup", h.RegisterUser)
+	router.HandlerFunc("POST", "/users/signup", middleware.EnableCORS(h.RegisterUser))
 }
 
-func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name     string `json:"name"`
 		Email    string `json:"email"`
