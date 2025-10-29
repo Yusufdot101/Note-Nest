@@ -21,7 +21,7 @@ func TestSetPassword(t *testing.T) {
 		wantErr         bool
 	}{
 		{
-			name:            "corret password",
+			name:            "correct password",
 			actualPassword:  "12345678",
 			testingPassword: "12345678",
 		},
@@ -41,14 +41,17 @@ func TestSetPassword(t *testing.T) {
 			}
 
 			err = bcrypt.CompareHashAndPassword(u.Password.hash, []byte(test.testingPassword))
-			if !test.wantErr && err == nil {
-				return
-			}
-			if !test.wantErr && err != nil {
-				t.Fatalf("unexpected error = %v", err)
-			}
-			if !errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-				t.Fatalf("unexpected error = %v", err)
+			if test.wantErr {
+				if err == nil {
+					t.Fatal("expected error but got none")
+				}
+				if !errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+					t.Fatalf("unexpected error = %v", err)
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error = %v", err)
+				}
 			}
 		})
 	}
@@ -82,7 +85,7 @@ func TestValidateName(t *testing.T) {
 	}
 }
 
-func TestEmailName(t *testing.T) {
+func TestValidateEmail(t *testing.T) {
 	tests := []struct {
 		name        string
 		email       string
