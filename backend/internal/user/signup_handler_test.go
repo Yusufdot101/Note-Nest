@@ -6,16 +6,7 @@ import (
 	"testing"
 )
 
-type mockRepo struct {
-	insertUserCalled bool
-}
-
-func (mr *mockRepo) insertUser(u *User) error {
-	mr.insertUserCalled = true
-	return nil
-}
-
-func TestRegisterUser(t *testing.T) {
+func TestRegisterUserHandler(t *testing.T) {
 	repo := &mockRepo{}
 	h := userHandler{
 		svc: &UserService{
