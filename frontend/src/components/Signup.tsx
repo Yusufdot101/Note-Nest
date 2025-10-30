@@ -1,0 +1,22 @@
+const Signup = () => {
+    return (
+        <div className="bg-gray-900 min-h-screen flex justify-center py-10 ">
+            <form action="" className="bg-zinc-900 border border-zinc-500 p-5 h-fit flex flex-col gap-2 rounded-xl w-[80%] max-w-[800px] text-2xl text-white">
+                <p className="w-full text-center text-3xl">Signup</p>
+                <label htmlFor="userName">Username</label>
+                <input type="text" className="bg-white rounded-lg outline-none p-2 text-zinc-900" name="name" id="userName" />
+
+                <label htmlFor="email">Email</label>
+                <input type="email" className="bg-white rounded-lg outline-none p-2 text-zinc-900" name="email" id="email" />
+
+                <label htmlFor="password">Password</label>
+                <input type="text" className="bg-white rounded-lg outline-none p-2 text-zinc-900" name="password" id="password" />
+
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <input type="text" className="bg-white rounded-lg outline-none p-2 text-zinc-900" name="confirmPassword" id="confirmPassword" />
+            </form>
+        </div>
+    )
+}
+
+export default Signup
