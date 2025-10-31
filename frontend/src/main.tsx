@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import Signup from './components/Signup.tsx'
 import Header from './components/Header.tsx'
+import Footer from './components/Footer.tsx'
 
 const router = createBrowserRouter([
     { path: "/", element: <App /> },
@@ -13,8 +14,11 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <Header />
-        <RouterProvider router={router} >
-        </RouterProvider>
+        <div className="bg-background min-h-screen flex flex-col p-[32px] gap-[32px]">
+            <Header />
+            <RouterProvider router={router} >
+            </RouterProvider>
+            <Footer />
+        </div>
     </StrictMode>,
 )
