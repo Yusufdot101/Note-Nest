@@ -11,7 +11,7 @@ export const getUsernameErrorMessages = (username: string): string => {
 export const getEmailErrorMessages = (email: string): string => {
     let message = ""
     if (!emailRegexPattern.test(email)) {
-        message += "Email must a valid email address."
+        message += "Email must be a valid email address."
     }
     return message
 }
