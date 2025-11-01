@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { getEmailErrorMessages, getPasswordErrorMessages, getUsernameErrorMessages } from "../utilities/inputValidation"
 import Input from "../components/Input"
 import SubmitButton from "../components/SubmitButton"
+import { handleSignup } from "../utilities/signup"
 
 const Signup = () => {
     const [username, setUsername] = useState("")
@@ -9,7 +10,9 @@ const Signup = () => {
     const [password, setPassword] = useState("")
 
     const [showError, setShowError] = useState(false)
+    const [showSignupErrors, setSignupShowErrors] = useState(false)
 
+    const [signupErrors, setSignupErrors] = useState<string[]>([])
     const [usernameError, setUsernameError] = useState("")
     const [emailError, setEmailError] = useState("")
     const [passwordError, setPasswordError] = useState("")
@@ -20,6 +23,15 @@ const Signup = () => {
             return
         }
         // use the api
+        setSignupShowErrors(false)
+        setSignupErrors([])
+        const handleErrors = (errors: Record<string, string>) => {
+            setSignupShowErrors(true)
+            for (const [key, val] of Object.entries(errors)) {
+                setSignupErrors(prev => [...prev, `${key}: ${val}`])
+            }
+        }
+        handleSignup(username, email, password, handleErrors)
     }
 
     useEffect(() => {
@@ -37,7 +49,7 @@ const Signup = () => {
             <p className="text-accent text-[32px] font-semibold text-center">SIGN UP</p>
             <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col text-text gap-y-[8px]">
                 <div className="flex flex-col">
-                    <Input labelString={"Username"} inputType={"text"} inputName={"username"} isRequired inputValue={username} inputId={"username"} handleChange={(value) => setUsername(value)} />
+                    <Input labelString={"Username"} inputType={"text"} inputName={"username"} isRequired minLength={2} inputValue={username} inputId={"username"} handleChange={(value) => setUsername(value)} />
                     <p className={`text-red-500 ${!showError ? "hidden" : ""}`} id="usernameError">{usernameError}</p>
                 </div>
                 <div className="flex flex-col">
@@ -45,11 +57,16 @@ const Signup = () => {
                     <p className={`text-red-500 ${!showError ? "hidden" : ""}`} id="emailError">{emailError}</p>
                 </div>
                 <div className="flex flex-col">
-                    <Input labelString={"Password"} inputType={"password"} inputName={"password"} isRequired inputValue={password} inputId={"password"} handleChange={(value) => setPassword(value.replaceAll(" ", ""))} />
+                    <Input labelString={"Password"} inputType={"password"} inputName={"password"} isRequired minLength={8} maxLength={72} inputValue={password} inputId={"password"} handleChange={(value) => setPassword(value.replaceAll(" ", ""))} />
                     <p className={`text-red-500 ${!showError ? "hidden" : ""}`} id="passwordError">{passwordError}</p>
                 </div>
                 <p>Already have an account? <a href="#" className="text-accent">Login here</a></p>
                 <SubmitButton text={"Sign Up"} />
+                <div className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showSignupErrors ? "hidden" : ""}`}>
+                    {signupErrors.map(error => (
+                        <p key={error}>{error}</p>
+                    ))}
+                </div>
             </form >
         </div >
     )
