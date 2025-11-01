@@ -37,15 +37,15 @@ const Signup = () => {
             <p className="text-accent text-[32px] font-semibold text-center">SIGN UP</p>
             <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col text-text gap-y-[8px]">
                 <div className="flex flex-col">
-                    <Input lableStrig={"Username"} inputType={"text"} isRequired inputValue={username} inputId={"username"} handleChange={(value) => setUsername(value)} />
+                    <Input labelString={"Username"} inputType={"text"} inputName={"username"} isRequired inputValue={username} inputId={"username"} handleChange={(value) => setUsername(value)} />
                     <p className={`text-red-500 ${!showError ? "hidden" : ""}`} id="usernameError">{usernameError}</p>
                 </div>
                 <div className="flex flex-col">
-                    <Input lableStrig={"Email"} inputType={"email"} isRequired inputValue={email} inputId={"email"} handleChange={(value) => setEmail(value)} />
+                    <Input labelString={"Email"} inputType={"email"} inputName={"email"} isRequired inputValue={email} inputId={"email"} handleChange={(value) => setEmail(value)} />
                     <p className={`text-red-500 ${!showError ? "hidden" : ""}`} id="emailError">{emailError}</p>
                 </div>
                 <div className="flex flex-col">
-                    <Input lableStrig={"Password"} inputType={"password"} isRequired inputValue={password} inputId={"password"} handleChange={(value) => setPassword(value.replaceAll(" ", ""))} />
+                    <Input labelString={"Password"} inputType={"password"} inputName={"password"} isRequired inputValue={password} inputId={"password"} handleChange={(value) => setPassword(value.replaceAll(" ", ""))} />
                     <p className={`text-red-500 ${!showError ? "hidden" : ""}`} id="passwordError">{passwordError}</p>
                 </div>
                 <p>Already have an account? <a href="#" className="text-accent">Login here</a></p>
