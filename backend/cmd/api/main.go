@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -24,14 +25,17 @@ func init() {
 		if err := godotenv.Load(); err != nil {
 			log.Panicf("could not load .env file: %v", err)
 		}
-		dsn = os.Getenv("LOCAL_DB_URL")
-	} else {
-		dsn = os.Getenv("DOCKER_DB_URL")
 	}
 
-	if dsn == "" {
-		log.Panic("DB_URL is not set")
-	}
+	dsn = fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("SSL_MODE"),
+	)
 }
 
 func main() {

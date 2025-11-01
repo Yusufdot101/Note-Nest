@@ -1,14 +1,19 @@
 package middleware
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Vary", "Origin")
-
 		origin := r.Header.Get("Origin")
+		if origin == "" {
+			origin = "*"
+		}
+
+		w.Header().Set("Vary", "Origin")
 		w.Header().Set("Access-Control-Allow-Origin", origin)
-		w.Header().Set("Access-Control-Allow-Methods", "POST")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		// handle preflight OPTIONS
@@ -19,5 +24,5 @@ func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r)
 	}
 
-	return http.HandlerFunc(fn)
+	return fn
 }
