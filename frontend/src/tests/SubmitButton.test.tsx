@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { test, expect, vi, describe } from "vitest"
 import SubmitButton from "../components/SubmitButton"
 
-describe("Input", () => {
+describe("SubmitButton", () => {
     test("Button calls handleSubmit", () => {
         const mockHandleSubmit = vi.fn()
         const text = "example"

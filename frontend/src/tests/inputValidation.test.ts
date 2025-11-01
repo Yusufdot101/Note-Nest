@@ -1,5 +1,4 @@
-import { render, screen } from "@testing-library/react"
-import { test, expect, vi, describe } from "vitest"
+import { test, expect, describe } from "vitest"
 import { getEmailErrorMessages, getPasswordErrorMessages, getUsernameErrorMessages } from "../utilities/inputValidation"
 
 describe("input validation", () => {
