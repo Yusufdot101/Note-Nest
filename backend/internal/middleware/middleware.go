@@ -7,9 +7,6 @@ import (
 func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		if origin == "" {
-			origin = "*"
-		}
 
 		w.Header().Set("Vary", "Origin")
 		w.Header().Set("Access-Control-Allow-Origin", origin)

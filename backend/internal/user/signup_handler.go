@@ -26,7 +26,11 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 	h := NewHandler(&UserService{
 		repo: &Repository{DB: DB},
 	})
-	router.HandlerFunc("POST", "/users/signup", middleware.EnableCORS(h.RegisterUser))
+	router.Handler(http.MethodPost, "/users/signup", middleware.EnableCORS(h.RegisterUser))
+	// for preflight, won't work otherwise
+	router.Handler(http.MethodOptions, "/users/signup", middleware.EnableCORS(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
 }
 
 func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +52,8 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, validator.ErrFailedValidation):
 			custom_errors.FailedValidationErrorResponse(w, v.Errors)
 		case errors.Is(err, ErrDuplicateEmail):
-			custom_errors.DuplicateEmailErrorResponse(w)
+			v.AddError("email", "a user with this email already exists")
+			custom_errors.FailedValidationErrorResponse(w, v.Errors)
 		default:
 			custom_errors.ServerErrorResponse(w, err)
 		}
