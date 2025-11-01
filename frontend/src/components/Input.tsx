@@ -2,8 +2,8 @@ interface inputProps {
     labelString: string
     inputType: string
     isRequired: boolean
-    minLength: number
-    maxLength: number
+    minLength?: number
+    maxLength?: number
     inputValue: string
     inputId: string
     inputName: string

@@ -27,9 +27,8 @@ const Signup = () => {
         setSignupErrors([])
         const handleErrors = (errors: Record<string, string>) => {
             setSignupShowErrors(true)
-            for (const [key, val] of Object.entries(errors)) {
-                setSignupErrors(prev => [...prev, `${key}: ${val}`])
-            }
+            const errorMessages = Object.entries(errors).map(([key, val]) => `${key}: ${val}`)
+            setSignupErrors(errorMessages)
         }
         handleSignup(username, email, password, handleErrors)
     }
