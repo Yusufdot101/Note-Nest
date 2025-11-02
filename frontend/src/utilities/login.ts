@@ -11,7 +11,7 @@ export const handleLogin = async (email: string, password: string, handleErrors:
 
         const data = await res.json()
         if (!res.ok) {
-            const error = await data.error
+            const error = data.error
             if (error) {
                 handleErrors(error)
                 return
@@ -24,7 +24,7 @@ export const handleLogin = async (email: string, password: string, handleErrors:
         // navigate to the home page when the the account is created
         window.location.replace("/")
     } catch (error) {
-        alert("an error occured, please try again")
-        console.warn(error)
+        alert("an error occurred, please try again")
+        console.error(error)
     }
 }

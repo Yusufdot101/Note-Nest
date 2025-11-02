@@ -44,7 +44,7 @@ const Signup = () => {
     }, [password])
 
     return (
-        <div className="bg-primary flex flex-col mx-uto w-full shadow-[0px_0px_4px_1px_white] py-[32px] min-[620px]:text-2xl px-[12px]">
+        <div className="bg-primary flex flex-col w-full shadow-[0px_0px_4px_1px_white] py-[32px] min-[620px]:text-2xl px-[12px]">
             <p className="text-accent text-[32px] font-semibold text-center">SIGN UP</p>
             <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col text-text gap-y-[8px]">
                 <div className="flex flex-col">
