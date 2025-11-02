@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 )
 
 var ErrDuplicateEmail = errors.New("duplicate email")
@@ -43,4 +45,34 @@ func (r *Repository) insertUser(u *User) error {
 		}
 	}
 	return nil
+}
+
+func (r *Repository) getUserByEmail(email string) (*User, error) {
+	query := `
+		SELECT id, created_at, last_updated_at, name, email, password_hash
+		FROM users
+		WHERE email = $1
+	`
+	// to prevent waiting indefinitely
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	u := &User{}
+	err := r.DB.QueryRowContext(ctx, query, email).Scan(
+		&u.ID,
+		&u.CreatedAt,
+		&u.LastUpdatedAt,
+		&u.Name,
+		&u.Email,
+		&u.Password.hash,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, custom_errors.ErrNoRecord
+		default:
+			return nil, err
+		}
+	}
+	return u, nil
 }
