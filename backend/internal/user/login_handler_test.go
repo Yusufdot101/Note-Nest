@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestLoginUser(t *testing.T) {
+func TestLoginUserHandler(t *testing.T) {
 	tests := []struct {
 		name                     string
 		email                    string
