@@ -59,7 +59,7 @@ const Signup = () => {
                     <Input labelString={"Password"} inputType={"password"} inputName={"password"} isRequired minLength={8} maxLength={72} inputValue={password} inputId={"password"} handleChange={(value) => setPassword(value.replaceAll(" ", ""))} />
                     <p aria-label={"password error"} className={`text-red-500 ${!showError ? "hidden" : ""}`} id="passwordError">{passwordError}</p>
                 </div>
-                <p>Already have an account? <a href="#" className="text-accent">Login here</a></p>
+                <p>Already have an account? <a href="/login" className="text-accent">Login here</a></p>
                 <SubmitButton aria_label={"sign up"} handleSubmit={() => { }} text={"Sign Up"} />
                 <div className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showSignupErrors ? "hidden" : ""}`}>
                     {signupErrors.map(error => (
