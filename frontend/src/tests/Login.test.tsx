@@ -8,7 +8,7 @@ vi.mock("../utilities/login", () => ({
     handleLogin: vi.fn()
 }))
 
-describe("Signup", () => {
+describe("Login", () => {
     test("should show errors when submitting empty form", async () => {
         render(<Login />)
 
