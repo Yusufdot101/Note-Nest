@@ -8,14 +8,21 @@ import (
 )
 
 type mockRepo struct {
-	insertUserCalled bool
-	insertedUser     *User
+	insertUserCalled     bool
+	insertedUser         *User
+	getUserByEmailCalled bool
+	gotUser              *User
 }
 
 func (mr *mockRepo) insertUser(u *User) error {
 	mr.insertUserCalled = true
 	mr.insertedUser = u
 	return nil
+}
+
+func (mr *mockRepo) getUserByEmail(email string) (*User, error) {
+	mr.getUserByEmailCalled = true
+	return mr.gotUser, nil
 }
 
 func TestRegisterUser(t *testing.T) {

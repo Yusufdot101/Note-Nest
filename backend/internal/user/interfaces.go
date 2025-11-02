@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"regexp"
 	"time"
 
@@ -15,10 +16,10 @@ var EmailRX = regexp.MustCompile(
 const hashingCost = 12
 
 type User struct {
-	ID                   int
-	CreatedAt, UpdatedAt time.Time
-	Name, Email          string
-	Password             password
+	ID                       int
+	CreatedAt, LastUpdatedAt *time.Time
+	Name, Email              string
+	Password                 password
 }
 
 type password struct {
@@ -34,6 +35,19 @@ func (p *password) Set(plaintextPassword string) error {
 	return nil
 }
 
+func (p *password) Matches(plaintextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+	return true, nil
+}
+
 func validateName(v *validator.Validator, name string) {
 	v.CheckAddError(name != "", "name", "must be provided")
 }
@@ -47,4 +61,13 @@ func validatePassword(v *validator.Validator, plaintextPassword string) {
 func validateEmail(v *validator.Validator, email string) {
 	v.CheckAddError(email != "", "email", "must be provided")
 	v.CheckAddError(validator.Matches(EmailRX, email), "email", "must be valid email address")
+}
+
+type Repo interface {
+	insertUser(u *User) error
+	getUserByEmail(email string) (*User, error)
+}
+
+type UserService struct {
+	repo Repo
 }

@@ -6,14 +6,6 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
-type Repo interface {
-	insertUser(u *User) error
-}
-
-type UserService struct {
-	repo Repo
-}
-
 func (us *UserService) registerUser(v *validator.Validator, name, email, password string) error {
 	validatePassword(v, strings.TrimSpace(password)) // prevent passwords like , "        ", from being accepted
 	validateName(v, strings.TrimSpace(name))

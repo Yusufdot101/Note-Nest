@@ -9,9 +9,8 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
-func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
+func (h *userHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Name     string `json:"name"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
@@ -22,21 +21,20 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.NewValidator()
-	err = h.svc.registerUser(v, input.Name, input.Email, input.Password)
+	t, err := h.svc.loginUser(v, input.Email, input.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
 			custom_errors.FailedValidationErrorResponse(w, v.Errors)
-		case errors.Is(err, ErrDuplicateEmail):
-			v.AddError("email", "a user with this email already exists")
-			custom_errors.FailedValidationErrorResponse(w, v.Errors)
+		case errors.Is(err, custom_errors.ErrNoRecord) || errors.Is(err, custom_errors.ErrInvalidCredentials):
+			custom_errors.InvalidCredentialsErrorResponse(w)
 		default:
 			custom_errors.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
-	err = jsonutil.WriteJSON(w, jsonutil.Message{"message": "user created successfully"}, http.StatusCreated)
+	err = jsonutil.WriteJSON(w, jsonutil.Message{"token": t}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 	}
