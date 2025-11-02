@@ -22,6 +22,15 @@ func (mr *mockRepo) insertUser(u *User) error {
 
 func (mr *mockRepo) getUserByEmail(email string) (*User, error) {
 	mr.getUserByEmailCalled = true
+	mr.gotUser = &User{
+		ID:    0,
+		Name:  "yusuf",
+		Email: "ym@gmail.com",
+	}
+	err := mr.gotUser.Password.Set("12345678")
+	if err != nil {
+		return nil, err
+	}
 	return mr.gotUser, nil
 }
 
