@@ -3,4 +3,6 @@ Dockerfile
 docker-compose.yaml
 .env
 *.env
-*.env.*
+
+# keep test.env
+!test.env

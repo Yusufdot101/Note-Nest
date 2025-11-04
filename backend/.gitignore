@@ -2,7 +2,6 @@ coverage.out
 vendor/
 .env
 *.env
-*.env.*
 
 # keep .env.test
-!.env.test
+!test.env
