@@ -11,7 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
+func EnableCORS(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
@@ -29,14 +29,14 @@ func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r)
 	}
 
-	return fn
+	return http.HandlerFunc(fn)
 }
 
 type ContextKey string
 
 const UserIDKey ContextKey = "userID"
 
-func RequireAuthentication(next http.HandlerFunc) http.HandlerFunc {
+func RequireAuthentication(next http.HandlerFunc) http.Handler {
 	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		if len(jwtSecret) == 0 {
@@ -71,5 +71,5 @@ func RequireAuthentication(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 
-	return fn
+	return http.HandlerFunc(fn)
 }
