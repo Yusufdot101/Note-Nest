@@ -39,6 +39,11 @@ const UserIDKey ContextKey = "userID"
 func RequireAuthentication(next http.HandlerFunc) http.HandlerFunc {
 	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		if len(jwtSecret) == 0 {
+			custom_errors.ServerErrorResponse(w, errors.New("JWT_SECRET variable is not set"))
+			return
+		}
+
 		cookie, err := r.Cookie("jwt")
 		if err != nil {
 			custom_errors.RequireAuthenticationErrorResponse(w)
