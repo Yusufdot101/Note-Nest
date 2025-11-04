@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -33,7 +32,18 @@ type Application struct {
 	DB     *sql.DB
 }
 
-func NewApplication() *Application {
+func NewApplication() (*Application, error) {
+	requiredEnvVars := []string{
+		"DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", "DB_NAME", "SSL_MODE",
+		"TRUSTED_ORIGINS", "MAX_OPEN_CONNECTIONS", "MAX_IDLE_CONNECTIONS",
+		"CONNECTION_MAX_IDLE_TIME",
+	}
+	for _, envVar := range requiredEnvVars {
+		if os.Getenv(envVar) == "" {
+			return nil, fmt.Errorf("required environment variable %s is not set", envVar)
+		}
+	}
+
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		os.Getenv("DB_USER"),
@@ -43,7 +53,14 @@ func NewApplication() *Application {
 		os.Getenv("DB_NAME"),
 		os.Getenv("SSL_MODE"),
 	)
-
+	maxOpen, err := parseInt(os.Getenv("MAX_OPEN_CONNECTIONS"), "MAX_OPEN_CONNECTIONS")
+	if err != nil {
+		return nil, err
+	}
+	maxIdle, err := parseInt(os.Getenv("MAX_IDLE_CONNECTIONS"), "MAX_IDLE_CONNECTIONS")
+	if err != nil {
+		return nil, err
+	}
 	cfg := &config{
 		Port:           PORT,
 		TrustedOrigins: strings.Split(os.Getenv("TRUSTED_ORIGINS"), ","),
@@ -54,15 +71,15 @@ func NewApplication() *Application {
 			ConnectionMaxIdleTime string
 		}{
 			DSN:                   dsn,
-			MaxOpenConnections:    mustInt(os.Getenv("MAX_OPEN_CONNECTIONS")),
-			MaxIdleConnections:    mustInt(os.Getenv("MAX_IDLE_CONNECTIONS")),
+			MaxOpenConnections:    maxOpen,
+			MaxIdleConnections:    maxIdle,
 			ConnectionMaxIdleTime: os.Getenv("CONNECTION_MAX_IDLE_TIME"),
 		},
 	}
 
 	DB, err := openDB(cfg)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	router := httprouter.New()
@@ -74,7 +91,7 @@ func NewApplication() *Application {
 		DB:     DB,
 	}
 
-	return app
+	return app, nil
 }
 
 func openDB(cfg *config) (*sql.DB, error) {
@@ -103,10 +120,10 @@ func openDB(cfg *config) (*sql.DB, error) {
 	return DB, nil
 }
 
-func mustInt(value string) int {
+func parseInt(value string) (int, error) {
 	i, err := strconv.Atoi(value)
 	if err != nil {
-		panic(err)
+		return -1, err
 	}
-	return i
+	return i, nil
 }

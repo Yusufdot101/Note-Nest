@@ -13,8 +13,11 @@ func init() {
 }
 
 func main() {
-	a := app.NewApplication()
-	err := a.Serve()
+	a, err := app.NewApplication()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = a.Serve()
 	if err != nil {
 		log.Fatal(err)
 	}
