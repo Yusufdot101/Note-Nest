@@ -53,11 +53,11 @@ func NewApplication() (*Application, error) {
 		os.Getenv("DB_NAME"),
 		os.Getenv("SSL_MODE"),
 	)
-	maxOpen, err := parseInt(os.Getenv("MAX_OPEN_CONNECTIONS"), "MAX_OPEN_CONNECTIONS")
+	maxOpen, err := parseInt(os.Getenv("MAX_OPEN_CONNECTIONS"))
 	if err != nil {
 		return nil, err
 	}
-	maxIdle, err := parseInt(os.Getenv("MAX_IDLE_CONNECTIONS"), "MAX_IDLE_CONNECTIONS")
+	maxIdle, err := parseInt(os.Getenv("MAX_IDLE_CONNECTIONS"))
 	if err != nil {
 		return nil, err
 	}
