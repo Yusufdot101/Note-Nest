@@ -1,28 +1,16 @@
-x-app-env: &app_env docker
-x-db-user: &db_user notenest_user
-x-db-pass: &db_pass notenest_user_password
-x-db-host: &db_host notenest-db
-x-db-port: &db_port 5432
-x-db-name: &db_name notenest_db
-x-ssl-mode: &ssl_mode disable
-
 services:
     notenest-backend:
         build:
             context: .
         ports:
             - "8080:8080"
-        environment:
-            APP_ENV: *app_env
-            DB_USER: *db_user
-            DB_PASS: *db_pass
-            DB_HOST: *db_host
-            DB_PORT: *db_port
-            DB_NAME: *db_name
-            SSL_MODE: *ssl_mode
+        env_file:
+            - docker.env
         depends_on:
             notenest-db:
                 condition: service_healthy
+        volumes:
+            - ./app/docker.env:/app/docker.env
         networks:
             - notenest-backend-net
 
@@ -32,17 +20,13 @@ services:
         depends_on:
             notenest-db:
                 condition: service_healthy
-        environment:
-            DB_USER: *db_user
-            DB_PASS: *db_pass
-            DB_HOST: *db_host
-            DB_PORT: *db_port
-            DB_NAME: *db_name
-            SSL_MODE: *ssl_mode
+        env_file:
+            - docker.env
         networks:
             - notenest-backend-net
         volumes:
             - ./db/migrations:/db/migrations
+            - ./app/docker.env:/app/docker.env
         entrypoint: >
             sh -c "migrate -path=/db/migrations -database=postgres://$$DB_USER:$$DB_PASS@$$DB_HOST:$$DB_PORT/$$DB_NAME?sslmode=$$SSL_MODE up"
 
@@ -53,7 +37,7 @@ services:
             POSTGRES_PASSWORD: mypassword
             POSTGRES_DB: mydb
         ports:
-            - "5433:5432" #optional, for host access. use 5433 cause 5432 is used by local postgres
+            - "5433:5432" #optional, for host access. use 5433 because 5432 is used by local postgres
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U notenest_user -d notenest_db"]
             interval: 5s

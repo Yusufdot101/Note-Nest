@@ -11,7 +11,7 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/user"
-	"github.com/joho/godotenv"
+	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
 )
@@ -21,12 +21,7 @@ const PORT = ":8080"
 var dsn string
 
 func init() {
-	if os.Getenv("APP_ENV") != "docker" {
-		if err := godotenv.Load(); err != nil {
-			log.Panicf("could not load .env file: %v", err)
-		}
-	}
-
+	utilities.LoadEnv(".env")
 	dsn = fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		os.Getenv("DB_USER"),

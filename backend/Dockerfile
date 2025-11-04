@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main ./cmd/api
+RUN go build -o main ./api
 
 # final stage
 FROM alpine:latest

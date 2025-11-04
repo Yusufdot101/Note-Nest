@@ -3,6 +3,7 @@ export const handleSignup = async (username: string, email: string, password: st
     try {
         const res = await fetch(`${BASE_APIURL}/users/signup`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },

@@ -3,14 +3,15 @@ export const handleLogin = async (email: string, password: string, handleErrors:
     try {
         const res = await fetch(`${BASE_APIURL}/users/login`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ email: email, password: password })
         })
 
-        const data = await res.json()
         if (!res.ok) {
+            const data = await res.json()
             const error = data.error
             if (error) {
                 handleErrors(error)
@@ -19,8 +20,6 @@ export const handleLogin = async (email: string, password: string, handleErrors:
             throw new Error(`HTTP error! status: ${res.status}`)
         }
 
-        const token = data.token as string
-        localStorage.setItem("sessionToken", token)
         // navigate to the home page when the the account is created
         window.location.replace("/")
     } catch (error) {

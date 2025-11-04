@@ -1,4 +1,4 @@
-package jsonutil
+package utilities
 
 import (
 	"encoding/json"
@@ -18,6 +18,7 @@ func WriteJSON(w http.ResponseWriter, message Message, statusCode int) error {
 		return err
 	}
 
+	JSON = append(JSON, '\n')
 	w.WriteHeader(statusCode)
 	_, err = w.Write(JSON)
 	return err

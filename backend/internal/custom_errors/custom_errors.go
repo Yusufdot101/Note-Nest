@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Yusufdot101/note-nest/internal/jsonutil"
+	"github.com/Yusufdot101/note-nest/internal/utilities"
 )
 
 var (
@@ -21,7 +21,7 @@ func ServerErrorResponse(w http.ResponseWriter, err error) {
 }
 
 func errorResponse(w http.ResponseWriter, errMsg any, statusCode int) {
-	err := jsonutil.WriteJSON(w, jsonutil.Message{"error": errMsg}, statusCode)
+	err := utilities.WriteJSON(w, utilities.Message{"error": errMsg}, statusCode)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}

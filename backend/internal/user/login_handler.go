@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
-	"github.com/Yusufdot101/note-nest/internal/jsonutil"
+	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -14,14 +14,14 @@ func (h *userHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	err := jsonutil.ReadJSON(w, r, &input)
+	err := utilities.ReadJSON(w, r, &input)
 	if err != nil {
 		custom_errors.BadRequestErrorResponse(w, err)
 		return
 	}
 
 	v := validator.NewValidator()
-	t, err := h.svc.loginUser(v, input.Email, input.Password)
+	token, err := h.svc.loginUser(v, input.Email, input.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
@@ -34,7 +34,13 @@ func (h *userHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = jsonutil.WriteJSON(w, jsonutil.Message{"token": t}, http.StatusOK)
+	err = utilities.SetJWTCookie(w, token)
+	if err != nil {
+		custom_errors.ServerErrorResponse(w, err)
+		return
+	}
+
+	err = utilities.WriteJSON(w, utilities.Message{}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 	}

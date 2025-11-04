@@ -22,6 +22,7 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 	h := NewHandler(&UserService{
 		repo: &Repository{DB: DB},
 	})
+
 	router.Handler(http.MethodPost, "/users/signup", middleware.EnableCORS(h.RegisterUser))
 	router.Handler(http.MethodPost, "/users/login", middleware.EnableCORS(h.LoginUser))
 	// for preflight, won't work otherwise

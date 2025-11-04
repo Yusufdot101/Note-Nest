@@ -34,7 +34,7 @@ func TestLoginUser(t *testing.T) {
 				repo: repo,
 			}
 			v := validator.NewValidator()
-			tk, err := svc.loginUser(v, test.email, test.password)
+			token, err := svc.loginUser(v, test.email, test.password)
 			if test.expectedErr != nil {
 				if err == nil {
 					t.Fatalf("expected error = %v, got none", test.expectedErr)
@@ -47,7 +47,7 @@ func TestLoginUser(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error = %v", err)
 			}
-			if len(string(tk)) == 0 {
+			if len(string(token)) == 0 {
 				t.Fatal("expected token to be returned")
 			}
 			if !repo.getUserByEmailCalled {
