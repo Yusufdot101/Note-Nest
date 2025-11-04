@@ -8,16 +8,28 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type Claims struct {
+	UserID int `json:"sub"`
+	jwt.RegisteredClaims
+}
+
 func CreateJWT(userID int) (string, error) {
 	expirationTime, err := time.ParseDuration(os.Getenv("JWT_EXPIRATION_TIME"))
 	if err != nil {
 		return "", err
 	}
 
-	claims := jwt.MapClaims{
-		"sub": userID,
-		"iss": "note-nest",
-		"exp": time.Now().Add(expirationTime).Unix(),
+	issuer := os.Getenv("JWT_ISSUER")
+	if issuer == "" {
+		return "", errors.New("JWT_ISSUER variable missing")
+	}
+
+	claims := Claims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    issuer,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expirationTime)),
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -49,3 +49,13 @@ func InvalidCredentialsErrorResponse(w http.ResponseWriter) {
 	msg := "invalid credentials"
 	errorResponse(w, msg, http.StatusBadRequest)
 }
+
+func RequireAuthenticationErrorResponse(w http.ResponseWriter) {
+	msg := "you must be logged in to access this resource"
+	errorResponse(w, msg, http.StatusUnauthorized)
+}
+
+func InvalidAuthenticationTokenErrorResponse(w http.ResponseWriter) {
+	msg := "invalid or expired token"
+	errorResponse(w, msg, http.StatusUnauthorized)
+}
