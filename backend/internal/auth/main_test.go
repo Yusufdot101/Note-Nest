@@ -10,11 +10,11 @@ import (
 )
 
 type mockTokenRepo struct {
-	InsertUserCalled bool
+	InsertTokenCalled bool
 }
 
 func (mtr *mockTokenRepo) InsertToken(token *token.Token) error {
-	mtr.InsertUserCalled = true
+	mtr.InsertTokenCalled = true
 	return nil
 }
 

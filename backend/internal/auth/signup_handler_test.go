@@ -8,26 +8,29 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/Yusufdot101/note-nest/internal/user"
 )
 
 func TestSignupHandler(t *testing.T) {
 	tests := []struct {
-		name                 string
-		username             string
-		email                string
-		password             string
-		wantStatusCode       int
-		wantInsertUserCalled bool
-		wantErrors           bool
+		name                  string
+		username              string
+		email                 string
+		password              string
+		wantStatusCode        int
+		wantInsertUserCalled  bool
+		wantInsertTokenCalled bool
+		wantErrors            bool
 	}{
 		{
-			name:                 "valid inputs",
-			username:             "yusuf",
-			email:                "ym@gmail.com",
-			password:             "12345678",
-			wantInsertUserCalled: true,
-			wantStatusCode:       http.StatusCreated,
+			name:                  "valid inputs",
+			username:              "yusuf",
+			email:                 "ym@gmail.com",
+			password:              "12345678",
+			wantInsertUserCalled:  true,
+			wantInsertTokenCalled: true,
+			wantStatusCode:        http.StatusCreated,
 		},
 		{
 			name:                 "missing name",
@@ -42,10 +45,14 @@ func TestSignupHandler(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			repo := &mockUserRepo{}
+			userRepo := &mockUserRepo{}
+			tokenRepo := &mockTokenRepo{}
 			h := NewHandler(&authService{
 				userSvc: &user.UserService{
-					Repo: repo,
+					Repo: userRepo,
+				},
+				tokenSvc: &token.TokenService{
+					Repo: tokenRepo,
 				},
 			})
 
@@ -68,8 +75,12 @@ func TestSignupHandler(t *testing.T) {
 				t.Errorf("expected status code = %d, got status code = %d", test.wantStatusCode, status)
 			}
 
-			if repo.InsertUserCalled != test.wantInsertUserCalled {
-				t.Fatalf("expected repo.InsertUser = %v, got repo.InsertUser = %v", test.wantInsertUserCalled, repo.GetUserByEmailCalled)
+			if userRepo.InsertUserCalled != test.wantInsertUserCalled {
+				t.Fatalf("expected userRepo.InsertUserCalled = %v, got userRepo.InsertUserCalled = %v", test.wantInsertUserCalled, userRepo.GetUserByEmailCalled)
+			}
+
+			if tokenRepo.InsertTokenCalled != test.wantInsertTokenCalled {
+				t.Fatalf("expected tokenRepo.InsertTokenCalled = %v, got tokenRepo.InsertTokenCalled = %v", test.wantInsertTokenCalled, tokenRepo.InsertTokenCalled)
 			}
 
 			var response struct {

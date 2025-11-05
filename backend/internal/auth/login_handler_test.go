@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/Yusufdot101/note-nest/internal/user"
 )
 
@@ -18,6 +19,7 @@ func TestLoginHandler(t *testing.T) {
 		password                 string
 		wantStatusCode           int
 		wantGetUserByEmailCalled bool
+		wantInsertTokenCalled    bool
 		wantErrors               bool
 	}{
 		{
@@ -25,6 +27,7 @@ func TestLoginHandler(t *testing.T) {
 			email:                    "ym@gmail.com",
 			password:                 "12345678",
 			wantGetUserByEmailCalled: true,
+			wantInsertTokenCalled:    true,
 			wantStatusCode:           http.StatusOK,
 		},
 		{
@@ -39,10 +42,14 @@ func TestLoginHandler(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			repo := &mockUserRepo{}
+			userRepo := &mockUserRepo{}
+			tokenRepo := &mockTokenRepo{}
 			h := NewHandler(&authService{
 				userSvc: &user.UserService{
-					Repo: repo,
+					Repo: userRepo,
+				},
+				tokenSvc: &token.TokenService{
+					Repo: tokenRepo,
 				},
 			})
 
@@ -64,8 +71,12 @@ func TestLoginHandler(t *testing.T) {
 				t.Errorf("expected status code = %d, got status code = %d", test.wantStatusCode, status)
 			}
 
-			if repo.GetUserByEmailCalled != test.wantGetUserByEmailCalled {
-				t.Fatalf("expected repo.GetUserByEmail = %v, got repo.GetUserByEmail = %v", test.wantGetUserByEmailCalled, repo.GetUserByEmailCalled)
+			if userRepo.GetUserByEmailCalled != test.wantGetUserByEmailCalled {
+				t.Fatalf("expected userRepo.GetUserByEmailCalled = %v, got userRepo.GetUserByEmailCalled = %v", test.wantGetUserByEmailCalled, userRepo.GetUserByEmailCalled)
+			}
+
+			if tokenRepo.InsertTokenCalled != test.wantInsertTokenCalled {
+				t.Fatalf("expected tokenRepo.InsertTokenCalled = %v, got tokenRepo.InsertTokenCalled = %v", test.wantInsertTokenCalled, tokenRepo.InsertTokenCalled)
 			}
 
 			var response struct {
