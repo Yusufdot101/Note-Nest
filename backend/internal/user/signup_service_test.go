@@ -62,7 +62,7 @@ func TestRegisterUser(t *testing.T) {
 				repo: repo,
 			}
 			v := validator.NewValidator()
-			token, err := svc.registerUser(v, test.userName, test.userEmail, test.userPassword)
+			refreshToken, accessToken, err := svc.registerUser(v, test.userName, test.userEmail, test.userPassword)
 			if test.expectedErr != nil {
 				if err == nil {
 					t.Fatalf("expected error = %v, got none", test.expectedErr)
@@ -80,7 +80,7 @@ func TestRegisterUser(t *testing.T) {
 				}
 			}
 
-			if len(string(token)) == 0 {
+			if len(string(refreshToken)) == 0 || len(string(accessToken)) == 0 {
 				t.Fatal("expected token to be returned")
 			}
 			if !repo.insertUserCalled {

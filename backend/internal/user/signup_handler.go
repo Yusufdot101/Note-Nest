@@ -22,7 +22,7 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.NewValidator()
-	token, err := h.svc.registerUser(v, input.Name, input.Email, input.Password)
+	refreshToken, accessToken, err := h.svc.registerUser(v, input.Name, input.Email, input.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
@@ -36,13 +36,13 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.SetJWTCookie(w, token)
+	err = utilities.SetJWTCookie(w, "REFRESH", refreshToken)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"message": "user created successfully"}, http.StatusCreated)
+	err = utilities.WriteJSON(w, utilities.Message{"token": accessToken}, http.StatusCreated)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 	}

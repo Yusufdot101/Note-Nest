@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
-	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -36,9 +35,17 @@ type ContextKey string
 
 const UserIDKey ContextKey = "userID"
 
-func RequireAuthentication(next http.HandlerFunc) http.Handler {
-	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+func RequireAuthentication(next http.HandlerFunc, tokenType string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		var jwtSecret []byte
+		switch tokenType {
+		case "REFRESH":
+			jwtSecret = []byte(os.Getenv("REFRESH_JWT_SECRET"))
+		case "ACCESS":
+			jwtSecret = []byte(os.Getenv("ACCESS_JWT_SECRET"))
+		default:
+			jwtSecret = []byte(os.Getenv(""))
+		}
 		if len(jwtSecret) == 0 {
 			custom_errors.ServerErrorResponse(w, errors.New("JWT_SECRET variable is not set"))
 			return
@@ -50,19 +57,21 @@ func RequireAuthentication(next http.HandlerFunc) http.Handler {
 			return
 		}
 
-		claims := &token.Claims{}
-		token, err := jwt.ParseWithClaims(cookie.Value, claims, func(t *jwt.Token) (any, error) {
+		token, err := jwt.Parse(cookie.Value, func(t *jwt.Token) (any, error) {
+			// ensure the token was signed with HMAC, not something else
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("unexpected signing method")
 			}
 			return jwtSecret, nil
 		})
+
 		if err != nil || !token.Valid {
-			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			http.Error(w, "invalid or expired token", http.StatusUnauthorized)
 			return
 		}
 
-		issuer, userID := claims.Issuer, claims.UserID
+		claims := token.Claims.(jwt.MapClaims)
+		issuer, userID := claims["iss"], claims["sub"]
 		if issuer != os.Getenv("JWT_ISSUER") {
 			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
 			return

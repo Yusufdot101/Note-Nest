@@ -21,7 +21,7 @@ func (h *userHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.NewValidator()
-	token, err := h.svc.loginUser(v, input.Email, input.Password)
+	refreshToken, accessToken, err := h.svc.loginUser(v, input.Email, input.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
@@ -34,13 +34,13 @@ func (h *userHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.SetJWTCookie(w, token)
+	err = utilities.SetJWTCookie(w, "REFRESH", refreshToken)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{}, http.StatusOK)
+	err = utilities.WriteJSON(w, utilities.Message{"token": accessToken}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 	}

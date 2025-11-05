@@ -25,5 +25,5 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 
 	router.Handler(http.MethodPost, "/users/signup", http.HandlerFunc(h.RegisterUser))
 	router.Handler(http.MethodPost, "/users/login", http.HandlerFunc(h.LoginUser))
-	router.Handler(http.MethodPut, "/users/logout", middleware.RequireAuthentication(h.LogoutUser))
+	router.Handler(http.MethodPut, "/users/logout", middleware.RequireAuthentication(h.LogoutUser, "ACCESS"))
 }
