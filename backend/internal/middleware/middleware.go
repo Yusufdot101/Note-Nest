@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -41,7 +40,7 @@ const UserIDKey ContextKey = "userID"
 
 func RequireAuthentication(next http.HandlerFunc, tokenUse token.TokenUse, DB *sql.DB) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var userID any
+		var userID int
 		switch tokenUse {
 		case token.ACCESS:
 			jwtSecret := []byte(os.Getenv("JWT_SECRET"))
@@ -53,8 +52,6 @@ func RequireAuthentication(next http.HandlerFunc, tokenUse token.TokenUse, DB *s
 			}
 			tokenString := headParts[1]
 
-			log.Println("token: ", tokenString)
-			log.Println("secret: ", string(jwtSecret))
 			token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
 				// ensure the token was signed with HMAC, not something else
 				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -68,13 +65,24 @@ func RequireAuthentication(next http.HandlerFunc, tokenUse token.TokenUse, DB *s
 				return
 			}
 
-			var issuer any
 			claims := token.Claims.(jwt.MapClaims)
-			issuer, userID = claims["iss"], claims["sub"]
-			if issuer != os.Getenv("JWT_ISSUER") {
+			issuer, ok := claims["iss"].(string)
+			if !ok || issuer != os.Getenv("JWT_ISSUER") {
 				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
 				return
 			}
+
+			sub, ok := claims["sub"].(string)
+			if !ok || sub == "" {
+				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+				return
+			}
+			subInt, ok := claims["sub"].(int)
+			if !ok || sub == "" {
+				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+				return
+			}
+			userID = subInt
 
 		case token.REFRESH:
 			cookie, err := r.Cookie("REFRESH")

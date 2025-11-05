@@ -8,17 +8,21 @@ import (
 )
 
 func (us *UserService) NewUser(v *validator.Validator, name, email, password string) (*User, error) {
-	validatePassword(v, strings.TrimSpace(password)) // prevent passwords like , "        ", from being accepted
-	validateName(v, strings.TrimSpace(name))
-	validateEmail(v, strings.TrimSpace(email))
+	trimmedPassword := strings.TrimSpace(password) // prevent passwords like , "        ", from being accepted
+	trimmedName := strings.TrimSpace(name)
+	trimmedEmail := strings.TrimSpace(email)
+
+	validatePassword(v, trimmedPassword) // prevent passwords like , "        ", from being accepted
+	validateName(v, trimmedName)
+	validateEmail(v, trimmedEmail)
 	if !v.IsValid() {
 		return nil, validator.ErrFailedValidation
 	}
 	u := &User{
-		Name:  name,
-		Email: email,
+		Name:  trimmedEmail,
+		Email: trimmedEmail,
 	}
-	err := u.Password.Set(password)
+	err := u.Password.Set(trimmedPassword)
 	if err != nil {
 		return nil, err
 	}
@@ -31,16 +35,18 @@ func (us *UserService) NewUser(v *validator.Validator, name, email, password str
 }
 
 func (us *UserService) VerifyAndGetUser(v *validator.Validator, email, password string) (*User, error) {
-	validateEmail(v, email)
-	validatePassword(v, password)
+	trimmedPassword := strings.TrimSpace(password) // prevent passwords like , "        ", from being accepted
+	trimmedEmail := strings.TrimSpace(email)
+	validateEmail(v, trimmedEmail)
+	validatePassword(v, trimmedPassword)
 	if !v.IsValid() {
 		return nil, validator.ErrFailedValidation
 	}
-	u, err := us.Repo.GetUserByEmail(email)
+	u, err := us.Repo.GetUserByEmail(trimmedEmail)
 	if err != nil {
 		return nil, err
 	}
-	matches, err := u.Password.Matches(password)
+	matches, err := u.Password.Matches(trimmedPassword)
 	if err != nil {
 		return nil, err
 	}
