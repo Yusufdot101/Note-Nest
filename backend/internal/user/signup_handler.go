@@ -36,7 +36,7 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.SetJWTCookie(w, "REFRESH", refreshToken)
+	err = utilities.SetJWTCookie(w, "REFRESH", refreshToken, "/tokens/refresh")
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 		return

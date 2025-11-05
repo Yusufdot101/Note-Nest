@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func SetJWTCookie(w http.ResponseWriter, tokenType, token string) error {
+func SetJWTCookie(w http.ResponseWriter, tokenType, token, path string) error {
 	var expirationTime time.Duration
 	var err error
 	switch tokenType {
@@ -23,16 +23,16 @@ func SetJWTCookie(w http.ResponseWriter, tokenType, token string) error {
 		return err
 	}
 
-	// secure := os.Getenv("COOKIE_SECURE") != "false" // default true
+	secure := os.Getenv("COOKIE_SECURE") != "false" // default true
 
 	cookie := http.Cookie{
-		Name:     "jwt",
+		Name:     tokenType,
 		Value:    token,
 		Expires:  time.Now().Add(expirationTime),
 		HttpOnly: true,
-		// Secure:   secure,
+		Secure:   secure,
 		SameSite: http.SameSiteLaxMode,
-		Path:     "/",
+		Path:     path,
 	}
 
 	err = cookie.Valid()
