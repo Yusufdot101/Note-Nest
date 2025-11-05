@@ -1,17 +1,18 @@
-package user
+package auth
 
 import (
 	"errors"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
-func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
+func (h *authHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Name     string `json:"name"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
@@ -22,27 +23,31 @@ func (h *userHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.NewValidator()
-	refreshToken, accessToken, err := h.svc.registerUser(v, input.Name, input.Email, input.Password)
+	refreshToken, accessToken, err := h.svc.loginUser(v, input.Email, input.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
 			custom_errors.FailedValidationErrorResponse(w, v.Errors)
-		case errors.Is(err, ErrDuplicateEmail):
-			v.AddError("email", "a user with this email already exists")
-			custom_errors.FailedValidationErrorResponse(w, v.Errors)
+		case errors.Is(err, custom_errors.ErrNoRecord) || errors.Is(err, custom_errors.ErrInvalidCredentials):
+			custom_errors.InvalidCredentialsErrorResponse(w)
 		default:
 			custom_errors.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
-	err = utilities.SetJWTCookie(w, "REFRESH", refreshToken, "/tokens/refresh")
+	ttl, err := time.ParseDuration(os.Getenv("REFRESH_TOKEN_EXPIRATION_TIME"))
+	if err != nil {
+		custom_errors.ServerErrorResponse(w, errors.New("invalid refresh token expiration time"))
+		return
+	}
+	err = utilities.SetTokenCookie(w, "REFRESH", refreshToken, "/tokens/refresh", ttl)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"token": accessToken}, http.StatusCreated)
+	err = utilities.WriteJSON(w, utilities.Message{"token": accessToken}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 	}

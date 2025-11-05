@@ -7,25 +7,53 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
-func CreateJWT(tokenType string, userID int) (string, error) {
-	var expirationTime time.Duration
-	var err error
+type Repo interface {
+	InsertToken(token *Token) error
+	GetByTokenString(tokenString string) (*Token, error)
+	DeleteByTokenString(tokenString string) error
+}
 
-	switch tokenType {
-	case "REFRESH":
-		expirationTime, err = time.ParseDuration(os.Getenv("REFRESH_JWT_EXPIRATION_TIME"))
-	case "ACCESS":
-		expirationTime, err = time.ParseDuration(os.Getenv("ACCESS_JWT_EXPIRATION_TIME"))
+type TokenService struct {
+	Repo Repo
+}
+
+func (ts *TokenService) NewToken(tokenType TokenType, tokenUse TokenUse, userID int) (string, error) {
+	var ttl time.Duration
+	var err error
+	switch tokenUse {
+	case REFRESH:
+		ttl, err = time.ParseDuration(os.Getenv("REFRESH_TOKEN_EXPIRATION_TIME"))
+	case ACCESS:
+		ttl, err = time.ParseDuration(os.Getenv("ACCESS_TOKEN_EXPIRATION_TIME"))
 	default:
 		err = errors.New("invalid tokenType")
+	}
+	if err != nil {
+		return "", err
+	}
+
+	var token string
+	switch tokenType {
+	case JWT:
+		jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+		token, err = createJWT(jwtSecret, ttl, userID)
+	case RANDOMSTRING:
+		token, err = ts.generateRandomToken(ttl, userID)
+	default:
+		err = errors.New("invalid token type")
 	}
 
 	if err != nil {
 		return "", err
 	}
 
+	return token, nil
+}
+
+func createJWT(jwtSecret []byte, ttl time.Duration, userID int) (string, error) {
 	issuer := os.Getenv("JWT_ISSUER")
 	if issuer == "" {
 		return "", errors.New("JWT_ISSUER variable missing")
@@ -33,21 +61,11 @@ func CreateJWT(tokenType string, userID int) (string, error) {
 
 	claims := jwt.RegisteredClaims{
 		Issuer:    issuer,
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expirationTime)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),
 		Subject:   strconv.Itoa(userID),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	var jwtSecret []byte
-	switch tokenType {
-	case "REFRESH":
-		jwtSecret = []byte(os.Getenv("REFRESH_JWT_SECRET"))
-	case "ACCESS":
-		jwtSecret = []byte(os.Getenv("ACCESS_JWT_SECRET"))
-	default:
-		jwtSecret = []byte(os.Getenv(""))
-	}
 
 	if len(jwtSecret) == 0 {
 		return "", errors.New("JWT_SECRET variable is not set")
@@ -58,4 +76,14 @@ func CreateJWT(tokenType string, userID int) (string, error) {
 	}
 
 	return token.SignedString(jwtSecret)
+}
+
+func (ts *TokenService) generateRandomToken(ttl time.Duration, userID int) (string, error) {
+	token := &Token{
+		UserID:      userID,
+		Expires:     time.Now().Add(ttl),
+		TokenString: uuid.New().String(),
+	}
+	err := ts.Repo.InsertToken(token)
+	return token.TokenString, err
 }

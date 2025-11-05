@@ -2,11 +2,15 @@ package middleware
 
 import (
 	"context"
+	"database/sql"
 	"errors"
+	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -35,47 +39,75 @@ type ContextKey string
 
 const UserIDKey ContextKey = "userID"
 
-func RequireAuthentication(next http.HandlerFunc, tokenType string) http.Handler {
+func RequireAuthentication(next http.HandlerFunc, tokenUse token.TokenUse, DB *sql.DB) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var jwtSecret []byte
-		switch tokenType {
-		case "REFRESH":
-			jwtSecret = []byte(os.Getenv("REFRESH_JWT_SECRET"))
-		case "ACCESS":
-			jwtSecret = []byte(os.Getenv("ACCESS_JWT_SECRET"))
-		default:
-			jwtSecret = []byte(os.Getenv(""))
-		}
-		if len(jwtSecret) == 0 {
-			custom_errors.ServerErrorResponse(w, errors.New("JWT_SECRET variable is not set"))
-			return
-		}
-
-		cookie, err := r.Cookie("jwt")
-		if err != nil {
-			custom_errors.RequireAuthenticationErrorResponse(w)
-			return
-		}
-
-		token, err := jwt.Parse(cookie.Value, func(t *jwt.Token) (any, error) {
-			// ensure the token was signed with HMAC, not something else
-			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
+		var userID any
+		switch tokenUse {
+		case token.ACCESS:
+			jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+			authHeader := r.Header.Get("Authorization")
+			headParts := strings.Split(authHeader, " ")
+			if len(headParts) != 2 || headParts[0] != "Bearer" {
+				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+				return
 			}
-			return jwtSecret, nil
-		})
+			tokenString := headParts[1]
 
-		if err != nil || !token.Valid {
-			http.Error(w, "invalid or expired token", http.StatusUnauthorized)
-			return
-		}
+			log.Println("token: ", tokenString)
+			log.Println("secret: ", string(jwtSecret))
+			token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
+				// ensure the token was signed with HMAC, not something else
+				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, errors.New("unexpected signing method")
+				}
+				return jwtSecret, nil
+			})
 
-		claims := token.Claims.(jwt.MapClaims)
-		issuer, userID := claims["iss"], claims["sub"]
-		if issuer != os.Getenv("JWT_ISSUER") {
+			if err != nil || !token.Valid {
+				http.Error(w, "invalid or expired token", http.StatusUnauthorized)
+				return
+			}
+
+			var issuer any
+			claims := token.Claims.(jwt.MapClaims)
+			issuer, userID = claims["iss"], claims["sub"]
+			if issuer != os.Getenv("JWT_ISSUER") {
+				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+				return
+			}
+
+		case token.REFRESH:
+			cookie, err := r.Cookie("REFRESH")
+			if err != nil {
+				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+				return
+			}
+			tokenString := cookie.Value
+			if tokenString == "" {
+				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+				return
+			}
+			svc := &token.TokenService{
+				Repo: &token.Repository{
+					DB: DB,
+				},
+			}
+			tk, err := svc.Repo.GetByTokenString(tokenString)
+			if err != nil {
+				switch {
+				case errors.Is(err, custom_errors.ErrNoRecord):
+					custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+				default:
+					custom_errors.ServerErrorResponse(w, err)
+				}
+				return
+			}
+			userID = tk.UserID
+		default:
 			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
 			return
 		}
+
 		ctx := context.WithValue(r.Context(), UserIDKey, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}

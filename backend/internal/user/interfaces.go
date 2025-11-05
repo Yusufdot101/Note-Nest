@@ -64,10 +64,10 @@ func validateEmail(v *validator.Validator, email string) {
 }
 
 type Repo interface {
-	insertUser(u *User) error
-	getUserByEmail(email string) (*User, error)
+	InsertUser(u *User) error
+	GetUserByEmail(email string) (*User, error)
 }
 
 type UserService struct {
-	repo Repo
+	Repo Repo
 }

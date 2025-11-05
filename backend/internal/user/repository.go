@@ -15,7 +15,7 @@ type Repository struct {
 	DB *sql.DB
 }
 
-func (r *Repository) insertUser(u *User) error {
+func (r *Repository) InsertUser(u *User) error {
 	query := `
 		INSERT INTO users
 		(name, email, password_hash)
@@ -47,7 +47,7 @@ func (r *Repository) insertUser(u *User) error {
 	return nil
 }
 
-func (r *Repository) getUserByEmail(email string) (*User, error) {
+func (r *Repository) GetUserByEmail(email string) (*User, error) {
 	query := `
 		SELECT id, created_at, last_updated_at, name, email, password_hash
 		FROM users

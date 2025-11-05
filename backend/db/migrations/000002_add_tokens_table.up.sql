@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+    token_string TEXT PRIMARY KEY, -- the UUID string
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    user_id BIGSERIAL NOT NULL REFERENCES users ON DELETE CASCADE,
+    expires TIMESTAMPTZ NOT NULL
+);
+

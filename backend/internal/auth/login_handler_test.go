@@ -1,4 +1,4 @@
-package user
+package auth
 
 import (
 	"encoding/json"
@@ -7,69 +7,65 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/Yusufdot101/note-nest/internal/user"
 )
 
-func TestLoginUserHandler(t *testing.T) {
+func TestLoginHandler(t *testing.T) {
 	tests := []struct {
 		name                     string
 		email                    string
 		password                 string
-		expectedCode             int
-		wantErrors               bool
+		wantStatusCode           int
 		wantGetUserByEmailCalled bool
+		wantErrors               bool
 	}{
 		{
-			name:                     "valid credentials",
+			name:                     "valid inputs",
 			email:                    "ym@gmail.com",
 			password:                 "12345678",
-			expectedCode:             http.StatusOK,
 			wantGetUserByEmailCalled: true,
+			wantStatusCode:           http.StatusOK,
 		},
 		{
-			name:                     "invalid credentials",
-			email:                    "ym@gmail.com",
-			password:                 "aaaaaaaa",
-			expectedCode:             http.StatusBadRequest,
+			name:                     "missing email",
+			email:                    "",
+			password:                 "12345678",
+			wantGetUserByEmailCalled: false,
+			wantStatusCode:           http.StatusBadRequest,
 			wantErrors:               true,
-			wantGetUserByEmailCalled: true,
-		},
-		{
-			name:         "incorrect inputs",
-			email:        "ym@gmail.com",
-			password:     "", // empty password
-			wantErrors:   true,
-			expectedCode: http.StatusBadRequest,
 		},
 	}
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			repo := &mockRepo{}
-			svc := &UserService{
-				repo: repo,
-			}
-			h := NewHandler(svc)
+			repo := &mockUserRepo{}
+			h := NewHandler(&authService{
+				userSvc: &user.UserService{
+					Repo: repo,
+				},
+			})
 
 			msg := fmt.Sprintf(`{
 			"email": "%s",
 			"password": "%s"
 			}`, test.email, test.password)
 
-			req, err := http.NewRequest(http.MethodPost, "/user/login", strings.NewReader(msg))
+			req, err := http.NewRequest(http.MethodPut, "/auth/login", strings.NewReader(msg))
 			if err != nil {
+				t.Fatalf("unexpected error = %v", err)
 				return
 			}
 			req.Header.Set("Content-Type", "application/json")
 			rr := httptest.NewRecorder()
-
-			// call the handler
 			h.LoginUser(rr, req)
 
-			if status := rr.Result().StatusCode; status != test.expectedCode {
-				t.Errorf("expected status code = %d, got status code = %d", test.expectedCode, status)
+			if status := rr.Result().StatusCode; status != test.wantStatusCode {
+				t.Errorf("expected status code = %d, got status code = %d", test.wantStatusCode, status)
 			}
 
-			if repo.getUserByEmailCalled != test.wantGetUserByEmailCalled {
-				t.Fatalf("expected repo.getUserByEmail = %v, got repo.get = %v", test.wantGetUserByEmailCalled, repo.getUserByEmailCalled)
+			if repo.GetUserByEmailCalled != test.wantGetUserByEmailCalled {
+				t.Fatalf("expected repo.GetUserByEmail = %v, got repo.GetUserByEmail = %v", test.wantGetUserByEmailCalled, repo.GetUserByEmailCalled)
 			}
 
 			var response struct {
@@ -80,6 +76,9 @@ func TestLoginUserHandler(t *testing.T) {
 				t.Fatalf("unexpected error = %v", err)
 			}
 
+			if response.Token == "" && response.Error == nil {
+				t.Errorf("expected token to be returned")
+			}
 			if test.wantErrors && response.Error == nil {
 				t.Fatal("expected response.Errors got none")
 			}

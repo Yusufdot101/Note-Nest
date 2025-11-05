@@ -1,41 +1,25 @@
 package utilities
 
 import (
-	"errors"
 	"net/http"
 	"os"
 	"time"
 )
 
-func SetJWTCookie(w http.ResponseWriter, tokenType, token, path string) error {
-	var expirationTime time.Duration
-	var err error
-	switch tokenType {
-	case "REFRESH":
-		expirationTime, err = time.ParseDuration(os.Getenv("REFRESH_JWT_EXPIRATION_TIME"))
-	case "ACCESS":
-		expirationTime, err = time.ParseDuration(os.Getenv("ACCESS_JWT_EXPIRATION_TIME"))
-	default:
-		err = errors.New("invalid tokenType")
-	}
-
-	if err != nil {
-		return err
-	}
-
+func SetTokenCookie(w http.ResponseWriter, tokenName, token, path string, ttl time.Duration) error {
 	secure := os.Getenv("COOKIE_SECURE") != "false" // default true
 
 	cookie := http.Cookie{
-		Name:     tokenType,
+		Name:     tokenName,
 		Value:    token,
-		Expires:  time.Now().Add(expirationTime),
+		Expires:  time.Now().Add(ttl),
 		HttpOnly: true,
 		Secure:   secure,
 		SameSite: http.SameSiteLaxMode,
 		Path:     path,
 	}
 
-	err = cookie.Valid()
+	err := cookie.Valid()
 	if err != nil {
 		return err
 	}
