@@ -10,8 +10,8 @@ import (
 )
 
 func (h *authHandler) NewAccessToken(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(middleware.UserIDKey) // strconv.Atoi(userIDstr)
-	msg := fmt.Sprintf("refreshtoken endpoint. userID = %v", userID)
+	tokenString := r.Context().Value(middleware.CtxTokenString)
+	msg := fmt.Sprintf("refreshtoken endpoint. tokenString = %v", tokenString)
 	err := utilities.WriteJSON(w, utilities.Message{"message": msg}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)

@@ -34,7 +34,7 @@ func (r *Repository) InsertToken(token *Token) error {
 
 func (r *Repository) GetByTokenString(tokenString string) (*Token, error) {
 	query := `
-		SELECT user_id FROM refresh_tokens
+		SELECT user_id, token_string FROM refresh_tokens
 		WHERE token_string = $1 AND expires > NOW()
 	`
 
@@ -44,6 +44,7 @@ func (r *Repository) GetByTokenString(tokenString string) (*Token, error) {
 	token := &Token{}
 	err := r.DB.QueryRowContext(ctx, query, tokenString).Scan(
 		&token.UserID,
+		&token.TokenString,
 	)
 	if err != nil {
 		switch {

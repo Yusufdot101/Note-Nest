@@ -53,6 +53,10 @@ func (ts *TokenService) NewToken(tokenType TokenType, tokenUse TokenUse, userID 
 	return token, nil
 }
 
+func (ts *TokenService) DeleteToken(tokenString string) error {
+	return ts.Repo.DeleteByTokenString(tokenString)
+}
+
 func createJWT(jwtSecret []byte, ttl time.Duration, userID int) (string, error) {
 	issuer := os.Getenv("JWT_ISSUER")
 	if issuer == "" {

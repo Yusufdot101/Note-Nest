@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
@@ -36,87 +37,88 @@ func EnableCORS(next http.Handler) http.Handler {
 
 type ContextKey string
 
-const UserIDKey ContextKey = "userID"
+const (
+	CtxUserIDKey   ContextKey = "userID"
+	CtxTokenString ContextKey = "tokenString"
+)
 
-func RequireAuthentication(next http.HandlerFunc, tokenUse token.TokenUse, DB *sql.DB) http.Handler {
+func RequireAccess(next http.HandlerFunc) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var userID int
-		switch tokenUse {
-		case token.ACCESS:
-			jwtSecret := []byte(os.Getenv("JWT_SECRET"))
-			authHeader := r.Header.Get("Authorization")
-			headParts := strings.Split(authHeader, " ")
-			if len(headParts) != 2 || headParts[0] != "Bearer" {
-				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
-				return
+		jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+		authHeader := r.Header.Get("Authorization")
+		headParts := strings.Split(authHeader, " ")
+		if len(headParts) != 2 || headParts[0] != "Bearer" {
+			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			return
+		}
+		tokenString := headParts[1]
+		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
+			// ensure the token was signed with HMAC, not something else
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, errors.New("unexpected signing method")
 			}
-			tokenString := headParts[1]
+			return jwtSecret, nil
+		})
 
-			token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
-				// ensure the token was signed with HMAC, not something else
-				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, errors.New("unexpected signing method")
-				}
-				return jwtSecret, nil
-			})
+		if err != nil || !token.Valid {
+			http.Error(w, "invalid or expired token", http.StatusUnauthorized)
+			return
+		}
 
-			if err != nil || !token.Valid {
-				http.Error(w, "invalid or expired token", http.StatusUnauthorized)
-				return
-			}
-
-			claims := token.Claims.(jwt.MapClaims)
-			issuer, ok := claims["iss"].(string)
-			if !ok || issuer != os.Getenv("JWT_ISSUER") {
-				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
-				return
-			}
-
-			sub, ok := claims["sub"].(string)
-			if !ok || sub == "" {
-				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
-				return
-			}
-			subInt, ok := claims["sub"].(int)
-			if !ok || sub == "" {
-				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
-				return
-			}
-			userID = subInt
-
-		case token.REFRESH:
-			cookie, err := r.Cookie("REFRESH")
-			if err != nil {
-				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
-				return
-			}
-			tokenString := cookie.Value
-			if tokenString == "" {
-				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
-				return
-			}
-			svc := &token.TokenService{
-				Repo: &token.Repository{
-					DB: DB,
-				},
-			}
-			tk, err := svc.Repo.GetByTokenString(tokenString)
-			if err != nil {
-				switch {
-				case errors.Is(err, custom_errors.ErrNoRecord):
-					custom_errors.InvalidAuthenticationTokenErrorResponse(w)
-				default:
-					custom_errors.ServerErrorResponse(w, err)
-				}
-				return
-			}
-			userID = tk.UserID
-		default:
+		claims := token.Claims.(jwt.MapClaims)
+		issuer, ok := claims["iss"].(string)
+		if !ok || issuer != os.Getenv("JWT_ISSUER") {
 			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		subStr, ok := claims["sub"].(string)
+		if !ok || subStr == "" {
+			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			return
+		}
+		subInt, err := strconv.Atoi(subStr)
+		if err != nil {
+			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), CtxUserIDKey, subInt)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+	return http.HandlerFunc(fn)
+}
+
+func RequireRefresh(DB *sql.DB, next http.HandlerFunc) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("REFRESH")
+		if err != nil {
+			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			return
+		}
+		tokenString := cookie.Value
+		if tokenString == "" {
+			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			return
+		}
+		svc := &token.TokenService{
+			Repo: &token.Repository{
+				DB: DB,
+			},
+		}
+		tk, err := svc.Repo.GetByTokenString(tokenString)
+		if err != nil {
+			switch {
+			case errors.Is(err, custom_errors.ErrNoRecord):
+				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			default:
+				custom_errors.ServerErrorResponse(w, err)
+			}
+			return
+		}
+		// Here we *know* the user, since the refresh token row includes user_id
+		ctx := context.WithValue(r.Context(), CtxUserIDKey, tk.UserID)
+		ctx = context.WithValue(ctx, CtxTokenString, tk.TokenString)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 
