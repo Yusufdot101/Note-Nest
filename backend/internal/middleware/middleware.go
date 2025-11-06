@@ -61,7 +61,7 @@ func RequireAccess(next http.HandlerFunc) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(w, "invalid or expired token", http.StatusUnauthorized)
+			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
 			return
 		}
 
