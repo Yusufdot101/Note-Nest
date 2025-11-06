@@ -91,3 +91,20 @@ func (ts *TokenService) generateRandomToken(ttl time.Duration, userID int) (stri
 	err := ts.Repo.InsertToken(token)
 	return token.TokenString, err
 }
+
+func ValidateJWT(tokenString string, jwtSecret []byte) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
+		// ensure the token was signed with HMAC, not something else
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return jwtSecret, nil
+	})
+
+	if err != nil || !token.Valid {
+		// custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+		return nil, errors.New("invalid token")
+	}
+
+	return token, nil
+}

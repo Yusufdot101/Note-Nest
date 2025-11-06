@@ -28,7 +28,7 @@ func TestLoginHandler(t *testing.T) {
 			password:                 "12345678",
 			wantGetUserByEmailCalled: true,
 			wantInsertTokenCalled:    true,
-			wantStatusCode:           http.StatusOK,
+			wantStatusCode:           http.StatusCreated,
 		},
 		{
 			name:                     "missing email",

@@ -52,15 +52,8 @@ func RequireAccess(next http.HandlerFunc) http.Handler {
 			return
 		}
 		tokenString := headParts[1]
-		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
-			// ensure the token was signed with HMAC, not something else
-			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
-			}
-			return jwtSecret, nil
-		})
-
-		if err != nil || !token.Valid {
+		token, err := token.ValidateJWT(tokenString, jwtSecret)
+		if err != nil {
 			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
 			return
 		}

@@ -47,7 +47,7 @@ func (h *authHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"token": accessToken}, http.StatusOK)
+	err = utilities.WriteJSON(w, utilities.Message{"token": accessToken}, http.StatusCreated)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 	}
