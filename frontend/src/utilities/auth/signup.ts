@@ -21,7 +21,7 @@ export const signup = async (username: string, email: string, password: string, 
             }
             throw new Error(`HTTP error! status: ${res.status}`)
         }
-        useAuthStore.getState().setAccessToken(data.accessToken)
+        useAuthStore.getState().setAccessToken(data.access_token)
         useAuthStore.getState().setIsLoggedIn(true)
         return true
     } catch (error) {

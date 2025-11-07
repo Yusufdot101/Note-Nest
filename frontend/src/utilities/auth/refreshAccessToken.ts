@@ -12,5 +12,5 @@ export async function refreshAccessToken() {
     }
 
     const data = await res.json();
-    useAuthStore.getState().setAccessToken(data.accessToken);
+    useAuthStore.getState().setAccessToken(data.access_token);
 }

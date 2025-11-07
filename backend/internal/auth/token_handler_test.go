@@ -37,14 +37,14 @@ func TestNewAccessToken(t *testing.T) {
 	}
 
 	var input struct {
-		Token string `json:"token"`
+		AccessToken string `json:"access_token"`
 	}
 
 	if err := json.Unmarshal(rr.Body.Bytes(), &input); err != nil {
 		t.Fatalf("unexpected error = %v", err)
 	}
 
-	tokenString := input.Token
+	tokenString := input.AccessToken
 
 	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 	token, err := token.ValidateJWT(tokenString, jwtSecret)

@@ -84,14 +84,14 @@ func TestSignupHandler(t *testing.T) {
 			}
 
 			var response struct {
-				Token string `json:"token"`
-				Error any    `json:"error"`
+				AccessToken string `json:"access_token"`
+				Error       any    `json:"error"`
 			}
 			if err := json.Unmarshal(rr.Body.Bytes(), &response); err != nil {
 				t.Fatalf("unexpected error = %v", err)
 			}
 
-			if response.Token == "" && response.Error == nil {
+			if response.AccessToken == "" && response.Error == nil {
 				t.Errorf("expected token to be returned")
 			}
 			if test.wantErrors && response.Error == nil {
