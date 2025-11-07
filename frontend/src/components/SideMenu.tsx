@@ -11,7 +11,7 @@ interface SideMenuProps {
 const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
     const navigate = useNavigate()
     const ref = useRef<HTMLDivElement>(null)
-    const { isLoggedIn } = useAuthStore.getState()
+    const isLoggedIn = useAuthStore(state => state.isLoggedIn)
     const handleLogout = () => {
         logout()
         navigate("/")

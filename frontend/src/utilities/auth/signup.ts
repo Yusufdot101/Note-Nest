@@ -14,17 +14,14 @@ export const signup = async (username: string, email: string, password: string, 
 
         const data = await res.json()
         if (!res.ok) {
-            if (!res.ok) {
-                const errors = data.error
-                if (errors) {
-                    handleErrors(errors)
-                    return false
-                }
-                throw new Error(`HTTP error! status: ${res.status}`)
+            const errors = data.error
+            if (errors) {
+                handleErrors(errors)
+                return false
             }
             throw new Error(`HTTP error! status: ${res.status}`)
         }
-        useAuthStore.getState().setAccessToken(data.token)
+        useAuthStore.getState().setAccessToken(data.accessToken)
         useAuthStore.getState().setIsLoggedIn(true)
         return true
     } catch (error) {

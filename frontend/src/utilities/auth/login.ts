@@ -21,7 +21,7 @@ export const login = async (email: string, password: string, handleErrors: (erro
             }
             throw new Error(`HTTP error! status: ${res.status}`)
         }
-        useAuthStore.getState().setAccessToken(data.token)
+        useAuthStore.getState().setAccessToken(data.accessToken)
         useAuthStore.getState().setIsLoggedIn(true)
         return true
     } catch (error) {

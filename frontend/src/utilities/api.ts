@@ -5,9 +5,10 @@ export const BASE_APIURL = import.meta.env.VITE_API_URL || "http://localhost:808
 
 export const api = async (path: string, options: RequestInit = {}) => {
     const { accessToken } = useAuthStore.getState()
+    const url = path.startsWith("http") ? path : `${BASE_APIURL}${path}`
 
     try {
-        let res = await fetch(path, {
+        let res = await fetch(url, {
             ...options,
             credentials: "include",
             headers: {
@@ -16,11 +17,11 @@ export const api = async (path: string, options: RequestInit = {}) => {
             }
         })
 
-        if (res.status == 401) {
+        if (res.status === 401) {
             await refreshAccessToken()
             const newToken = useAuthStore.getState().accessToken
 
-            res = await fetch(path, {
+            res = await fetch(url, {
                 ...options,
                 credentials: "include",
                 headers: {
@@ -31,10 +32,13 @@ export const api = async (path: string, options: RequestInit = {}) => {
 
             if (!res.ok) {
                 useAuthStore.getState().setIsLoggedIn(false) // because the refresh token didn't refresh access token successfully
-                return
+                return undefined
             }
+            return res
         }
     } catch (error) {
+        useAuthStore.getState().clearAccessToken()
         console.error(error)
+        return undefined
     }
 }

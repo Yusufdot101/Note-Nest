@@ -12,7 +12,7 @@ export const initAuth = async () => {
             return
         }
         const data = await res.json()
-        useAuthStore.getState().setAccessToken(data.token)
+        useAuthStore.getState().setAccessToken(data.accessToken)
         useAuthStore.getState().setIsLoggedIn(true)
     } catch (error) {
         console.error(error)
