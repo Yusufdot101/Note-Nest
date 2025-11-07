@@ -21,6 +21,12 @@ func (h *authHandler) LogoutUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = utilities.DeleteTokenCookie(w, "REFRESH", "/auth")
+	if err != nil {
+		custom_errors.ServerErrorResponse(w, err)
+		return
+	}
+
 	err = utilities.WriteJSON(w, utilities.Message{"message": "logged out successfully"}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)

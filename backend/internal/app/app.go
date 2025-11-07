@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -16,10 +15,9 @@ import (
 const PORT = ":8080"
 
 type config struct {
-	Port           string
-	Handler        http.Handler
-	TrustedOrigins []string
-	DB             struct {
+	Port    string
+	Handler http.Handler
+	DB      struct {
 		DSN                   string
 		MaxOpenConnections    int
 		MaxIdleConnections    int
@@ -62,8 +60,7 @@ func NewApplication() (*Application, error) {
 		return nil, err
 	}
 	cfg := &config{
-		Port:           PORT,
-		TrustedOrigins: strings.Split(os.Getenv("TRUSTED_ORIGINS"), ","),
+		Port: PORT,
 		DB: struct {
 			DSN                   string
 			MaxOpenConnections    int

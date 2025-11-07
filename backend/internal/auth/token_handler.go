@@ -21,7 +21,7 @@ func (h *authHandler) NewAccessToken(w http.ResponseWriter, r *http.Request) {
 		custom_errors.ServerErrorResponse(w, err)
 		return
 	}
-	err = utilities.WriteJSON(w, utilities.Message{"token": token}, http.StatusOK)
+	err = utilities.WriteJSON(w, utilities.Message{"access_token": token}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 	}

@@ -44,13 +44,13 @@ func (h *authHandler) SignupUser(w http.ResponseWriter, r *http.Request) {
 		custom_errors.ServerErrorResponse(w, errors.New("invalid refresh token expiration time"))
 		return
 	}
-	err = utilities.SetTokenCookie(w, "REFRESH", refreshToken, "/tokens/refresh", ttl)
+	err = utilities.SetTokenCookie(w, "REFRESH", refreshToken, "/auth", ttl)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"token": accessToken}, http.StatusCreated)
+	err = utilities.WriteJSON(w, utilities.Message{"access_token": accessToken}, http.StatusCreated)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 	}

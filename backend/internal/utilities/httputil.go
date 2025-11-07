@@ -26,3 +26,23 @@ func SetTokenCookie(w http.ResponseWriter, tokenName, token, path string, ttl ti
 	http.SetCookie(w, &cookie)
 	return nil
 }
+
+func DeleteTokenCookie(w http.ResponseWriter, tokenName, path string) error {
+	secure := os.Getenv("COOKIE_SECURE") != "false" // default true
+	cookie := http.Cookie{
+		Name:     tokenName,
+		Value:    "",
+		Expires:  time.Now().Add(-24 * time.Hour),
+		HttpOnly: true,
+		Secure:   secure,
+		SameSite: http.SameSiteLaxMode,
+		Path:     path,
+	}
+
+	err := cookie.Valid()
+	if err != nil {
+		return err
+	}
+	http.SetCookie(w, &cookie)
+	return nil
+}
