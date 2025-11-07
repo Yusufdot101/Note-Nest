@@ -17,7 +17,7 @@ import (
 func TestNewAccessToken(t *testing.T) {
 	userID := 1
 	rr := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPut, "/auth/logout", nil)
+	req, err := http.NewRequest(http.MethodPut, "/auth/refreshtoken", nil)
 	ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
 	req = req.WithContext(ctx)
 	if err != nil {
@@ -56,16 +56,16 @@ func TestNewAccessToken(t *testing.T) {
 	issuer, ok := claims["iss"].(string)
 	if !ok || issuer != os.Getenv("JWT_ISSUER") {
 		// custom_errors.InvalidAuthenticationTokenErrorResponse(w)
-		t.Error("invaild issuer")
+		t.Error("invalid issuer")
 	}
 
 	subStr, ok := claims["sub"].(string)
 	if !ok || subStr == "" {
-		t.Error("invaild subject")
+		t.Error("invalid subject")
 	}
 	subInt, err := strconv.Atoi(subStr)
 	if err != nil {
-		t.Error("invaild subject format")
+		t.Error("invalid subject format")
 	}
 
 	if subInt != userID {

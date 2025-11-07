@@ -17,12 +17,16 @@ import (
 func EnableCORS(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-
-		w.Header().Set("Vary", "Origin")
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		trustedOrigins := strings.SplitSeq(os.Getenv("TRUSTED_ORIGINS"), ",")
+		for trustedOrigin := range trustedOrigins {
+			if origin == trustedOrigin {
+				w.Header().Set("Vary", "Origin")
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
+				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			}
+		}
 
 		// handle preflight OPTIONS
 		if r.Method == http.MethodOptions {

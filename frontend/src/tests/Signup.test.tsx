@@ -2,15 +2,20 @@ import { render, screen } from "@testing-library/react"
 import { test, expect, vi, describe } from "vitest"
 import userEvent from "@testing-library/user-event"
 import Signup from "../pages/Signup"
-import { handleSignup } from "../utilities/signup"
+import { signup } from "../utilities/auth/signup"
+import { MemoryRouter } from "react-router-dom"
 
-vi.mock("../utilities/signup", () => ({
-    handleSignup: vi.fn()
+vi.mock("../utilities/auth/signup", () => ({
+    signup: vi.fn()
 }))
 
 describe("Signup", () => {
     test("shows errors when submitting empty form", async () => {
-        render(<Signup />)
+        render(
+            <MemoryRouter>
+                <Signup />
+            </MemoryRouter>
+        )
 
         const submitButton = screen.getByRole("button", { name: /sign up/i })
         const usernameError = screen.getByRole("paragraph", { name: /username error/i })
@@ -23,11 +28,15 @@ describe("Signup", () => {
         expect(emailError).toBeVisible()
         expect(passwordError).toBeVisible()
 
-        expect(handleSignup).not.toBeCalled()
+        expect(signup).not.toBeCalled()
     })
 
-    test("should call handleSignup with correct values when form is valid", async () => {
-        render(<Signup />)
+    test("should call signup with correct values when form is valid", async () => {
+        render(
+            <MemoryRouter>
+                <Signup />
+            </MemoryRouter>
+        )
 
         const submitButton = screen.getByRole("button", { name: /sign up/i })
 
@@ -40,7 +49,7 @@ describe("Signup", () => {
         await userEvent.type(passwordInput, "12345678")
         await userEvent.click(submitButton)
 
-        expect(handleSignup).toHaveBeenCalledWith(
+        expect(signup).toHaveBeenCalledWith(
             "yusuf",
             "ym@gmail.com",
             "12345678",

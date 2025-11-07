@@ -1,8 +1,10 @@
-const BASE_APIURL = import.meta.env.VITE_API_URL || "http://localhost:8080"
-export const handleLogin = async (email: string, password: string, handleErrors: (error: string) => void) => {
+import { useAuthStore } from "../../store/useAuthStore";
+import { BASE_APIURL } from "../api";
+
+export const login = async (email: string, password: string, handleErrors: (error: string) => void): Promise<boolean> => {
     try {
-        const res = await fetch(`${BASE_APIURL}/users/login`, {
-            method: "POST",
+        const res = await fetch(`${BASE_APIURL}/auth/login`, {
+            method: "PUT",
             credentials: "include",
             headers: {
                 "Content-Type": "application/json",
@@ -10,20 +12,21 @@ export const handleLogin = async (email: string, password: string, handleErrors:
             body: JSON.stringify({ email: email, password: password })
         })
 
+        const data = await res.json()
         if (!res.ok) {
-            const data = await res.json()
             const error = data.error
             if (error) {
                 handleErrors(error)
-                return
+                return false
             }
             throw new Error(`HTTP error! status: ${res.status}`)
         }
-
-        // navigate to the home page when the the account is created
-        window.location.replace("/")
+        useAuthStore.getState().setAccessToken(data.token)
+        useAuthStore.getState().setIsLoggedIn(true)
+        return true
     } catch (error) {
         alert("an error occurred, please try again")
         console.error(error)
+        return false
     }
 }

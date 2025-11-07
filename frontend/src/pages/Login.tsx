@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import { getEmailErrorMessages, getPasswordErrorMessages } from "../utilities/inputValidation"
 import Input from "../components/Input"
 import SubmitButton from "../components/SubmitButton"
-import { handleLogin } from "../utilities/login"
+import { Link, useNavigate } from "react-router-dom"
+import { login } from "../utilities/auth/login"
 
 const Login = () => {
     const [email, setEmail] = useState("")
@@ -14,7 +15,10 @@ const Login = () => {
     const [loginError, setLoginError] = useState<string>("")
     const [emailError, setEmailError] = useState("")
     const [passwordError, setPasswordError] = useState("")
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+    const navigate = useNavigate()
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setShowError(true)
         if (emailError || passwordError) {
@@ -27,7 +31,11 @@ const Login = () => {
             setShowLoginError(true)
             setLoginError(error)
         }
-        handleLogin(email, password, handleError)
+        const success = await login(email, password, handleError)
+        if (!success) return
+
+        // navigate to the home page when the the account is created
+        navigate("/")
     }
 
     useEffect(() => {
@@ -49,7 +57,7 @@ const Login = () => {
                     <Input labelString={"Password"} inputType={"password"} inputName={"password"} isRequired minLength={8} maxLength={72} inputValue={password} inputId={"password"} handleChange={(value) => setPassword(value.replaceAll(" ", ""))} />
                     <p aria-label={"password error"} className={`text-red-500 ${!showError ? "hidden" : ""}`} id="passwordError">{passwordError}</p>
                 </div>
-                <p>Don't have an account? <a href="/signup" className="text-accent">Register here</a></p>
+                <p>Don't have an account? <Link to={"/signup"} className="text-accent">Register here</Link></p>
                 <SubmitButton aria_label={"login"} handleSubmit={() => { }} text={"Login"} />
                 <div className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showLoginErrors ? "hidden" : ""}`}>
                     {loginError}
