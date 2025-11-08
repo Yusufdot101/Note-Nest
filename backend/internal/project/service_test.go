@@ -25,7 +25,7 @@ func TestNewProject(t *testing.T) {
 			wantInsertCalled: true,
 		},
 		{
-			name:        "valid inputs",
+			name:        "invalid - empty name",
 			userID:      1,
 			projectName: "",
 			description: "project description",

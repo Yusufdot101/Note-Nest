@@ -55,7 +55,7 @@ func TestNewProjectHandler(t *testing.T) {
 			payload: `{
 				"name": "project name",
 				"description": "project description",
-				"visibility": "private"
+				"visibility": "private",
 				"owner": "me"
 			}`,
 			wantStatusCode: http.StatusBadRequest,

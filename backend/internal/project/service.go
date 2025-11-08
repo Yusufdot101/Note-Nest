@@ -8,13 +8,13 @@ import (
 
 func (ps *ProjectService) newProject(v *validator.Validator, userID int, name, description, visibility string) error {
 	cleanedName := strings.TrimSpace(name)
-	cleanedDesription := strings.TrimSpace(description)
-	cleanedVisibilyt := strings.ToLower(strings.TrimSpace(visibility))
+	cleanedDescription := strings.TrimSpace(description)
+	cleanedVisibility := strings.ToLower(strings.TrimSpace(visibility))
 	p := &Project{
 		UserID:      userID,
 		Name:        cleanedName,
-		Description: cleanedDesription,
-		Visibility:  cleanedVisibilyt,
+		Description: cleanedDescription,
+		Visibility:  cleanedVisibility,
 	}
 	if validateProject(v, p); !v.IsValid() {
 		return validator.ErrFailedValidation
