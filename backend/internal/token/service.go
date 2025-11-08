@@ -10,16 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type Repo interface {
-	InsertToken(token *Token) error
-	GetByTokenString(tokenString string) (*Token, error)
-	DeleteByTokenString(tokenString string) error
-}
-
-type TokenService struct {
-	Repo Repo
-}
-
 func (ts *TokenService) NewToken(tokenType TokenType, tokenUse TokenUse, userID int) (string, error) {
 	var ttl time.Duration
 	var err error

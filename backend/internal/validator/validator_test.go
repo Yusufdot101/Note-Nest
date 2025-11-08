@@ -188,3 +188,33 @@ func TestMatches(t *testing.T) {
 		})
 	}
 }
+
+func TestValueInList(t *testing.T) {
+	tests := []struct {
+		name            string
+		value           string
+		list            []string
+		wantValueInList bool
+	}{
+		{
+			name:            "value in list",
+			value:           "value",
+			list:            []string{"value", "another value", "some other value"},
+			wantValueInList: true,
+		},
+		{
+			name:  "value not in list",
+			value: "unknown value",
+			list:  []string{"value", "another value", "some other value"},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := ValueInList(test.value, test.list...)
+			if got != test.wantValueInList {
+				t.Errorf("expected valueInList = %v, got valueInList = %v", test.wantValueInList, got)
+			}
+		})
+	}
+}

@@ -21,3 +21,13 @@ type Token struct {
 	UserID      int
 	Expires     time.Time
 }
+
+type Repo interface {
+	InsertToken(token *Token) error
+	GetByTokenString(tokenString string) (*Token, error)
+	DeleteByTokenString(tokenString string) error
+}
+
+type TokenService struct {
+	Repo Repo
+}

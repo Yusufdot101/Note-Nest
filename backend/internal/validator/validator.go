@@ -3,6 +3,7 @@ package validator
 import (
 	"errors"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -37,4 +38,8 @@ func (v *Validator) CheckAddError(condition bool, key, value string) {
 
 func Matches(rx *regexp.Regexp, value string) bool {
 	return rx.MatchString(value)
+}
+
+func ValueInList(value string, list ...string) bool {
+	return slices.Contains(list, value)
 }

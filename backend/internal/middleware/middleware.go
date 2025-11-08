@@ -52,7 +52,7 @@ func RequireAccess(next http.HandlerFunc) http.Handler {
 		authHeader := r.Header.Get("Authorization")
 		headParts := strings.Split(authHeader, " ")
 		if len(headParts) != 2 || headParts[0] != "Bearer" {
-			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			custom_errors.RequireAuthenticationErrorResponse(w)
 			return
 		}
 		tokenString := headParts[1]
@@ -90,12 +90,12 @@ func RequireRefresh(DB *sql.DB, next http.HandlerFunc) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("REFRESH")
 		if err != nil {
-			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			custom_errors.RequireAuthenticationErrorResponse(w)
 			return
 		}
 		tokenString := cookie.Value
 		if tokenString == "" {
-			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			custom_errors.RequireAuthenticationErrorResponse(w)
 			return
 		}
 		svc := &token.TokenService{

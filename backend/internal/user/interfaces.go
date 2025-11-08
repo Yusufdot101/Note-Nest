@@ -13,7 +13,14 @@ var EmailRX = regexp.MustCompile(
 	"^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
 )
 
-const hashingCost = 12
+type Repo interface {
+	InsertUser(u *User) error
+	GetUserByEmail(email string) (*User, error)
+}
+
+type UserService struct {
+	Repo Repo
+}
 
 type User struct {
 	ID                       int
@@ -25,6 +32,8 @@ type User struct {
 type password struct {
 	hash []byte
 }
+
+const hashingCost = 12
 
 func (p *password) Set(plaintextPassword string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), hashingCost)
@@ -61,13 +70,4 @@ func validatePassword(v *validator.Validator, plaintextPassword string) {
 func validateEmail(v *validator.Validator, email string) {
 	v.CheckAddError(email != "", "email", "must be provided")
 	v.CheckAddError(validator.Matches(EmailRX, email), "email", "must be valid email address")
-}
-
-type Repo interface {
-	InsertUser(u *User) error
-	GetUserByEmail(email string) (*User, error)
-}
-
-type UserService struct {
-	Repo Repo
 }

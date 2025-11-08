@@ -9,3 +9,13 @@ type authService struct {
 	userSvc  *user.UserService
 	tokenSvc *token.TokenService
 }
+
+type authHandler struct {
+	svc *authService
+}
+
+func NewHandler(svc *authService) *authHandler {
+	return &authHandler{
+		svc: svc,
+	}
+}

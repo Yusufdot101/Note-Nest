@@ -7,6 +7,7 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/auth"
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/project"
 	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/julienschmidt/httprouter"
 )
@@ -17,5 +18,6 @@ func ConfigureRouter(router *httprouter.Router, DB *sql.DB) http.Handler {
 
 	auth.RegisterRoutes(router, DB)
 	user.RegisterRoutes(router, DB)
+	project.RegisterRoutes(router, DB)
 	return middleware.EnableCORS(router)
 }

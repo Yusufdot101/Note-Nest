@@ -10,16 +10,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type authHandler struct {
-	svc *authService
-}
-
-func NewHandler(svc *authService) *authHandler {
-	return &authHandler{
-		svc: svc,
-	}
-}
-
 func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 	h := NewHandler(&authService{
 		userSvc: &user.UserService{
