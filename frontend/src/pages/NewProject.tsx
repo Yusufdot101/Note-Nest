@@ -12,7 +12,7 @@ import { newProject } from "../utilities/projects";
 const NewProject = () => {
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
-    const [projectVisibility, setProjectVisibility] = useState("");
+    const [projectVisibility, setProjectVisibility] = useState("private");
 
     const [showNewProjectErrors, setShowNewProjectErrors] = useState(false);
     const [newProjectErrors, setNewProjectErrors] = useState<string[]>([]);

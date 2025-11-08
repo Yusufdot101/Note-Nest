@@ -3,6 +3,7 @@ package project
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
@@ -41,6 +42,45 @@ func (h *ProjectHandler) NewProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = utilities.WriteJSON(w, utilities.Message{"message": "project created successfully"}, http.StatusCreated)
+	if err != nil {
+		custom_errors.ServerErrorResponse(w, err)
+		return
+	}
+}
+
+func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
+	var userID int
+	var visibility string
+	querUserID := r.URL.Query().Get("user")
+	if querUserID != "" {
+		var err error
+		userID, err = strconv.Atoi(querUserID)
+		if err != nil {
+			custom_errors.BadRequestErrorResponse(w, err)
+			return
+		}
+		visibility = "public"
+	} else {
+		var ok bool
+		userID, ok = r.Context().Value(middleware.CtxUserIDKey).(int)
+		if !ok {
+			custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
+			return
+		}
+		visibility = ""
+	}
+	projects, err := h.svc.getProjects(userID, visibility)
+	if err != nil {
+		switch {
+		case errors.Is(err, custom_errors.ErrNoRecord):
+			custom_errors.NotFoundErrorResponse(w, r)
+		default:
+			custom_errors.ServerErrorResponse(w, err)
+		}
+		return
+	}
+
+	err = utilities.WriteJSON(w, utilities.Message{"projects": projects}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 		return

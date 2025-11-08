@@ -8,8 +8,8 @@ import (
 
 type Project struct {
 	ID          int
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	CreatedAt   *time.Time
+	UpdatedAt   *time.Time
 	UserID      int
 	Name        string
 	Description string
@@ -18,6 +18,7 @@ type Project struct {
 
 type MockRepo struct {
 	insertCalled bool
+	getCalled    bool
 }
 
 func (mr *MockRepo) insert(p *Project) error {
@@ -25,8 +26,14 @@ func (mr *MockRepo) insert(p *Project) error {
 	return nil
 }
 
+func (mr *MockRepo) get(userID int, visibility string) ([]*Project, error) {
+	mr.getCalled = true
+	return nil, nil
+}
+
 type Repo interface {
 	insert(p *Project) error
+	get(userID int, visibility string) ([]*Project, error)
 }
 
 type ProjectService struct {

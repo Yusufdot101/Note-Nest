@@ -27,3 +27,7 @@ func (ps *ProjectService) newProject(v *validator.Validator, userID int, name, d
 
 	return nil
 }
+
+func (ps *ProjectService) getProjects(userID int, visibility string) ([]*Project, error) {
+	return ps.Repo.get(userID, visibility)
+}
