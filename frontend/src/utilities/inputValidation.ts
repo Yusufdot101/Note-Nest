@@ -43,7 +43,7 @@ export const getProjectDescriptionErrorMessages = (
     let message = "";
     const minLength = 0;
     if (projectDescription.trim().length < minLength) {
-        message += `Project name must be at least ${minLength} character(s).`;
+        message += `Project description must be at least ${minLength} character(s).`;
     }
     return message;
 };
@@ -55,10 +55,10 @@ export const getProjectVisibilityErrorMessages = (
     const minLength = 1;
     const allowedVisibilityValues = ["public", "private"];
     if (projectVisibility.trim().length < minLength) {
-        message += `Project name must be at least ${minLength} character(s).`;
+        message += `Project visibility must be at least ${minLength} character(s).`;
     }
     if (!allowedVisibilityValues.includes(projectVisibility.toLowerCase())) {
-        message += `Project visibility must be either ${allowedVisibilityValues}.`;
+        message += `Project visibility must be either ${allowedVisibilityValues.join('"or"')}.`;
     }
     return message;
 };

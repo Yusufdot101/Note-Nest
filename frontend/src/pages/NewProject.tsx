@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+proje;
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import { useNavigate } from "react-router-dom";
@@ -66,7 +67,7 @@ const NewProject = () => {
     return (
         <div className="bg-primary flex flex-col w-full shadow-[0px_0px_4px_1px_white] py-[32px] min-[620px]:text-2xl px-[12px]">
             <p className="text-accent text-[32px] font-semibold text-center">
-                SIGN UP
+                CREATE NEW PROJECT
             </p>
             <form
                 onSubmit={(e) => handleSubmit(e)}
