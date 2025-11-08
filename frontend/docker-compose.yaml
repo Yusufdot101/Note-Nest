@@ -1,12 +1,12 @@
 services:
-  notenest-frontend:
-    build:
-      context: .
-    image: notenest-frontend
-    ports:
-      - "5173:5173"
-    environment:
-      - CHOKIDAR_USEPOLLING=true # needed for hot reload to detect changes
-    volumes:
-      - ./:/usr/src/app:delegated
-      - /usr/src/app/node_modules
+    notenest-frontend:
+        build:
+            context: .
+        image: notenest-frontend
+        ports:
+            - "5173:5173"
+        environment:
+            - CHOKIDAR_USEPOLLING=true # needed for hot reload to detect changes
+        volumes:
+            - ./:/usr/src/app:delegated
+            - /usr/src/app/node_modules
