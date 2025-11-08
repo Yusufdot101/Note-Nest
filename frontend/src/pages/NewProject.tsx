@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-proje;
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import { useNavigate } from "react-router-dom";
