@@ -3,11 +3,8 @@ package project
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"log"
 	"time"
-
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 )
 
 type Repository struct {
@@ -17,8 +14,8 @@ type Repository struct {
 func (r *Repository) insert(p *Project) error {
 	query := `
 		INSERT INTO projects
-		(user_id, name, description, visibility)
-		VALUES ($1, $2, $3, $4)
+		(user_id, name, description, visibility, color)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at
 	`
 	values := []any{
@@ -26,6 +23,7 @@ func (r *Repository) insert(p *Project) error {
 		p.Name,
 		p.Description,
 		p.Visibility,
+		p.Color,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -37,7 +35,9 @@ func (r *Repository) insert(p *Project) error {
 
 func (r *Repository) get(userID int, visibility string) ([]*Project, error) {
 	query := `
-		SELECT id, created_at, updated_at, user_id, name, description, visibility
+		SELECT 
+			id, created_at, updated_at, user_id, name, description, visibility, entries_count, likes_count, 
+			comments_count, color
 		FROM projects
 		WHERE user_id = $1
 	`
@@ -53,12 +53,7 @@ func (r *Repository) get(userID int, visibility string) ([]*Project, error) {
 	projects := []*Project{}
 	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			return nil, custom_errors.ErrNoRecord
-		default:
-			return nil, err
-		}
+		return nil, err
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
@@ -75,6 +70,10 @@ func (r *Repository) get(userID int, visibility string) ([]*Project, error) {
 			&p.Name,
 			&p.Description,
 			&p.Visibility,
+			&p.EntriesCount,
+			&p.LikesCount,
+			&p.CommentsCount,
+			&p.Color,
 		)
 		if err != nil {
 			return nil, err

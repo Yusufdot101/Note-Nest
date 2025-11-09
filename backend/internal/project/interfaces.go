@@ -7,13 +7,17 @@ import (
 )
 
 type Project struct {
-	ID          int
-	CreatedAt   *time.Time
-	UpdatedAt   *time.Time
-	UserID      int
-	Name        string
-	Description string
-	Visibility  string
+	ID            int
+	CreatedAt     *time.Time
+	UpdatedAt     *time.Time
+	UserID        int
+	Name          string
+	Description   string
+	Visibility    string
+	Color         string
+	EntriesCount  int
+	LikesCount    int
+	CommentsCount int
 }
 
 type MockRepo struct {
