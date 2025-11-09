@@ -13,6 +13,7 @@ func TestNewProject(t *testing.T) {
 		projectName      string
 		description      string
 		visibility       string
+		color            string
 		wantErr          bool
 		wantInsertCalled bool
 	}{
@@ -22,6 +23,7 @@ func TestNewProject(t *testing.T) {
 			projectName:      "project name",
 			description:      "project description",
 			visibility:       "private",
+			color:            "white",
 			wantInsertCalled: true,
 		},
 		{
@@ -29,6 +31,7 @@ func TestNewProject(t *testing.T) {
 			userID:      1,
 			projectName: "",
 			description: "project description",
+			color:       "white",
 			visibility:  "private",
 			wantErr:     true,
 		},
@@ -40,7 +43,7 @@ func TestNewProject(t *testing.T) {
 				Repo: repo,
 			}
 			v := validator.NewValidator()
-			err := svc.newProject(v, test.userID, test.projectName, test.description, test.visibility)
+			err := svc.newProject(v, test.userID, test.projectName, test.description, test.visibility, test.color)
 			if (err != nil) != test.wantErr {
 				t.Fatalf("expected err = %v, got err = %v", test.wantErr, err)
 			}

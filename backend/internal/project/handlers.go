@@ -16,6 +16,7 @@ func (h *ProjectHandler) NewProject(w http.ResponseWriter, r *http.Request) {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 		Visibility  string `json:"visibility"`
+		Color       string `json:"color"`
 	}
 
 	err := utilities.ReadJSON(w, r, &input)
@@ -30,7 +31,7 @@ func (h *ProjectHandler) NewProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.NewValidator()
-	err = h.svc.newProject(v, userID, input.Name, input.Description, input.Visibility)
+	err = h.svc.newProject(v, userID, input.Name, input.Description, input.Visibility, input.Color)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
@@ -50,11 +51,11 @@ func (h *ProjectHandler) NewProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 	var userID int
-	var visibility string
-	querUserID := r.URL.Query().Get("user")
-	if querUserID != "" {
+	queryUserID := r.URL.Query().Get("user")
+	visibility := r.URL.Query().Get("visibility")
+	if queryUserID != "" {
 		var err error
-		userID, err = strconv.Atoi(querUserID)
+		userID, err = strconv.Atoi(queryUserID)
 		if err != nil {
 			custom_errors.BadRequestErrorResponse(w, err)
 			return
@@ -67,7 +68,6 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 			custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
 			return
 		}
-		visibility = ""
 	}
 	projects, err := h.svc.getProjects(userID, visibility)
 	if err != nil {

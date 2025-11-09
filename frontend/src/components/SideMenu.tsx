@@ -49,7 +49,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
     return (
         <div
             ref={ref}
-            className={`${menuIsOpen ? "" : "mr-[-100%]"} transition-all duration-300 fixed right-0 top-0 min-w-[250px] w-[40vw] h-screen bg-primary text-text px-[12px] py-[32px] shadow-[0px_0px_4px_1px_white] flex flex-col gap-[12px]`}
+            className={`${menuIsOpen ? "" : "mr-[-100%]"} transition-all duration-300 fixed right-0 top-0 min-w-[250px] w-[40vw] h-screen bg-primary text-text px-[12px] py-[32px] shadow-[0px_0px_4px_1px_white] flex flex-col gap-[12px] z-10`}
         >
             <div className="flex justify-between items-center">
                 <Link to={"/"} onClick={handleClose}>

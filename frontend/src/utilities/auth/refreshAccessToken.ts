@@ -1,7 +1,8 @@
 import { useAuthStore } from "../../store/useAuthStore";
+import { BASE_APIURL } from "../api";
 
 export async function refreshAccessToken() {
-    const res = await fetch("/auth/refreshtoken", {
+    const res = await fetch(`${BASE_APIURL}/auth/refreshtoken`, {
         method: "PUT",
         credentials: "include", // important! sends cookie
     });

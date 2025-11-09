@@ -12,7 +12,7 @@ const Header = () => {
                     <img
                         src={logo}
                         alt="logo"
-                        className="w-[100px] h-[100px] max-[619px]:w-[70px] max-[619px]:h-[70px]"
+                        className="w-[70px] h-[70px] max-[619px]:w-[45px] max-[619px]:h-[45px]"
                     />
                     <span className="text-text font-semibold max-[619px]:text-[20px]  min-[620px]:text-[32px] hover:text-accent duration-300">
                         NOTE NEST

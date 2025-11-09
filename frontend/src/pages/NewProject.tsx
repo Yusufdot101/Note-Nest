@@ -13,9 +13,8 @@ const NewProject = () => {
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
     const [projectVisibility, setProjectVisibility] = useState("private");
+    const [projectColor, setProjectColor] = useState("#00FFFF");
 
-    const [showNewProjectErrors, setShowNewProjectErrors] = useState(false);
-    const [newProjectErrors, setNewProjectErrors] = useState<string[]>([]);
     const [projectNameError, setProjectNameError] = useState("");
     const [projectDescriptionError, setProjectDescriptionError] = useState("");
     const [projectVisibilityError, setProjectVisibilityError] = useState("");
@@ -31,22 +30,15 @@ const NewProject = () => {
         }
         setShowError(true);
         // use the api
-        const handleErrors = (errors: Record<string, string>) => {
-            setShowNewProjectErrors(true);
-            const errorMessages = Object.entries(errors).map(
-                ([key, val]) => `${key}: ${val}`,
-            );
-            setNewProjectErrors(errorMessages);
-        };
         const success = await newProject(
             projectName,
             projectDescription,
             projectVisibility,
-            handleErrors,
+            projectColor,
         );
         if (!success) return;
         // navigate to the home page when the the account is created
-        navigate("/");
+        navigate("/projects");
     };
 
     useEffect(() => {
@@ -65,9 +57,27 @@ const NewProject = () => {
 
     return (
         <div className="bg-primary flex flex-col w-full shadow-[0px_0px_4px_1px_white] py-[32px] min-[620px]:text-2xl px-[12px]">
-            <p className="text-accent text-[32px] font-semibold text-center">
-                CREATE NEW PROJECT
-            </p>
+            <div className="flex items-center justify-center gap-[8px]">
+                <p className="text-accent text-[32px] max-[619px]:text-[24px] font-semibold text-center">
+                    NEW PROJECT
+                </p>
+                <div
+                    className="relative w-[40px] max-[619px]:w-[35px] h-[30px] max-[619px]:h-[25px] rounded-lg"
+                    style={{ backgroundColor: projectColor }}
+                >
+                    {" "}
+                    <input
+                        className="inline-block absolute cursor-pointer w-full h-full opacity-0"
+                        type="color"
+                        required
+                        value={projectColor}
+                        onChange={(e) => {
+                            setProjectColor(e.target.value);
+                        }}
+                        onInput={() => {}}
+                    />
+                </div>
+            </div>
             <form
                 onSubmit={(e) => handleSubmit(e)}
                 className="flex flex-col text-text gap-y-[8px]"
@@ -82,13 +92,6 @@ const NewProject = () => {
                         inputId={"projectName"}
                         handleChange={(value) => setProjectName(value)}
                     />
-                    <p
-                        aria-label={"project name error"}
-                        className={`text-red-500 ${!showError ? "hidden" : ""}`}
-                        id="projectNameError"
-                    >
-                        {projectNameError}
-                    </p>
                 </div>
                 <div className="flex flex-col">
                     <Input
@@ -125,19 +128,12 @@ const NewProject = () => {
                         {projectVisibilityError}
                     </p>
                 </div>
+
                 <SubmitButton
                     aria_label={"Create Project"}
                     handleSubmit={() => {}}
                     text={"Create Project"}
                 />
-
-                <div
-                    className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showNewProjectErrors ? "hidden" : ""}`}
-                >
-                    {newProjectErrors.map((error) => (
-                        <p key={error}>{error}</p>
-                    ))}
-                </div>
             </form>
         </div>
     );

@@ -7,13 +7,17 @@ import (
 )
 
 type Project struct {
-	ID          int
-	CreatedAt   *time.Time
-	UpdatedAt   *time.Time
-	UserID      int
-	Name        string
-	Description string
-	Visibility  string
+	ID            int
+	CreatedAt     *time.Time
+	UpdatedAt     *time.Time
+	UserID        int
+	Name          string
+	Description   string
+	Visibility    string
+	Color         string
+	EntriesCount  int
+	LikesCount    int
+	CommentsCount int
 }
 
 type MockRepo struct {
@@ -55,4 +59,11 @@ func validateProject(v *validator.Validator, p *Project) {
 	v.CheckAddError(p.Visibility != "", "visibility", "must be given")
 	allowedVisibility := []string{"private", "public"}
 	v.CheckAddError(validator.ValueInList(p.Visibility, allowedVisibility...), "visibility", "not allowed")
+	validateColor(v, p.Color)
+}
+
+func validateColor(v *validator.Validator, color string) {
+	v.CheckAddError(color != "", "color", "must be provided")
+	v.CheckAddError(len(color) == 7 && color[0] == '#', "color", "must be a valid hex color (e.g., #ffffff)")
+	// Additional regex check if needed
 }
