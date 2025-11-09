@@ -3,6 +3,7 @@ package project
 import (
 	"strings"
 
+	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -32,4 +33,16 @@ func (ps *ProjectService) newProject(v *validator.Validator, userID int, name, d
 
 func (ps *ProjectService) getProjects(userID int, visibility string) ([]*Project, error) {
 	return ps.Repo.get(userID, visibility)
+}
+
+func (ps *ProjectService) getProject(userID, projectID int) (*Project, error) {
+	project, err := ps.Repo.getOne(projectID)
+	if err != nil {
+		return nil, err
+	}
+	// only allow the owner to see private projects
+	if project.UserID != userID && project.Visibility != "public" {
+		return nil, custom_errors.ErrNoRecord
+	}
+	return project, nil
 }

@@ -17,4 +17,5 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 
 	router.Handler(http.MethodPost, "/projects", middleware.RequireAccess(h.NewProject))
 	router.Handler(http.MethodGet, "/projects", middleware.RequireAccess(h.GetProjects))
+	router.Handler(http.MethodGet, "/projects/:id", middleware.RequireAccess(h.GetProject))
 }

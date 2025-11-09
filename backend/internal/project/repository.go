@@ -3,8 +3,11 @@ package project
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 	"time"
+
+	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 )
 
 type Repository struct {
@@ -85,4 +88,41 @@ func (r *Repository) get(userID int, visibility string) ([]*Project, error) {
 	}
 
 	return projects, nil
+}
+
+func (r *Repository) getOne(ID int) (*Project, error) {
+	query := `
+		SELECT 
+			id, created_at, updated_at, user_id, name, description, visibility, entries_count, likes_count, 
+			comments_count, color
+		FROM projects
+		WHERE id = $1
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	p := &Project{}
+	err := r.DB.QueryRowContext(ctx, query, ID).Scan(
+		&p.ID,
+		&p.CreatedAt,
+		&p.UpdatedAt,
+		&p.UserID,
+		&p.Name,
+		&p.Description,
+		&p.Visibility,
+		&p.EntriesCount,
+		&p.LikesCount,
+		&p.CommentsCount,
+		&p.Color,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, custom_errors.ErrNoRecord
+		default:
+			return nil, err
+		}
+	}
+	return p, nil
 }
