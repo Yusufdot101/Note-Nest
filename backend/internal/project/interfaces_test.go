@@ -12,6 +12,7 @@ func TestValidateProject(t *testing.T) {
 		projectName string
 		description string
 		visibility  string
+		color       string
 		wantValid   bool
 		wantErrors  map[string]string
 	}{
@@ -20,6 +21,7 @@ func TestValidateProject(t *testing.T) {
 			projectName: "project name",
 			description: "project description",
 			visibility:  "public",
+			color:       "#ffffff",
 			wantValid:   true,
 		},
 		{
@@ -27,6 +29,7 @@ func TestValidateProject(t *testing.T) {
 			projectName: "",
 			description: "project description",
 			visibility:  "private",
+			color:       "#ffffff",
 			wantValid:   false,
 			wantErrors:  map[string]string{"name": "must be given"},
 		},
@@ -35,6 +38,7 @@ func TestValidateProject(t *testing.T) {
 			projectName: "project name",
 			description: "project description",
 			visibility:  "unknown",
+			color:       "#ffffff",
 			wantValid:   false,
 			wantErrors:  map[string]string{"visibility": "not allowed"},
 		},
@@ -45,6 +49,7 @@ func TestValidateProject(t *testing.T) {
 				Name:        test.projectName,
 				Description: test.description,
 				Visibility:  test.visibility,
+				Color:       test.color,
 			}
 
 			v := validator.NewValidator()

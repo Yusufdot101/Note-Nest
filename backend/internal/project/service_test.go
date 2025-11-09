@@ -23,7 +23,7 @@ func TestNewProject(t *testing.T) {
 			projectName:      "project name",
 			description:      "project description",
 			visibility:       "private",
-			color:            "white",
+			color:            "#ffffff",
 			wantInsertCalled: true,
 		},
 		{
@@ -31,7 +31,7 @@ func TestNewProject(t *testing.T) {
 			userID:      1,
 			projectName: "",
 			description: "project description",
-			color:       "white",
+			color:       "#ffffff",
 			visibility:  "private",
 			wantErr:     true,
 		},

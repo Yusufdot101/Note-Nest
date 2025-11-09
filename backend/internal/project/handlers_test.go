@@ -24,7 +24,8 @@ func TestNewProjectHandler(t *testing.T) {
 			payload: `{
 				"name": "project name",
 				"description": "project description",
-				"visibility": "private"
+				"visibility": "private",
+				"color": "#ffffff"
 			}`,
 			wantStatusCode:   http.StatusCreated,
 			wantInsertCalled: true,
@@ -35,7 +36,8 @@ func TestNewProjectHandler(t *testing.T) {
 			payload: `{
 				"name": "",
 				"description": "project description",
-				"visibility": "private"
+				"visibility": "private",
+				"color": "#ffffff"
 			}`,
 			wantStatusCode: http.StatusBadRequest,
 		},
@@ -45,7 +47,8 @@ func TestNewProjectHandler(t *testing.T) {
 			payload: `{
 				"name": "project name",
 				"description": "project description",
-				"visibility": "private"
+				"visibility": "private",
+				"color": "#ffffff"
 			}`,
 			wantStatusCode: http.StatusInternalServerError,
 		},
@@ -56,6 +59,7 @@ func TestNewProjectHandler(t *testing.T) {
 				"name": "project name",
 				"description": "project description",
 				"visibility": "private",
+				"color": "#ffffff",
 				"owner": "me"
 			}`,
 			wantStatusCode: http.StatusBadRequest,
