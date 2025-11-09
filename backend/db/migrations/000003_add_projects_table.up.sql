@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS projects (
     visibility TEXT NOT NULL CHECK (visibility IN ('public', 'private')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ,
-    color TEXT NOT NULL,
+    color TEXT NOT NULL DEFAULT '#ffffff' CHECK (color ~ '^#[0-9a-fA-F]{6}$'),
     entries_count SMALLINT NOT NULL DEFAULT 0,
     likes_count SMALLINT NOT NULL DEFAULT 0,
     comments_count SMALLINT NOT NULL DEFAULT 0

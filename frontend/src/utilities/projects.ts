@@ -45,7 +45,7 @@ export const fetchProjects = async (): Promise<ProjectCardProps[]> => {
         const params = new URLSearchParams(window.location.search);
         const user = params.get("user");
         const res = await api(
-            `/projects${user == undefined ? "" : `?user=${user}`}`,
+            `/projects${user === null ? "" : `?user=${user}`}`,
             {
                 method: "GET",
                 headers: {
