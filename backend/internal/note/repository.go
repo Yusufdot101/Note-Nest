@@ -107,3 +107,29 @@ func (r *Repository) get(ProjectID, noteID int, visibility string) ([]*Note, err
 
 	return notes, nil
 }
+
+func (r *Repository) delete(noteID int) error {
+	query := `
+		DELETE FROM notes
+		WHERE id = $1
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, err := r.DB.ExecContext(ctx, query, noteID)
+	if err != nil {
+		return err
+	}
+
+	affectedRows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affectedRows == 0 {
+		return custom_errors.ErrNoRecord
+	}
+
+	return nil
+}

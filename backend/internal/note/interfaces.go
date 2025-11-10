@@ -23,6 +23,7 @@ type Note struct {
 type MockRepo struct {
 	insertCalled bool
 	getCalled    bool
+	deleteCalled bool
 }
 
 func (mr *MockRepo) insert(n *Note) error {
@@ -35,9 +36,15 @@ func (mr *MockRepo) get(projectID, noteID int, visibility string) ([]*Note, erro
 	return nil, nil
 }
 
+func (mr *MockRepo) delete(noteID int) error {
+	mr.deleteCalled = true
+	return nil
+}
+
 type Repo interface {
 	insert(n *Note) error
 	get(projectID, noteID int, visibility string) ([]*Note, error)
+	delete(noteID int) error
 }
 
 type NoteService struct {

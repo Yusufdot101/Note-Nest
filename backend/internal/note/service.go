@@ -9,11 +9,11 @@ import (
 
 func (ns *NoteService) newNote(
 	v *validator.Validator, userID, projectID int, title, content, visibility, color string,
-) (*Note, error) {
+) error {
 	// fetch the project
 	p, err := ns.ProjectSvc.GetProject(userID, projectID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// do checks
@@ -29,23 +29,23 @@ func (ns *NoteService) newNote(
 	}
 	// cannot create in others projects
 	if p.UserID != userID {
-		return nil, custom_errors.ErrNoRecord
+		return custom_errors.ErrNoRecord
 	}
 	if p.Visibility == "private" && n.Visibility == "public" {
 		v.AddError("entry", "cannot be more public than the project")
-		return nil, validator.ErrFailedValidation
+		return validator.ErrFailedValidation
 	}
 	if validateNote(v, n); !v.IsValid() {
-		return nil, validator.ErrFailedValidation
+		return validator.ErrFailedValidation
 	}
 
 	// save to db or return err
 	err = ns.Repo.insert(n)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return n, nil
+	return nil
 }
 
 func (ns *NoteService) getNotes(userID, projectID, noteID int, visibility string) ([]*Note, error) {
@@ -55,7 +55,7 @@ func (ns *NoteService) getNotes(userID, projectID, noteID int, visibility string
 		return nil, err
 	}
 
-	// do checks
+	// do checks:
 	// cannot access other user's private projects/notes
 	if p.UserID != userID {
 		if p.Visibility == "private" || visibility == "private" {
@@ -67,4 +67,21 @@ func (ns *NoteService) getNotes(userID, projectID, noteID int, visibility string
 
 	// fetch and return notes
 	return ns.Repo.get(projectID, noteID, visibility)
+}
+
+func (ns *NoteService) deleteNote(userID, projectID, noteID int) error {
+	// fetch the project
+	p, err := ns.ProjectSvc.GetProject(userID, projectID)
+	if err != nil {
+		return err
+	}
+
+	// do checks:
+	// cannot delete other user's notes
+	if p.UserID != userID {
+		return custom_errors.ErrNoRecord
+	}
+
+	// delete the note
+	return ns.Repo.delete(noteID)
 }
