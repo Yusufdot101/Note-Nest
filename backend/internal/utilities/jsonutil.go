@@ -13,7 +13,8 @@ type Message map[string]any
 
 func WriteJSON(w http.ResponseWriter, message Message, statusCode int) error {
 	w.Header().Add("Content-Type", "application/json")
-	JSON, err := json.Marshal(message)
+	// used MarshalIndent instead of Marshal to make it look nice in the terminal
+	JSON, err := json.MarshalIndent(message, "", "\t")
 	if err != nil {
 		return err
 	}

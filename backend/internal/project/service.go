@@ -35,7 +35,8 @@ func (ps *ProjectService) getProjects(userID int, visibility string) ([]*Project
 	return ps.Repo.get(userID, visibility)
 }
 
-func (ps *ProjectService) getProject(userID, projectID int) (*Project, error) {
+// is exported because note package depends on it
+func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {
 	project, err := ps.Repo.getOne(projectID)
 	if err != nil {
 		return nil, err
