@@ -22,6 +22,7 @@ type Note struct {
 
 type MockRepo struct {
 	insertCalled bool
+	getCalled    bool
 }
 
 func (mr *MockRepo) insert(n *Note) error {
@@ -29,8 +30,14 @@ func (mr *MockRepo) insert(n *Note) error {
 	return nil
 }
 
+func (mr *MockRepo) get(projectID, noteID int, visibility string) ([]*Note, error) {
+	mr.getCalled = true
+	return nil, nil
+}
+
 type Repo interface {
 	insert(n *Note) error
+	get(projectID, noteID int, visibility string) ([]*Note, error)
 }
 
 type NoteService struct {

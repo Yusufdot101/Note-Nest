@@ -27,6 +27,7 @@ func (ns *NoteService) newNote(
 		Visibility: cleanedVisibility,
 		Color:      cleanColor,
 	}
+	// cannot create in others projects
 	if p.UserID != userID {
 		return nil, custom_errors.ErrNoRecord
 	}
@@ -45,4 +46,25 @@ func (ns *NoteService) newNote(
 	}
 
 	return n, nil
+}
+
+func (ns *NoteService) getNotes(userID, projectID, noteID int, visibility string) ([]*Note, error) {
+	// fetch the project
+	p, err := ns.ProjectSvc.GetProject(userID, projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	// do checks
+	// cannot access other user's private projects/notes
+	if p.UserID != userID {
+		if p.Visibility == "private" || visibility == "private" {
+			return nil, custom_errors.ErrNoRecord
+		}
+		// set the visibility to public incase its not given and its "" which would fetch all notse(public + private)
+		visibility = "public"
+	}
+
+	// fetch and return notes
+	return ns.Repo.get(projectID, noteID, visibility)
 }

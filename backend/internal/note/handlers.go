@@ -57,3 +57,48 @@ func (h *NoteHandler) newNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	if !ok {
+		custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
+		return
+	}
+
+	params := httprouter.ParamsFromContext(r.Context())
+	projectID, err := strconv.Atoi(params.ByName("projectid"))
+	if err != nil {
+		custom_errors.BadRequestErrorResponse(w, err)
+		return
+	}
+
+	query := r.URL.Query()
+	queryNoteID := query.Get("noteid")
+	var noteID int
+	if queryNoteID != "" {
+		var err error
+		noteID, err = strconv.Atoi(query.Get("noteid"))
+		if err != nil {
+			custom_errors.BadRequestErrorResponse(w, err)
+			return
+		}
+	}
+	visibility := query.Get("visibility")
+
+	notes, err := h.svc.getNotes(userID, projectID, noteID, visibility)
+	if err != nil {
+		switch {
+		case errors.Is(err, custom_errors.ErrNoRecord):
+			custom_errors.NotFoundErrorResponse(w, r)
+		default:
+			custom_errors.ServerErrorResponse(w, err)
+		}
+		return
+	}
+
+	err = utilities.WriteJSON(w, utilities.Message{"notes": notes}, http.StatusCreated)
+	if err != nil {
+		custom_errors.ServerErrorResponse(w, err)
+		return
+	}
+}
