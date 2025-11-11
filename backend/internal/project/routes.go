@@ -19,4 +19,5 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 	router.Handler(http.MethodGet, "/projects", middleware.RequireAccess(h.GetProjects))
 	router.Handler(http.MethodGet, "/projects/:id", middleware.RequireAccess(h.GetProject))
 	router.Handler(http.MethodDelete, "/projects/:id", middleware.RequireAccess(h.DeleteProject))
+	router.Handler(http.MethodPatch, "/projects/:id", middleware.RequireAccess(h.UpdateProject))
 }

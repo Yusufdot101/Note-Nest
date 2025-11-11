@@ -25,6 +25,7 @@ type MockRepo struct {
 	getCalled    bool
 	getOneCalled bool
 	deleteCalled bool
+	updateCalled bool
 }
 
 func (mr *MockRepo) insert(p *Project) error {
@@ -47,11 +48,17 @@ func (mr *MockRepo) delete(projectID int) error {
 	return nil
 }
 
+func (mr *MockRepo) update(userID, projectID int, name, description, visibility, color string) error {
+	mr.updateCalled = true
+	return nil
+}
+
 type Repo interface {
 	insert(p *Project) error
 	get(userID int, visibility string) ([]*Project, error)
 	getOne(ID int) (*Project, error)
 	delete(projectID int) error
+	update(userID, projectID int, name, description, visibility, color string) error
 }
 
 type ProjectService struct {
@@ -70,10 +77,14 @@ func NewHandler(svc *ProjectService) *ProjectHandler {
 
 func validateProject(v *validator.Validator, p *Project) {
 	v.CheckAddError(p.Name != "", "name", "must be given")
-	v.CheckAddError(p.Visibility != "", "visibility", "must be given")
-	allowedVisibility := []string{"private", "public"}
-	v.CheckAddError(validator.ValueInList(p.Visibility, allowedVisibility...), "visibility", "not allowed")
+	validateVisibility(v, p.Visibility)
 	validateColor(v, p.Color)
+}
+
+func validateVisibility(v *validator.Validator, visibility string) {
+	v.CheckAddError(visibility != "", "visibility", "must be given")
+	allowedVisibility := []string{"private", "public"}
+	v.CheckAddError(validator.ValueInList(visibility, allowedVisibility...), "visibility", "value not allowed")
 }
 
 func validateColor(v *validator.Validator, color string) {

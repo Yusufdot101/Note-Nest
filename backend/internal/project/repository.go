@@ -153,3 +153,94 @@ func (r *Repository) delete(projectID int) error {
 
 	return nil
 }
+
+// could not find a way around doing some logic here to avoid race conditions
+func (r *Repository) update(userID, projectID int, name, description, visibility, color string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Println(err)
+		}
+	}()
+
+	getQuery := `
+		SELECT 
+			id, updated_at, user_id, name, description, visibility, color
+		FROM projects
+		WHERE id = $1
+		FOR UPDATE
+	`
+	p := &Project{}
+	err = tx.QueryRowContext(ctx, getQuery, projectID).Scan(
+		&p.ID,
+		&p.UpdatedAt,
+		&p.UserID,
+		&p.Name,
+		&p.Description,
+		&p.Visibility,
+		&p.Color,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return custom_errors.ErrNoRecord
+		default:
+			return err
+		}
+	}
+
+	// user cannot update another's project
+	if p.UserID != userID {
+		return custom_errors.ErrNoRecord
+	}
+
+	if name != "" {
+		p.Name = name
+	}
+	// description can be empty because its optional so we should not use if p.Description != "" {}
+	p.Description = description
+	if visibility != "" {
+		p.Visibility = visibility
+	}
+	if color != "" {
+		p.Color = color
+	}
+	now := time.Now()
+	p.UpdatedAt = &now
+
+	updateQuery := `
+		UPDATE projects
+		SET name = $1,
+			description = $2,
+			visibility = $3,
+			color = $4,
+			updated_at = $5
+		WHERE id = $6
+	`
+	values := []any{
+		p.Name,
+		p.Description,
+		p.Visibility,
+		p.Color,
+		p.UpdatedAt,
+		p.ID,
+	}
+
+	_, err = tx.ExecContext(ctx, updateQuery, values...)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
