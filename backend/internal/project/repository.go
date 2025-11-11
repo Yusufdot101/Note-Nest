@@ -139,7 +139,7 @@ func (r *Repository) delete(projectID int) error {
 
 	res, err := r.DB.ExecContext(ctx, query, projectID)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	rowsAffected, err := res.RowsAffected()
