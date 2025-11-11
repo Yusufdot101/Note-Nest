@@ -52,6 +52,7 @@ const ProjectCard = ({
                             type="color"
                             value={color}
                             onChange={(e) => {
+                                e.stopPropagation();
                                 setColor(e.target.value);
                             }}
                             onInput={() => {}}

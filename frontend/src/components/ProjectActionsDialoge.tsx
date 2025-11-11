@@ -32,7 +32,7 @@ const ProjectActionsDialoge = ({
             </p>
             <ul className="flex flex-col gap-[8px]">
                 <li className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
-                    Edit Prject
+                    Edit Project
                 </li>
                 <li className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
                     Add New Note
