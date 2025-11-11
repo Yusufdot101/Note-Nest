@@ -40,7 +40,7 @@ func TestValidateProject(t *testing.T) {
 			visibility:  "unknown",
 			color:       "#ffffff",
 			wantValid:   false,
-			wantErrors:  map[string]string{"visibility": "not allowed"},
+			wantErrors:  map[string]string{"visibility": "value not allowed"},
 		},
 	}
 	for _, test := range tests {

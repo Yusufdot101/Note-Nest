@@ -11,13 +11,13 @@ func (ps *ProjectService) newProject(v *validator.Validator, userID int, name, d
 	cleanedName := strings.TrimSpace(name)
 	cleanedDescription := strings.TrimSpace(description)
 	cleanedVisibility := strings.ToLower(strings.TrimSpace(visibility))
-	cleanColor := strings.ToLower(strings.TrimSpace(color))
+	cleanedColor := strings.ToLower(strings.TrimSpace(color))
 	p := &Project{
 		UserID:      userID,
 		Name:        cleanedName,
 		Description: cleanedDescription,
 		Visibility:  cleanedVisibility,
-		Color:       cleanColor,
+		Color:       cleanedColor,
 	}
 	if validateProject(v, p); !v.IsValid() {
 		return validator.ErrFailedValidation
@@ -58,4 +58,27 @@ func (ps *ProjectService) deleteProject(userID, projectID int) error {
 	}
 
 	return ps.Repo.delete(project.ID)
+}
+
+func (ps *ProjectService) updateProject(v *validator.Validator, userID, projectID int, name, description, visibility, color *string) error {
+	if name != nil {
+		cleanedName := strings.TrimSpace(*name)
+		validateName(v, cleanedName)
+	}
+
+	if visibility != nil {
+		cleanedVisibility := strings.TrimSpace(*visibility)
+		validateVisibility(v, cleanedVisibility)
+	}
+
+	if color != nil {
+		cleanedColor := strings.TrimSpace(*color)
+		validateColor(v, cleanedColor)
+	}
+
+	if !v.IsValid() {
+		return validator.ErrFailedValidation
+	}
+
+	return ps.Repo.update(userID, projectID, name, description, visibility, color)
 }
