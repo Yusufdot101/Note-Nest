@@ -6,7 +6,8 @@ import Home from "./pages/Home";
 import { useEffect } from "react";
 import { initAuth } from "./utilities/auth/initAuth";
 import NewProject from "./pages/NewProject";
-import Projects from "./pages/Projects";
+import AllProjects from "./pages/AllProjects";
+import ProjectPage from "./pages/Project";
 
 const router = createBrowserRouter([
     {
@@ -16,7 +17,8 @@ const router = createBrowserRouter([
             { path: "/signup", element: <Signup /> },
             { path: "/login", element: <Login /> },
             { path: "/projects/new", element: <NewProject /> },
-            { path: "/projects", element: <Projects /> },
+            { path: "/projects", element: <AllProjects /> },
+            { path: "/projects/:id", element: <ProjectPage /> },
         ],
     },
 ]);

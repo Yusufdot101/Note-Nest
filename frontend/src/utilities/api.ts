@@ -33,7 +33,7 @@ export const api = async (path: string, options: RequestInit = {}) => {
 
             if (!res.ok) {
                 useAuthStore.getState().setIsLoggedIn(false); // because the refresh token didn't refresh access token successfully
-                alert("please login to use this feature.");
+                // alert("please login to use this feature.");
                 return undefined;
             }
         }
