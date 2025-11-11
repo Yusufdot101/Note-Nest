@@ -126,3 +126,30 @@ func (r *Repository) getOne(ID int) (*Project, error) {
 	}
 	return p, nil
 }
+
+func (r *Repository) delete(projectID int) error {
+	query := `
+		DELETE 
+		FROM projects
+		WHERE id = $1
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, err := r.DB.ExecContext(ctx, query, projectID)
+	if err != nil {
+		return nil
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return custom_errors.ErrNoRecord
+	}
+
+	return nil
+}

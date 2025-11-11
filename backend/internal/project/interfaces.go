@@ -24,6 +24,7 @@ type MockRepo struct {
 	insertCalled bool
 	getCalled    bool
 	getOneCalled bool
+	deleteCalled bool
 }
 
 func (mr *MockRepo) insert(p *Project) error {
@@ -41,10 +42,16 @@ func (mr *MockRepo) getOne(ID int) (*Project, error) {
 	return nil, nil
 }
 
+func (mr *MockRepo) delete(projectID int) error {
+	mr.deleteCalled = true
+	return nil
+}
+
 type Repo interface {
 	insert(p *Project) error
 	get(userID int, visibility string) ([]*Project, error)
 	getOne(ID int) (*Project, error)
+	delete(projectID int) error
 }
 
 type ProjectService struct {

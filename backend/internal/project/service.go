@@ -46,3 +46,16 @@ func (ps *ProjectService) getProject(userID, projectID int) (*Project, error) {
 	}
 	return project, nil
 }
+
+func (ps *ProjectService) deleteProject(userID, projectID int) error {
+	project, err := ps.Repo.getOne(projectID)
+	if err != nil {
+		return err
+	}
+	// can only delete your projects
+	if project.UserID != userID {
+		return custom_errors.ErrNoRecord
+	}
+
+	return ps.Repo.delete(project.ID)
+}
