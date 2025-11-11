@@ -155,7 +155,7 @@ func (r *Repository) delete(projectID int) error {
 }
 
 // could not find a way around doing some logic here to avoid race conditions
-func (r *Repository) update(userID, projectID int, name, description, visibility, color string) error {
+func (r *Repository) update(userID, projectID int, name, description, visibility, color *string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -201,19 +201,21 @@ func (r *Repository) update(userID, projectID int, name, description, visibility
 		return custom_errors.ErrNoRecord
 	}
 
-	if name != "" {
-		p.Name = name
+	if name != nil {
+		p.Name = *name
 	}
-	// description can be empty because its optional so we should not use if p.Description != "" {}
-	p.Description = description
-	if visibility != "" {
-		p.Visibility = visibility
+
+	if description != nil {
+		p.Description = *description
 	}
-	if color != "" {
-		p.Color = color
+
+	if visibility != nil {
+		p.Visibility = *visibility
 	}
-	now := time.Now()
-	p.UpdatedAt = &now
+
+	if color != nil {
+		p.Color = *color
+	}
 
 	updateQuery := `
 		UPDATE projects
@@ -224,12 +226,13 @@ func (r *Repository) update(userID, projectID int, name, description, visibility
 			updated_at = $5
 		WHERE id = $6
 	`
+	now := time.Now()
 	values := []any{
 		p.Name,
 		p.Description,
 		p.Visibility,
 		p.Color,
-		p.UpdatedAt,
+		now,
 		p.ID,
 	}
 

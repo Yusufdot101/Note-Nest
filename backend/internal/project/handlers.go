@@ -154,10 +154,10 @@ func (h *ProjectHandler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectHandler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Name        string `json:"name"`
-		Description string `json:"description"`
-		Visibility  string `json:"visibility"`
-		Color       string `json:"color"`
+		Name        *string `json:"name"`
+		Description *string `json:"description"`
+		Visibility  *string `json:"visibility"`
+		Color       *string `json:"color"`
 	}
 
 	err := utilities.ReadJSON(w, r, &input)
