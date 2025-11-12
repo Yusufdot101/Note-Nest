@@ -3,6 +3,7 @@ package project
 import (
 	"time"
 
+	"github.com/Yusufdot101/note-nest/internal/custom_errors"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -35,12 +36,23 @@ func (mr *MockRepo) insert(p *Project) error {
 
 func (mr *MockRepo) get(userID int, visibility string) ([]*Project, error) {
 	mr.getCalled = true
-	return nil, nil
+	projects := []*Project{}
+	for i := range 10 {
+		project := &Project{
+			UserID: i,
+		}
+		projects = append(projects, project)
+	}
+	return projects, nil
 }
 
 func (mr *MockRepo) getOne(ID int) (*Project, error) {
 	mr.getOneCalled = true
-	return nil, nil
+	project := &Project{
+		UserID: 1,
+	}
+
+	return project, nil
 }
 
 func (mr *MockRepo) delete(projectID int) error {
@@ -49,6 +61,14 @@ func (mr *MockRepo) delete(projectID int) error {
 }
 
 func (mr *MockRepo) update(userID, projectID int, name, description, visibility, color *string) error {
+	gotPproject := &Project{
+		UserID: 1,
+	}
+
+	if gotPproject.UserID != userID {
+		return custom_errors.ErrNoRecord
+	}
+
 	mr.updateCalled = true
 	return nil
 }

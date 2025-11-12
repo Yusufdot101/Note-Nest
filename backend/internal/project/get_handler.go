@@ -15,6 +15,7 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 	var userID int
 	queryUserID := r.URL.Query().Get("user")
 	visibility := r.URL.Query().Get("visibility")
+
 	if queryUserID != "" {
 		var err error
 		userID, err = strconv.Atoi(queryUserID)
@@ -31,6 +32,7 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
 	projects, err := h.svc.getProjects(userID, visibility)
 	if err != nil {
 		switch {
