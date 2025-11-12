@@ -196,7 +196,7 @@ const EditProject = () => {
                         aria_label={"Cancel Changes"}
                         handleSubmit={() => {
                             if (!projectID) return;
-                            handleCancel;
+                            handleCancel();
                         }}
                         text={"Cancel"}
                         bgColor="grey"
