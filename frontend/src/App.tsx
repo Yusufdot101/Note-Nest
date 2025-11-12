@@ -8,6 +8,7 @@ import { initAuth } from "./utilities/auth/initAuth";
 import NewProject from "./pages/NewProject";
 import AllProjects from "./pages/AllProjects";
 import ProjectPage from "./pages/Project";
+import EditProject from "./pages/EditProject";
 
 const router = createBrowserRouter([
     {
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
             { path: "/projects/new", element: <NewProject /> },
             { path: "/projects", element: <AllProjects /> },
             { path: "/projects/:id", element: <ProjectPage /> },
+            { path: "/projects/edit/:id", element: <EditProject /> },
         ],
     },
 ]);

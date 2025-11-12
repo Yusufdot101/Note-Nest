@@ -27,6 +27,10 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
             text: "Notes",
         },
         {
+            url: "/projects",
+            text: "My Projects",
+        },
+        {
             url: "/projects/new",
             text: "New Project",
         },

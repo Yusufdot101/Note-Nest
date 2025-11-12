@@ -1,19 +1,37 @@
 import { useEffect, useState } from "react";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
-import { useNavigate } from "react-router-dom";
 import {
     getProjectDescriptionErrorMessages,
     getProjectNameErrorMessages,
     getProjectVisibilityErrorMessages,
 } from "../utilities/inputValidation";
-import { newProject } from "../utilities/projects";
+import {
+    deleteProject,
+    fetchProject,
+    updateProject,
+} from "../utilities/project";
+import { useNavigate } from "react-router-dom";
 
-const NewProject = () => {
+const EditProject = () => {
+    const [projectID, setProjectID] = useState<number>();
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
-    const [projectVisibility, setProjectVisibility] = useState("private");
-    const [projectColor, setProjectColor] = useState("#00FFFF");
+    const [projectVisibility, setProjectVisibility] = useState("");
+    const [projectColor, setProjectColor] = useState("");
+
+    useEffect(() => {
+        const setupProject = async () => {
+            const project = await fetchProject();
+            if (!project) return;
+            setProjectID(project.ID);
+            setProjectName(project.Name);
+            setProjectDescription(project.Description);
+            setProjectVisibility(project.Visibility);
+            setProjectColor(project.Color);
+        };
+        setupProject();
+    }, []);
 
     const [projectNameError, setProjectNameError] = useState("");
     const [projectDescriptionError, setProjectDescriptionError] = useState("");
@@ -22,15 +40,15 @@ const NewProject = () => {
 
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSave = async () => {
         setShowError(true);
-        if (projectNameError || projectVisibilityError) {
+        if (
+            projectNameError ||
+            projectDescriptionError ||
+            projectVisibilityError
+        )
             return;
-        }
-
-        // use the api
-        const success = await newProject(
+        const success = await updateProject(
             projectName,
             projectDescription,
             projectVisibility,
@@ -39,6 +57,10 @@ const NewProject = () => {
         if (!success) return;
         // navigate to the home page when the the account is created
         navigate("/projects");
+    };
+
+    const handleCancel = () => {
+        navigate(`/projects/${projectID}`);
     };
 
     useEffect(() => {
@@ -62,7 +84,7 @@ const NewProject = () => {
         >
             <div className="flex items-center justify-center gap-[8px]">
                 <p className="text-accent text-[32px] max-[619px]:text-[24px] font-semibold text-center">
-                    NEW PROJECT
+                    EDIT PROJECT
                 </p>
                 <div
                     className="relative w-[40px] max-[619px]:w-[35px] h-[30px] max-[619px]:h-[25px] rounded-lg"
@@ -82,7 +104,9 @@ const NewProject = () => {
                 </div>
             </div>
             <form
-                onSubmit={(e) => handleSubmit(e)}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                }}
                 className="flex flex-col text-text gap-y-[8px]"
             >
                 <div className="flex flex-col">
@@ -98,7 +122,7 @@ const NewProject = () => {
                     <p
                         aria-label={"project name error"}
                         className={`text-red-500 ${!showError ? "hidden" : ""}`}
-                        id="projectNameError"
+                        id="projectNaeError"
                     >
                         {projectNameError}
                     </p>
@@ -109,10 +133,10 @@ const NewProject = () => {
                     </label>
                     <textarea
                         name="projectDescription"
-                        value={projectDescription}
-                        onChange={(e) => setProjectDescription(e.target.value)}
                         id="projectDescription"
                         className="w-[100%] h-[100px] min-h-[50px] max-[619px]:min-h-[40px] bg-white rounded-[8px] min-h-[50px] p-[8px] outline-none text-black"
+                        value={projectDescription}
+                        onChange={(e) => setProjectDescription(e.target.value)}
                     />
                     <p
                         aria-label={"project description error"}
@@ -122,36 +146,34 @@ const NewProject = () => {
                         {projectDescriptionError}
                     </p>
                 </div>
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-[10px]">
-                        <div className="flex items-center gap-[8px]">
-                            <label htmlFor={"private"}>Private</label>
-                            <input
-                                type="radio"
-                                name="projectVisibility"
-                                id="private"
-                                value={"private"}
-                                className="w-[30px] h-[30px] max-[619px]:w-[20px] accent-accent"
-                                checked={projectVisibility === "private"}
-                                onChange={(e) =>
-                                    setProjectVisibility(e.target.value)
-                                }
-                            />
-                        </div>
-                        <div className="flex items-center gap-[8px]">
-                            <label htmlFor={"public"}>Public</label>
-                            <input
-                                type="radio"
-                                name="projectVisibility"
-                                id="public"
-                                value={"public"}
-                                className="w-[30px] h-[30px] max-[619px]:w-[20px] accent-accent"
-                                checked={projectVisibility === "public"}
-                                onChange={(e) =>
-                                    setProjectVisibility(e.target.value)
-                                }
-                            />
-                        </div>
+                <div className="flex items-center gap-[10px]">
+                    <div className="flex items-center gap-[8px]">
+                        <label htmlFor={"private"}>Private</label>
+                        <input
+                            type="radio"
+                            name="projectVisibility"
+                            id="private"
+                            value={"private"}
+                            className="w-[30px] h-[30px] max-[619px]:w-[20px] accent-accent"
+                            checked={projectVisibility === "private"}
+                            onChange={(e) =>
+                                setProjectVisibility(e.target.value)
+                            }
+                        />
+                    </div>
+                    <div className="flex items-center gap-[8px]">
+                        <label htmlFor={"public"}>Public</label>
+                        <input
+                            type="radio"
+                            name="projectVisibility"
+                            id="public"
+                            value={"public"}
+                            className="w-[30px] h-[30px] max-[619px]:w-[20px] accent-accent"
+                            checked={projectVisibility === "public"}
+                            onChange={(e) =>
+                                setProjectVisibility(e.target.value)
+                            }
+                        />
                     </div>
                     <p
                         aria-label={"project visibility error"}
@@ -162,14 +184,34 @@ const NewProject = () => {
                     </p>
                 </div>
 
+                <div className="flex gap-[8px]">
+                    <SubmitButton
+                        aria_label={"Save Changes"}
+                        handleSubmit={() => {
+                            handleSave();
+                        }}
+                        text={"Save"}
+                    />
+                    <SubmitButton
+                        aria_label={"Cancel Changes"}
+                        handleSubmit={handleCancel}
+                        text={"Cancel"}
+                        bgColor="grey"
+                    />
+                </div>
                 <SubmitButton
-                    aria_label={"Create Project"}
-                    handleSubmit={() => {}}
-                    text={"Create Project"}
+                    aria_label={"Delete Project"}
+                    handleSubmit={async () => {
+                        const success = await deleteProject(projectID!);
+                        if (!success) return;
+                        navigate("/projects");
+                    }}
+                    text={"Delete Project"}
+                    bgColor="red"
                 />
             </form>
         </div>
     );
 };
 
-export default NewProject;
+export default EditProject;

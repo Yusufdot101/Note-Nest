@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Project } from "./ProjectCard";
+import { useNavigate } from "react-router-dom";
+import { deleteProject } from "../utilities/project";
 
 const ProjectActionsDialoge = ({
     handleClose,
@@ -19,6 +21,8 @@ const ProjectActionsDialoge = ({
         return () => document.removeEventListener("click", handleClick);
     }, [handleClose]);
 
+    const navigate = useNavigate();
+
     return (
         <div
             ref={ref}
@@ -31,13 +35,25 @@ const ProjectActionsDialoge = ({
                 {project.Name}
             </p>
             <ul className="flex flex-col gap-[8px]">
-                <li className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
+                <li
+                    onClick={() => {
+                        navigate(`/projects/edit/${project.ID}`);
+                    }}
+                    className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
+                >
                     Edit Project
                 </li>
                 <li className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
                     Add New Note
                 </li>
-                <li className="bg-[#FF0000] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
+                <li
+                    onClick={async () => {
+                        const success = await deleteProject(project.ID);
+                        if (!success) return;
+                        navigate("/projects");
+                    }}
+                    className="bg-[#FF0000] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
+                >
                     Delete Project
                 </li>
             </ul>

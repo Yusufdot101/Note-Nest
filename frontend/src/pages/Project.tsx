@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { Project } from "../components/ProjectCard";
-import { fetchOneProject } from "../utilities/projects";
+import { fetchProject } from "../utilities/project";
 import ProjectCard from "../components/ProjectCard";
 import ProjectActionsDialoge from "../components/ProjectActionsDialoge";
 
@@ -10,7 +10,7 @@ const ProjectPage = () => {
 
     useEffect(() => {
         const setupProject = async () => {
-            const project = await fetchOneProject();
+            const project = await fetchProject();
             if (!project) return;
             setProject(project);
         };

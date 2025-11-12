@@ -46,6 +46,9 @@ const ProjectCard = ({
                     <div
                         className="relative min-w-[40px] h-[30px] rounded-lg"
                         style={{ backgroundColor: color }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
                     >
                         <input
                             className="inline-block absolute cursor-pointer w-full h-full opacity-0"
