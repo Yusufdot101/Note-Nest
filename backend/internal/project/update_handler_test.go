@@ -91,7 +91,7 @@ func TestUpdateProjectHandler(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			rr := httptest.NewRecorder()
-			req, err := http.NewRequest(http.MethodPost, "/projects", strings.NewReader(test.payload))
+			req, err := http.NewRequest(http.MethodPatch, "/projects", strings.NewReader(test.payload))
 			if err != nil {
 				t.Fatalf("unexpected error = %v", err)
 			}
@@ -115,7 +115,7 @@ func TestUpdateProjectHandler(t *testing.T) {
 			}
 
 			if repo.updateCalled != test.wantUpdateCalled {
-				t.Fatalf("expected repo.insertCalled = %v, got repo.insertCalled = %v", test.wantUpdateCalled, repo.insertCalled)
+				t.Fatalf("expected repo.updateCalled = %v, got repo.updateCalled = %v", test.wantUpdateCalled, repo.updateCalled)
 			}
 		})
 	}

@@ -28,7 +28,7 @@ func TestGetProjects(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			rr := httptest.NewRecorder()
-			req, err := http.NewRequest(http.MethodDelete, "/projects", nil)
+			req, err := http.NewRequest(http.MethodGet, "/projects", nil)
 			if err != nil {
 				t.Fatalf("unexpected error = %v", err)
 			}
@@ -80,7 +80,7 @@ func TestGetOneProject(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			rr := httptest.NewRecorder()
-			req, err := http.NewRequest(http.MethodDelete, "/projects", nil)
+			req, err := http.NewRequest(http.MethodGet, "/projects", nil)
 			if err != nil {
 				t.Fatalf("unexpected error = %v", err)
 			}
