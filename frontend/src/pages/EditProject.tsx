@@ -55,7 +55,7 @@ const EditProject = () => {
             projectColor,
         );
         if (!success) return;
-        // navigate to the home page when the the account is created
+        // Navigate to projects list after successful update
         navigate("/projects");
     };
 
@@ -122,7 +122,7 @@ const EditProject = () => {
                     <p
                         aria-label={"project name error"}
                         className={`text-red-500 ${!showError ? "hidden" : ""}`}
-                        id="projectNaeError"
+                        id="projectNameError"
                     >
                         {projectNameError}
                     </p>
@@ -134,7 +134,7 @@ const EditProject = () => {
                     <textarea
                         name="projectDescription"
                         id="projectDescription"
-                        className="w-[100%] h-[100px] min-h-[50px] max-[619px]:min-h-[40px] bg-white rounded-[8px] min-h-[50px] p-[8px] outline-none text-black"
+                        className="w-[100%] h-[100px] min-h-[50px] max-[619px]:min-h-[40px] bg-white rounded-[8px] p-[8px] outline-none text-black"
                         value={projectDescription}
                         onChange={(e) => setProjectDescription(e.target.value)}
                     />
@@ -194,7 +194,10 @@ const EditProject = () => {
                     />
                     <SubmitButton
                         aria_label={"Cancel Changes"}
-                        handleSubmit={handleCancel}
+                        handleSubmit={() => {
+                            if (!projectID) return;
+                            handleCancel;
+                        }}
                         text={"Cancel"}
                         bgColor="grey"
                     />
@@ -202,7 +205,8 @@ const EditProject = () => {
                 <SubmitButton
                     aria_label={"Delete Project"}
                     handleSubmit={async () => {
-                        const success = await deleteProject(projectID!);
+                        if (!projectID) return;
+                        const success = await deleteProject(projectID);
                         if (!success) return;
                         navigate("/projects");
                     }}

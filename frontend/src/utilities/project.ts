@@ -12,6 +12,11 @@ export const updateProject = async (
         const segments = url.pathname.split("/").filter(Boolean);
         const projectID = segments.at(-1);
 
+        if (!projectID) {
+            alert("Invalid project ID");
+            return false;
+        }
+
         const res = await api(`/projects/${projectID}`, {
             method: "PATCH",
             headers: {
@@ -52,6 +57,7 @@ export const fetchProject = async (): Promise<Project | null> => {
         const url = new URL(window.location.toString());
         const segments = url.pathname.split("/").filter(Boolean);
         const projectID = segments.at(-1);
+
         const res = await api(`/projects/${projectID}`, {
             method: "GET",
             headers: {
@@ -81,15 +87,28 @@ export const deleteProject = async (projectID: number): Promise<boolean> => {
             return false;
         }
 
+        if (!projectID) {
+            alert("Invalid project ID");
+            return false;
+        }
+
         const res = await api(`/projects/${projectID}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
             },
         });
+
         if (!res) {
             return false;
         }
+
+        if (!res.ok) {
+            const data = await res.json();
+            console.error(data.error);
+            return false;
+        }
+
         return true;
     } catch (error) {
         alert("an error occurred, please try again");
