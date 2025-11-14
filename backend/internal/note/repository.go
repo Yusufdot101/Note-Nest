@@ -42,8 +42,8 @@ func (r *Repository) insert(n *Note) error {
 		&n.CommentsCount,
 	)
 	if err != nil {
-		switch {
-		case err.Error() == `pq: insert or update on table "notes" violates foreign key constraint "notes_project_id_fkey"`:
+		switch err.Error() {
+		case `pq: insert or update on table "notes" violates foreign key constraint "notes_project_id_fkey"`:
 			return custom_errors.ErrNoRecord
 		default:
 			return err
@@ -93,7 +93,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID *int, visibil
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	uid := *currentUserID // guaranteed non-nil
+	uid := *currentUserID // guaranteed non-nil cause the endpoint has requireAccess middleware that needs access token which has the currentUserID
 
 	baseQuery := `
 		SELECT

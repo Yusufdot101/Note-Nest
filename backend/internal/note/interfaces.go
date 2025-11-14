@@ -21,30 +21,30 @@ type Note struct {
 }
 
 type MockRepo struct {
-	insertCalled bool
-	getCalled    bool
-	deleteCalled bool
+	// insertCalled bool
+	// getCalled    bool
+	// deleteCalled bool
 }
 
-func (mr *MockRepo) insert(n *Note) error {
-	mr.insertCalled = true
-	return nil
-}
-
-func (mr *MockRepo) get(noteID int) (*Note, error) {
-	mr.getCalled = true
-	return nil, nil
-}
-
-func (mr *MockRepo) getMany(currentUserID, queryUserID, projectID *int, visibility string) (*Note, error) {
-	mr.getCalled = true
-	return nil, nil
-}
-
-func (mr *MockRepo) delete(noteID int) error {
-	mr.deleteCalled = true
-	return nil
-}
+// func (mr *MockRepo) insert(n *Note) error {
+// 	mr.insertCalled = true
+// 	return nil
+// }
+//
+// func (mr *MockRepo) get(noteID int) (*Note, error) {
+// 	mr.getCalled = true
+// 	return nil, nil
+// }
+//
+// func (mr *MockRepo) getMany(currentUserID, queryUserID, projectID *int, visibility string) (*Note, error) {
+// 	mr.getCalled = true
+// 	return nil, nil
+// }
+//
+// func (mr *MockRepo) delete(noteID int) error {
+// 	mr.deleteCalled = true
+// 	return nil
+// }
 
 type Repo interface {
 	insert(n *Note) error
@@ -69,11 +69,19 @@ func newHandler(svc *NoteService) *NoteHandler {
 }
 
 func validateNote(v *validator.Validator, n *Note) {
-	v.CheckAddError(n.Title != "", "name", "must be given")
-	v.CheckAddError(n.Visibility != "", "visibility", "must be given")
-	allowedVisibility := []string{"private", "public"}
-	v.CheckAddError(validator.ValueInList(n.Visibility, allowedVisibility...), "visibility", "not allowed")
+	validateTitle(v, n.Title)
+	validateVisibility(v, n.Visibility)
 	validateColor(v, n.Color)
+}
+
+func validateTitle(v *validator.Validator, name string) {
+	v.CheckAddError(name != "", "name", "must be given")
+}
+
+func validateVisibility(v *validator.Validator, visibility string) {
+	v.CheckAddError(visibility != "", "visibility", "must be given")
+	allowedVisibility := []string{"private", "public"}
+	v.CheckAddError(validator.ValueInList(visibility, allowedVisibility...), "visibility", "value not allowed")
 }
 
 func validateColor(v *validator.Validator, color string) {
