@@ -20,7 +20,11 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 			},
 		},
 	})
+
 	router.Handler(http.MethodPost, "/projects/:projectid/notes", middleware.RequireAccess(h.newNote))
-	router.Handler(http.MethodGet, "/projects/:projectid/notes", middleware.RequireAccess(h.getNotes))
-	router.Handler(http.MethodDelete, "/projects/:projectid/notes", middleware.RequireAccess(h.deleteNote))
+	// specific note
+	router.Handler(http.MethodGet, "/notes/:id", middleware.RequireAccess(h.getNote))
+	router.Handler(http.MethodDelete, "/notes/:id", middleware.RequireAccess(h.deleteNote))
+	// all projects and filtering/pagination
+	router.Handler(http.MethodGet, "/notes", middleware.RequireAccess(h.getNotes))
 }

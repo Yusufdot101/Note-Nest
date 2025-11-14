@@ -20,6 +20,7 @@ func (ns *NoteService) newNote(
 	cleanedTitle := strings.TrimSpace(title)
 	cleanedVisibility := strings.ToLower(strings.TrimSpace(visibility))
 	cleanColor := strings.ToLower(strings.TrimSpace(color))
+
 	n := &Note{
 		ProjectID:  projectID,
 		Title:      cleanedTitle,
@@ -27,7 +28,8 @@ func (ns *NoteService) newNote(
 		Visibility: cleanedVisibility,
 		Color:      cleanColor,
 	}
-	// cannot create in others projects
+
+	// cannot create in other's projects
 	if p.UserID != userID {
 		return custom_errors.ErrNoRecord
 	}
@@ -48,37 +50,53 @@ func (ns *NoteService) newNote(
 	return nil
 }
 
-func (ns *NoteService) getNotes(userID, projectID, noteID int, visibility string) ([]*Note, error) {
+func (ns *NoteService) getNote(userID, noteID int) (*Note, error) {
+	// fetch the note
+	note, err := ns.Repo.get(noteID)
+	if err != nil {
+		return nil, err
+	}
+
 	// fetch the project
-	p, err := ns.ProjectSvc.GetProject(userID, projectID)
+	project, err := ns.ProjectSvc.GetProject(userID, note.ProjectID)
 	if err != nil {
 		return nil, err
 	}
 
 	// do checks:
-	// cannot access other user's private projects/notes
-	if p.UserID != userID {
-		if p.Visibility == "private" || visibility == "private" {
-			return nil, custom_errors.ErrNoRecord
-		}
-		// set the visibility to public incase its not given and its "" which would fetch all notse(public + private)
-		visibility = "public"
+	// cannot see other's private projects/notes
+	if project.UserID != userID && (project.Visibility == "private" || note.Visibility == "private") {
+		return nil, custom_errors.ErrNoRecord
 	}
 
 	// fetch and return notes
-	return ns.Repo.get(projectID, noteID, visibility)
+	return note, nil
 }
 
-func (ns *NoteService) deleteNote(userID, projectID, noteID int) error {
+func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID *int, visibility string) ([]*Note, error) {
+	notes, err := ns.Repo.getMany(currentUserID, queryUserID, projectID, visibility)
+	if err != nil {
+		return nil, err
+	}
+
+	return notes, nil
+}
+
+func (ns *NoteService) deleteNote(userID, noteID int) error {
+	note, err := ns.Repo.get(noteID)
+	if err != nil {
+		return err
+	}
+
 	// fetch the project
-	p, err := ns.ProjectSvc.GetProject(userID, projectID)
+	project, err := ns.ProjectSvc.GetProject(userID, note.ProjectID)
 	if err != nil {
 		return err
 	}
 
 	// do checks:
 	// cannot delete other user's notes
-	if p.UserID != userID {
+	if project.UserID != userID {
 		return custom_errors.ErrNoRecord
 	}
 

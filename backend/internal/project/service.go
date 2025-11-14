@@ -41,10 +41,12 @@ func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// only allow the owner to see private projects
 	if project.UserID != userID && project.Visibility != "public" {
 		return nil, custom_errors.ErrNoRecord
 	}
+
 	return project, nil
 }
 
