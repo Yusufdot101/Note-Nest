@@ -88,7 +88,7 @@ func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"notes": notes}, http.StatusCreated)
+	err = utilities.WriteJSON(w, utilities.Message{"notes": notes}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 		return

@@ -37,6 +37,7 @@ const NoteCreation = () => {
         <form
             onSubmit={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 handleCreate();
             }}
             className="flex flex-col gap-[12px]"
@@ -101,7 +102,7 @@ const NoteCreation = () => {
                 <SubmitButton
                     handleSubmit={handleCreate}
                     text={"Create Note"}
-                    type={"submit"}
+                    type={"button"}
                     textColor={"white"}
                     aria_label={"create note"}
                 />

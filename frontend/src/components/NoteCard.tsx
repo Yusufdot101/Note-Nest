@@ -1,54 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
-export interface Project {
+export interface Note {
     ID: number;
     CreatedAt: string;
-    UpdatedAt: string;
-    UserID: number;
-    Name: string;
-    Description: string;
+    ProjectID: number;
+    Title: string;
+    Content: string;
     Visibility: string;
     Color: string;
-    EntriesCount: number;
     LikesCount: number;
     CommentsCount: number;
 }
 
-interface ProjectCardProps {
-    SetColor: React.Dispatch<React.SetStateAction<string>>;
-    Color: string;
-    project: Project;
-    handleMenuClick?: (
-        e: React.MouseEvent<SVGElement>,
-        project: Project,
-    ) => void;
-    handleProjectClick?: (
+interface NoteCardProps {
+    note: Note;
+    handleMenuClick?: (e: React.MouseEvent<SVGElement>, note: Note) => void;
+    handleNoteClick?: (
         e: React.MouseEvent<HTMLDivElement>,
-        projectID: number,
+        noteID: number,
     ) => void;
 }
-const ProjectCard = ({
-    project,
+const NoteCard = ({
+    note,
     handleMenuClick,
-    handleProjectClick,
-    Color,
-    SetColor,
-}: ProjectCardProps) => {
+    handleNoteClick,
+}: NoteCardProps) => {
+    const [color, setColor] = useState(note.Color ? note.Color : "white");
     return (
         <div
-            style={{ border: `1px solid ${Color}` }}
-            className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col gap-[12px] h-[200px]"
+            style={{ border: `1px solid ${color}` }}
+            className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col gap-[12px] h-fit -[300px]"
             onClick={(e) =>
-                handleProjectClick
-                    ? handleProjectClick(e, project.ID)
-                    : () => {}
+                handleNoteClick ? handleNoteClick(e, note.ID) : () => {}
             }
         >
             <div className="flex items-center justify-between gap-[4px]">
                 <div className="flex items-center gap-[8px]">
                     <div
                         className="relative min-w-[40px] h-[30px] rounded-lg"
-                        style={{ backgroundColor: Color }}
+                        style={{ backgroundColor: color }}
                         onClick={(e) => {
                             e.stopPropagation();
                         }}
@@ -56,24 +47,24 @@ const ProjectCard = ({
                         <input
                             className="inline-block absolute cursor-pointer w-full h-full opacity-0"
                             type="color"
-                            value={Color}
+                            value={color}
                             onChange={(e) => {
                                 e.stopPropagation();
-                                SetColor(e.target.value);
+                                setColor(e.target.value);
                             }}
                             onInput={() => {}}
                         />
                     </div>
                     <span
-                        style={{ color: Color }}
+                        style={{ color: color }}
                         className="text-[28px] max-[629px]:text-[20px] font-bold w-full line-clamp-1 underline"
                     >
-                        {project.Name}
+                        {note.Title}
                     </span>
                 </div>
                 <div className="flex gap-[12px] items-center">
                     <span className="text-right font-bold">
-                        [{project.Visibility}]
+                        [{note.Visibility}]
                     </span>
                     <span>
                         <svg
@@ -84,7 +75,7 @@ const ProjectCard = ({
                             viewBox="0 0 32 32"
                             className={`${handleMenuClick ? "" : "hidden"} w-[30px] h-[30px] hover:text-accent active:text-text duration-300`}
                             onClick={(e) => {
-                                handleMenuClick!(e, project);
+                                handleMenuClick!(e, note);
                             }}
                         >
                             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -107,32 +98,23 @@ const ProjectCard = ({
                 </div>
             </div>
 
+            <div
+                className={`line-clamp-2 wrap-break-word ${!note.Content ? "opacity-50" : ""}`}
+            >
+                <div className="markdown">
+                    <ReactMarkdown>{note.Content}</ReactMarkdown>
+                </div>
+            </div>
+
             <div className="flex flex-col gap-[12px] font-bold">
-                <p
-                    className={`line-clamp-2 wrap-break-word ${!project.Description ? "opacity-50" : ""}`}
-                >
-                    {project.Description
-                        ? project.Description
-                        : "No Description"}
-                </p>
                 <div className="flex flex-col gap-[4px]">
                     <div className="flex gap-[12px] font-semibold">
-                        <span>Entries: {project.EntriesCount}</span>
-                        <span>Likes: {project.LikesCount}</span>
-                        <span>Comments: {project.CommentsCount}</span>
+                        <span>Likes: {note.LikesCount}</span>
+                        <span>Comments: {note.CommentsCount}</span>
                     </div>
                     <div className="font-semibold">
                         <p>
-                            Created:{" "}
-                            {new Date(project.CreatedAt).toDateString()}
-                        </p>
-                        <p
-                            className={`${project.UpdatedAt == undefined ? "opacity-50" : ""}`}
-                        >
-                            Updated:{" "}
-                            {project.UpdatedAt
-                                ? new Date(project.UpdatedAt).toDateString()
-                                : "Not Updated"}
+                            Created: {new Date(note.CreatedAt).toDateString()}
                         </p>
                     </div>
                 </div>
@@ -141,4 +123,4 @@ const ProjectCard = ({
     );
 };
 
-export default ProjectCard;
+export default NoteCard;

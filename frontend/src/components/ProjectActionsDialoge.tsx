@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { deleteProject } from "../utilities/project";
 
 const ProjectActionsDialoge = ({
+    color,
     handleClose,
     project,
 }: {
+    color: string;
     handleClose: () => void;
     project: Project;
 }) => {
@@ -29,7 +31,7 @@ const ProjectActionsDialoge = ({
             className="fixed text-[28px] z-2 max-[629px]:text-[20px] top-0 mt-[30vh] left-0 right-0 m-auto h-fit w-[90vw] max-w-[700px] bg-primary border-[1px] border-solid border-[#ffffff] rounded-[8px] text-text p-[12px]"
         >
             <p
-                style={{ color: project.Color }}
+                style={{ color: color }}
                 className="font-bold text-[32px] max-[629px]:text-[24px] p-[8px] text-center"
             >
                 {project.Name}

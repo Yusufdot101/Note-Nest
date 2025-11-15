@@ -52,14 +52,12 @@ const NoteContent = ({ color, content, setContent }: NoteContentProps) => {
                     />
                 ) : undefined}
                 {mode === "preview" ? (
-                    <div className="markdown min-h-[500px] px-[12px] py-[8px] border-none outline-none w-full rounded-[8px] overflow-auto">
-                        <div className="h-full">
-                            {content.trim() === "" ? (
-                                <p className="opacity-50">Nothing to preview</p>
-                            ) : (
-                                <ReactMarkdown>{content}</ReactMarkdown>
-                            )}
-                        </div>
+                    <div className="markdown min-h-[500px] px-[12px] border-none outline-none w-full rounded-[8px] overflow-auto">
+                        {content.trim() === "" ? (
+                            <p className="opacity-50">Nothing to preview</p>
+                        ) : (
+                            <ReactMarkdown>{content}</ReactMarkdown>
+                        )}
                     </div>
                 ) : undefined}
             </div>
