@@ -4,11 +4,13 @@ interface ContentHeaderProps {
     setMode: React.Dispatch<React.SetStateAction<string>>;
 }
 const ContentHeader = ({ mode, color, setMode }: ContentHeaderProps) => {
+    const ACTIVE_BG_COLOR = "#38a100";
     return (
         <div
             style={{ borderBottom: `1px solid ${color}` }}
             className="flex h-[50px] flex text-text w-full"
         >
+            {/* TODO: Add Rich Text mode support */}
             {/* <button */}
             {/*     type="button" */}
             {/*     style={{ */}
@@ -29,7 +31,7 @@ const ContentHeader = ({ mode, color, setMode }: ContentHeaderProps) => {
                     borderLeft: `${mode === "markdown" ? `1px solid ${color}` : ""}`,
                     borderBottom: `${mode === "markdown" ? "none" : ""}`,
                     marginBottom: ` ${mode === "markdown" ? "-1px" : "0"}`,
-                    background: `${mode === "markdown" ? "#38a100" : ""}`,
+                    background: `${mode === "markdown" ? ACTIVE_BG_COLOR : ""}`,
                 }}
                 className="mb-[-10px] z-1 px-[8px] rounded-t-[4px] w-full cursor-pointer"
                 onClick={() => setMode("markdown")}
@@ -42,7 +44,7 @@ const ContentHeader = ({ mode, color, setMode }: ContentHeaderProps) => {
                     borderLeft: `${mode === "preview" ? `1px solid ${color}` : ""}`,
                     borderBottom: `${mode === "preview" ? "none" : ""}`,
                     marginBottom: ` ${mode === "preview" ? "-1px" : "0"}`,
-                    background: `${mode === "preview" ? "#38a100" : ""}`,
+                    background: `${mode === "preview" ? ACTIVE_BG_COLOR : ""}`,
                 }}
                 className="mb-[-10px] z-1 px-[8px] rounded-t-[4px] w-full cursor-pointer"
                 onClick={() => setMode("preview")}

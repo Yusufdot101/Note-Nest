@@ -41,21 +41,13 @@ export const newProject = async (
 };
 
 export const updateProject = async (
+    projectID: number,
     projectName: string,
     projectDescription: string,
     projectVisibility: string,
     projectColor: string,
 ): Promise<boolean> => {
     try {
-        const url = new URL(window.location.toString());
-        const segments = url.pathname.split("/").filter(Boolean);
-        const projectID = segments.at(-2);
-
-        if (!projectID) {
-            alert("Invalid project ID");
-            return false;
-        }
-
         const res = await api(`/projects/${projectID}`, {
             method: "PATCH",
             headers: {

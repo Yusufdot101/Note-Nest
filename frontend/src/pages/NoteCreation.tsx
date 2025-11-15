@@ -2,7 +2,7 @@ import { useState } from "react";
 import NoteContent from "../components/NoteContent";
 import NoteTitle from "../components/NoteTitle";
 import SubmitButton from "../components/SubmitButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { newNote } from "../utilities/note";
 
 const NoteCreation = () => {
@@ -12,22 +12,17 @@ const NoteCreation = () => {
     const [visibility, setVisibility] = useState("private");
 
     const navigate = useNavigate();
+    const { projectid } = useParams();
 
     const handleDiscard = () => {
         if (!confirm("are you sure you want to discard")) return;
-        const url = new URL(window.location.toString());
-        const segments = url.pathname.split("/");
-        const projectID = segments.at(-3);
-        navigate(`/projects/${projectID}`);
+        navigate(`/projects/${projectid}`);
     };
 
     const handleCreate = async () => {
-        if (content === "" || title === "") return;
-        const url = new URL(window.location.toString());
-        const segments = url.pathname.split("/");
-        const projectID = segments.at(-3);
+        if (content === "" || title === "" || !projectid) return;
         const success = await newNote(
-            +projectID!,
+            +projectid,
             title,
             content,
             visibility,
@@ -35,11 +30,17 @@ const NoteCreation = () => {
         );
 
         if (!success) return;
-        navigate(`/projects/${projectID}`);
+        navigate(`/projects/${projectid}`);
     };
 
     return (
-        <form action={handleCreate} className="flex flex-col gap-[12px]">
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                handleCreate;
+            }}
+            className="flex flex-col gap-[12px]"
+        >
             <p className="text-accent text-[32px] max-[619px]:text-[24px] font-semibold text-center">
                 CREATE NOTE
             </p>
@@ -60,7 +61,7 @@ const NoteCreation = () => {
                         <label htmlFor={"private"}>Private</label>
                         <input
                             type="radio"
-                            name="projectVisibility"
+                            name="visibility"
                             id="private"
                             value={"private"}
                             className="w-[30px] h-[30px] max-[619px]:w-[20px] accent-accent"
@@ -100,6 +101,7 @@ const NoteCreation = () => {
                 <SubmitButton
                     handleSubmit={handleCreate}
                     text={"Create Note"}
+                    type={"submit"}
                     textColor={"white"}
                     aria_label={"create note"}
                 />

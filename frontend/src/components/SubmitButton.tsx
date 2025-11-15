@@ -22,7 +22,7 @@ const SubmitButton = ({
                 backgroundColor: bgColor ? bgColor : "",
                 color: textColor ? textColor : "",
             }}
-            type={type!}
+            type={type ?? "button"}
             className="w-full py-[12px] rounded-[8px] cursor-pointer bg-accent mx-auto"
         >
             {text}

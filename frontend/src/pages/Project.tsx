@@ -4,21 +4,19 @@ import type { Project } from "../components/ProjectCard";
 import { fetchProject } from "../utilities/project";
 import ProjectCard from "../components/ProjectCard";
 import ProjectActionsDialoge from "../components/ProjectActionsDialoge";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const ProjectPage = () => {
     const [project, setProject] = useState<Project>();
     const [showDialoge, setShowDialoge] = useState(false);
 
     const navigate = useNavigate();
+    const { id } = useParams();
 
     useEffect(() => {
         const setupProject = async () => {
-            const url = new URL(window.location.toString());
-            const segments = url.pathname.split("/").filter(Boolean);
-            const projectID = segments.at(-1);
-            if (projectID == "") return;
-            const project = await fetchProject(+projectID!);
+            if (id == "") return;
+            const project = await fetchProject(+id!);
             if (!project) return;
             setProject(project);
         };

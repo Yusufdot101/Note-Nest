@@ -16,8 +16,10 @@ const NoteContent = ({ color, content, setContent }: NoteContentProps) => {
 
     const handleResize = () => {
         if (textareaRef.current) {
-            const { offsetHeight } = textareaRef.current;
-            setContentHeight(offsetHeight);
+            // const { offsetHeight } = textareaRef.current;
+            textareaRef.current.style.height = "auto";
+            const newHeight = Math.max(500, textareaRef.current.scrollHeight);
+            setContentHeight(newHeight);
         }
     };
     return (
@@ -45,19 +47,13 @@ const NoteContent = ({ color, content, setContent }: NoteContentProps) => {
                         value={content}
                         onChange={(e) => {
                             setContent(e.target.value);
+                            handleResize();
                         }}
-                        onMouseUp={handleResize} // for mouse
-                        onTouchEnd={handleResize} // for touch devices
                     />
                 ) : undefined}
                 {mode === "preview" ? (
-                    <div
-                        style={{
-                            height: `${contentHeight}px`,
-                        }}
-                        className="markdown px-[12px] py-[8px] border-none outline-none w-full rounded-[8px] overflow-auto"
-                    >
-                        <div>
+                    <div className="markdown min-h-[500px] px-[12px] py-[8px] border-none outline-none w-full rounded-[8px] overflow-auto">
+                        <div className="h-full">
                             {content.trim() === "" ? (
                                 <p className="opacity-50">Nothing to preview</p>
                             ) : (

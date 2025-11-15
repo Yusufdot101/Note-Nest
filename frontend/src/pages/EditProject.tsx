@@ -11,25 +11,22 @@ import {
     fetchProject,
     updateProject,
 } from "../utilities/project";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ColorPicker from "../components/ColorPicker";
 
 const EditProject = () => {
-    const [projectID, setProjectID] = useState<number>();
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
     const [projectVisibility, setProjectVisibility] = useState("");
     const [projectColor, setProjectColor] = useState("#00FFFF");
 
+    const { id } = useParams();
+
     useEffect(() => {
         const setupProject = async () => {
-            const url = new URL(window.location.toString());
-            const segments = url.pathname.split("/").filter(Boolean);
-            const projectID = segments.at(-2);
-            if (projectID == "") return;
-            const project = await fetchProject(+projectID!);
+            if (id === "") return;
+            const project = await fetchProject(+id!);
             if (!project) return;
-            setProjectID(project.ID);
             setProjectName(project.Name);
             setProjectDescription(project.Description);
             setProjectVisibility(project.Visibility);
@@ -50,10 +47,12 @@ const EditProject = () => {
         if (
             projectNameError ||
             projectDescriptionError ||
-            projectVisibilityError
+            projectVisibilityError ||
+            !id
         )
             return;
         const success = await updateProject(
+            +id,
             projectName,
             projectDescription,
             projectVisibility,
@@ -65,7 +64,7 @@ const EditProject = () => {
     };
 
     const handleCancel = () => {
-        navigate(`/projects/${projectID}`);
+        navigate(`/projects/${id}`);
     };
 
     useEffect(() => {
@@ -185,7 +184,7 @@ const EditProject = () => {
                     <SubmitButton
                         aria_label={"Cancel Changes"}
                         handleSubmit={() => {
-                            if (!projectID) return;
+                            if (!id) return;
                             handleCancel();
                         }}
                         text={"Cancel"}
@@ -195,8 +194,8 @@ const EditProject = () => {
                 <SubmitButton
                     aria_label={"Delete Project"}
                     handleSubmit={async () => {
-                        if (!projectID) return;
-                        const success = await deleteProject(projectID);
+                        if (!id) return;
+                        const success = await deleteProject(id);
                         if (!success) return;
                         navigate("/projects");
                     }}

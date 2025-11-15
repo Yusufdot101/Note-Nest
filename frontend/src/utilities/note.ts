@@ -14,10 +14,10 @@ export const newNote = async (
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                title: title,
-                content: content,
-                visibility: visibility,
-                color: color,
+                title,
+                content,
+                visibility,
+                color,
             }),
         });
         if (!res) {

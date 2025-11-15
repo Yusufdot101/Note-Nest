@@ -33,7 +33,7 @@ const ProjectCard = ({
     const [color, setColor] = useState(project.Color ? project.Color : "white");
     return (
         <div
-            style={{ border: `1px solid ${project?.Color}` }}
+            style={{ border: `1px solid ${project?.Color || color}` }}
             className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col gap-[12px] h-[200px]"
             onClick={(e) =>
                 handleProjectClick

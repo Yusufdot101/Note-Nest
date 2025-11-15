@@ -12,7 +12,7 @@ const NoteTitle = ({ title, setTitle, color, setColor }: NoteTitleProps) => {
         <div className="text-text flex flex-col gap-[4px] text-[20px]">
             <label htmlFor="title">
                 Add title
-                <span className="text-[red]">*</span>
+                <span className="text-red-500">*</span>
             </label>
             <div className="flex gap-[12px]">
                 <input
@@ -23,7 +23,7 @@ const NoteTitle = ({ title, setTitle, color, setColor }: NoteTitleProps) => {
                     onChange={(e) => setTitle(e.target.value)}
                     required
                     style={{ border: `1px solid ${color}` }}
-                    className="border-none w-full py-[4px] px-[12px] rounded-[8px] outline-none"
+                    className="w-full py-[4px] px-[12px] rounded-[8px] outline-none"
                 />
                 <ColorPicker color={color} setColor={setColor} />
             </div>
