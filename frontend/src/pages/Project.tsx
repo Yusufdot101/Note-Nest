@@ -21,7 +21,7 @@ const ProjectPage = () => {
             setProject(project);
         };
         setupProject();
-    }, []);
+    }, [id]);
 
     return (
         <div className="flex flex-col gap-[12px]">

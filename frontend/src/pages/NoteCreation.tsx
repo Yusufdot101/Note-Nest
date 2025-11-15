@@ -37,7 +37,7 @@ const NoteCreation = () => {
         <form
             onSubmit={(e) => {
                 e.preventDefault();
-                handleCreate;
+                handleCreate();
             }}
             className="flex flex-col gap-[12px]"
         >

@@ -33,7 +33,7 @@ const EditProject = () => {
             setProjectColor(project.Color);
         };
         setupProject();
-    }, []);
+    }, [id]);
 
     const [projectNameError, setProjectNameError] = useState("");
     const [projectDescriptionError, setProjectDescriptionError] = useState("");
