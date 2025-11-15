@@ -134,6 +134,7 @@ const Signup = () => {
                     aria_label={"sign up"}
                     handleSubmit={() => {}}
                     text={"Sign Up"}
+                    type="submit"
                 />
                 <div
                     className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showSignupErrors ? "hidden" : ""}`}

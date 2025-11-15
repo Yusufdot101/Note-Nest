@@ -107,6 +107,7 @@ const Login = () => {
                     aria_label={"login"}
                     handleSubmit={() => {}}
                     text={"Login"}
+                    type="submit"
                 />
                 <div
                     className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showLoginErrors ? "hidden" : ""}`}
