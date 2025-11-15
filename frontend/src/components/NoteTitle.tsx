@@ -1,4 +1,3 @@
-import { hover } from "@testing-library/user-event/dist/cjs/convenience/hover.js";
 import ColorPicker from "./ColorPicker";
 
 interface NoteTitleProps {
