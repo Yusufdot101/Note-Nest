@@ -12,13 +12,14 @@ import {
     updateProject,
 } from "../utilities/project";
 import { useNavigate } from "react-router-dom";
+import ColorPicker from "../components/ColorPicker";
 
 const EditProject = () => {
     const [projectID, setProjectID] = useState<number>();
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
     const [projectVisibility, setProjectVisibility] = useState("");
-    const [projectColor, setProjectColor] = useState("");
+    const [projectColor, setProjectColor] = useState("#00FFFF");
 
     useEffect(() => {
         const setupProject = async () => {
@@ -79,29 +80,14 @@ const EditProject = () => {
 
     return (
         <div
-            style={{ boxShadow: `0px 0px 4px 1px ${projectColor}` }}
-            className="bg-primary flex flex-col w-full py-[32px] min-[620px]:text-2xl px-[12px]"
+            style={{ border: `1px solid ${projectColor}` }}
+            className="bg-primary flex flex-col w-full py-[32px] min-[620px]:text-2xl px-[12px] rounded-[8px]"
         >
-            <div className="flex items-center justify-center gap-[8px]">
+            <div className="flex items-center justify-center gap-[8px] h-[35px]">
                 <p className="text-accent text-[32px] max-[619px]:text-[24px] font-semibold text-center">
                     EDIT PROJECT
                 </p>
-                <div
-                    className="relative w-[40px] max-[619px]:w-[35px] h-[30px] max-[619px]:h-[25px] rounded-lg"
-                    style={{ backgroundColor: projectColor }}
-                >
-                    {" "}
-                    <input
-                        className="inline-block absolute cursor-pointer w-full h-full opacity-0"
-                        type="color"
-                        required
-                        value={projectColor}
-                        onChange={(e) => {
-                            setProjectColor(e.target.value);
-                        }}
-                        onInput={() => {}}
-                    />
-                </div>
+                <ColorPicker color={projectColor} setColor={setProjectColor} />
             </div>
             <form
                 onSubmit={(e) => {

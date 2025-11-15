@@ -44,7 +44,7 @@ const ProjectPage = () => {
             </div>
             <div>
                 <div
-                    style={{ boxShadow: `0px 0px 4px 1px white` }}
+                    style={{ border: `1px solid ${project?.Color}` }}
                     className="text-text cursor-pointer bg-primary p-[12px] flex flex-col gap-[12px] h-fit"
                 >
                     <h1 className="text-text font-bold text-[32px] max-[629px]:text-[24px] text-center">

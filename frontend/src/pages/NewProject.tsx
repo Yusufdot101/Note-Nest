@@ -8,6 +8,7 @@ import {
     getProjectVisibilityErrorMessages,
 } from "../utilities/inputValidation";
 import { newProject } from "../utilities/projects";
+import ColorPicker from "../components/ColorPicker";
 
 const NewProject = () => {
     const [projectName, setProjectName] = useState("");
@@ -57,30 +58,16 @@ const NewProject = () => {
 
     return (
         <div
-            style={{ boxShadow: `0px 0px 4px 1px ${projectColor}` }}
+            style={{ border: `1px solid ${projectColor}` }}
             className="bg-primary flex flex-col w-full py-[32px] min-[620px]:text-2xl px-[12px]"
         >
-            <div className="flex items-center justify-center gap-[8px]">
+            <div className="flex h-[35px] items-center justify-center gap-[8px]">
                 <p className="text-accent text-[32px] max-[619px]:text-[24px] font-semibold text-center">
                     NEW PROJECT
                 </p>
-                <div
-                    className="relative w-[40px] max-[619px]:w-[35px] h-[30px] max-[619px]:h-[25px] rounded-lg"
-                    style={{ backgroundColor: projectColor }}
-                >
-                    {" "}
-                    <input
-                        className="inline-block absolute cursor-pointer w-full h-full opacity-0"
-                        type="color"
-                        required
-                        value={projectColor}
-                        onChange={(e) => {
-                            setProjectColor(e.target.value);
-                        }}
-                        onInput={() => {}}
-                    />
-                </div>
+                <ColorPicker color={projectColor} setColor={setProjectColor} />
             </div>
+
             <form
                 onSubmit={(e) => handleSubmit(e)}
                 className="flex flex-col text-text gap-y-[8px]"

@@ -5,7 +5,7 @@ import Icon from "./Icon";
 
 const Footer = () => {
     return (
-        <div className="bg-primary shadow-[0px_0px_4px_1px_white] py-[12px] flex flex-col items-center text-text gap-[8px]">
+        <div className="bg-primary border-[1px] border-solid border-[#ffffff] rounded-[8px] py-[12px] flex flex-col items-center text-text gap-[8px]">
             <div className="flex justify-center gap-x-[8px]">
                 <Icon
                     src={githubLogo}

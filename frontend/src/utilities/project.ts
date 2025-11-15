@@ -10,7 +10,7 @@ export const updateProject = async (
     try {
         const url = new URL(window.location.toString());
         const segments = url.pathname.split("/").filter(Boolean);
-        const projectID = segments.at(-1);
+        const projectID = segments.at(-2);
 
         if (!projectID) {
             alert("Invalid project ID");
@@ -56,7 +56,7 @@ export const fetchProject = async (): Promise<Project | null> => {
     try {
         const url = new URL(window.location.toString());
         const segments = url.pathname.split("/").filter(Boolean);
-        const projectID = segments.at(-1);
+        const projectID = segments.at(-2);
 
         const res = await api(`/projects/${projectID}`, {
             method: "GET",
