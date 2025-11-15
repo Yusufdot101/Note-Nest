@@ -23,7 +23,11 @@ const EditProject = () => {
 
     useEffect(() => {
         const setupProject = async () => {
-            const project = await fetchProject();
+            const url = new URL(window.location.toString());
+            const segments = url.pathname.split("/").filter(Boolean);
+            const projectID = segments.at(-2);
+            if (projectID == "") return;
+            const project = await fetchProject(+projectID!);
             if (!project) return;
             setProjectID(project.ID);
             setProjectName(project.Name);

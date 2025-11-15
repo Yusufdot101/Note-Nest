@@ -6,3 +6,7 @@
     --color-accent: #38a100;
     --color-text: #ffffff;
 }
+
+.markdown > * {
+    all: revert;
+}

@@ -26,7 +26,7 @@ const ProjectActionsDialoge = ({
     return (
         <div
             ref={ref}
-            className="fixed text-[28px] max-[629px]:text-[20px] top-0 mt-[30vh] left-0 right-0 m-auto h-fit w-[90vw] max-w-[700px] bg-primary border-[1px] border-solid border-[#ffffff] rounded-[8px] text-text p-[12px]"
+            className="fixed text-[28px] z-2 max-[629px]:text-[20px] top-0 mt-[30vh] left-0 right-0 m-auto h-fit w-[90vw] max-w-[700px] bg-primary border-[1px] border-solid border-[#ffffff] rounded-[8px] text-text p-[12px]"
         >
             <p
                 style={{ color: project.Color }}

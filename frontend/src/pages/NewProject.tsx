@@ -7,7 +7,7 @@ import {
     getProjectNameErrorMessages,
     getProjectVisibilityErrorMessages,
 } from "../utilities/inputValidation";
-import { newProject } from "../utilities/projects";
+import { newProject } from "../utilities/project";
 import ColorPicker from "../components/ColorPicker";
 
 const NewProject = () => {
