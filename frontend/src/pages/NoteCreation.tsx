@@ -102,7 +102,6 @@ const NoteCreation = () => {
                 <SubmitButton
                     handleSubmit={handleCreate}
                     text={"Create Note"}
-                    type={"button"}
                     textColor={"white"}
                     aria_label={"create note"}
                 />

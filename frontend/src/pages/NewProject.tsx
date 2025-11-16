@@ -153,6 +153,7 @@ const NewProject = () => {
                     aria_label={"Create Project"}
                     handleSubmit={() => {}}
                     text={"Create Project"}
+                    type={"submit"}
                 />
             </form>
         </div>

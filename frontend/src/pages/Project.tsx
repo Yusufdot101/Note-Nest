@@ -73,12 +73,12 @@ const ProjectPage = () => {
                     <h1 className="text-text font-bold text-[32px] max-[629px]:text-[24px] text-center">
                         NOTES
                     </h1>
-                    {/* TODO: list the notes below */}
+
                     {notes.map((note) => (
                         <NoteCard
                             key={note.ID}
                             note={note}
-                            handleNoteClick={() => {}}
+                            handleNoteClick={() => navigate(`notes/${note.ID}`)}
                         />
                     ))}
 

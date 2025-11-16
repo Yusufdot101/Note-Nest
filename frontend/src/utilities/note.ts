@@ -70,3 +70,28 @@ export const fetchNotes = async (projectID: number): Promise<Note[]> => {
         return [];
     }
 };
+
+export const fetchNote = async (noteID: number): Promise<Note | undefined> => {
+    try {
+        const res = await api(`/notes/${noteID}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (!res) {
+            return;
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            console.error(errors);
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return data.note;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return undefined;
+    }
+};
