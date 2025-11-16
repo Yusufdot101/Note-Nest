@@ -10,6 +10,7 @@ import AllProjects from "./pages/AllProjects";
 import ProjectPage from "./pages/Project";
 import EditProject from "./pages/EditProject";
 import NoteCreation from "./pages/NoteCreation";
+import NotePage from "./pages/Note";
 
 const router = createBrowserRouter([
     {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
             {
                 path: "/projects/:projectid/notes/new",
                 element: <NoteCreation />,
+            },
+            {
+                path: "/projects/:projectid/notes/:noteid",
+                element: <NotePage />,
             },
         ],
     },

@@ -195,12 +195,13 @@ const EditProject = () => {
                     aria_label={"Delete Project"}
                     handleSubmit={async () => {
                         if (!id) return;
-                        const success = await deleteProject(id);
+                        const success = await deleteProject(+id);
                         if (!success) return;
                         navigate("/projects");
                     }}
                     text={"Delete Project"}
                     bgColor="red"
+                    type={"submit"}
                 />
             </form>
         </div>
