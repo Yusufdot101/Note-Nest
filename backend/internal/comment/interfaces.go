@@ -17,7 +17,7 @@ type comment struct {
 }
 
 type repo interface {
-	insert(c *comment) error
+	insert(c *comment, projectID int) error
 }
 
 type commentService struct {

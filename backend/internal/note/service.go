@@ -101,5 +101,5 @@ func (ns *NoteService) deleteNote(userID, noteID int) error {
 	}
 
 	// delete the note
-	return ns.Repo.delete(noteID)
+	return ns.Repo.delete(noteID, project.ID)
 }
