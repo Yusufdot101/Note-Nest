@@ -50,7 +50,7 @@ func (ns *NoteService) newNote(
 	return nil
 }
 
-func (ns *NoteService) getNote(userID, noteID int) (*Note, error) {
+func (ns *NoteService) GetNote(userID, noteID int) (*Note, error) {
 	// fetch the note
 	note, err := ns.Repo.get(noteID)
 	if err != nil {

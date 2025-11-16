@@ -25,7 +25,7 @@ func (h *NoteHandler) getNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	note, err := h.svc.getNote(userID, noteID)
+	note, err := h.svc.GetNote(userID, noteID)
 	if err != nil {
 		switch {
 		case errors.Is(err, custom_errors.ErrNoRecord):
