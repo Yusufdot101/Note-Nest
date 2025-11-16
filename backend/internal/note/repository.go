@@ -17,11 +17,15 @@ type Repository struct {
 }
 
 func (r *Repository) insert(n *Note) error {
-	query := `
+	insertQuery := `
 		INSERT INTO notes
 		(project_id, title, content, color, visibility)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, created_at, likes_count, comments_count
+		VALUES ($1, $2, $3, $4, $5);
+	`
+	updateProjectsQuery := `
+		UPDATE projects
+		SET entries_count = entries_count + 1
+		WHERE id = $1;
 	`
 
 	values := []any{
@@ -35,12 +39,7 @@ func (r *Repository) insert(n *Note) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.DB.QueryRowContext(ctx, query, values...).Scan(
-		&n.ID,
-		&n.CreatedAt,
-		&n.LikesCount,
-		&n.CommentsCount,
-	)
+	_, err := r.DB.ExecContext(ctx, insertQuery, values...)
 	if err != nil {
 		switch err.Error() {
 		case `pq: insert or update on table "notes" violates foreign key constraint "notes_project_id_fkey"`:
@@ -48,6 +47,11 @@ func (r *Repository) insert(n *Note) error {
 		default:
 			return err
 		}
+	}
+
+	_, err = r.DB.ExecContext(ctx, updateProjectsQuery, n.ProjectID)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -251,16 +255,20 @@ BUILD:
 	return notes, nil
 }
 
-func (r *Repository) delete(noteID int) error {
+func (r *Repository) delete(noteID, projectID int) error {
 	query := `
 		DELETE FROM notes
 		WHERE id = $1
+
+		UPDATE projects
+		SET entries_count = entries_count - 1
+		WHERE id = $2
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, err := r.DB.ExecContext(ctx, query, noteID)
+	res, err := r.DB.ExecContext(ctx, query, noteID, projectID)
 	if err != nil {
 		return err
 	}

@@ -50,7 +50,7 @@ type Repo interface {
 	insert(n *Note) error
 	get(noteID int) (*Note, error)
 	getMany(currentUserID, queryUserID, projectID *int, visibility string) ([]*Note, error)
-	delete(noteID int) error
+	delete(noteID, projectID int) error
 }
 
 type NoteService struct {
