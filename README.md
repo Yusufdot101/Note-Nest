@@ -42,7 +42,3 @@ Note-Nest/ <br>
 ├─ frontend/ # React.js app <br>
 ├─ docker-compose.yml <br>
 └─ README.md <br>
-
-## 📜 License
-
-[MIT License](https://opensource.org/license/mit)
