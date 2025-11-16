@@ -16,6 +16,10 @@ func (r *repository) insert(c *comment) error {
 		(user_id, note_id, content)
 		VALUES
 		($1, $2, $3)
+
+		UPDATE notes
+		set comments_count = comments_count + 1
+		WHERE id = $2
 	`
 
 	values := []any{

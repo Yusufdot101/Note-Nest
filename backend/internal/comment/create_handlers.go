@@ -20,7 +20,7 @@ func (h *commentHandler) newComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	params := httprouter.ParamsFromContext(r.Context())
-	noteID, err := strconv.Atoi(params.ByName("noteid"))
+	noteID, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
 		custom_errors.BadRequestErrorResponse(w, err)
 		return
