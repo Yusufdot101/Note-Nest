@@ -5,12 +5,21 @@ import { fetchNote } from "../utilities/note";
 import SubmitButton from "../components/SubmitButton";
 import ReactMarkdown from "react-markdown";
 import Input from "../components/Input";
+import { useAuthStore } from "../store/useAuthStore";
+import type { Project } from "../components/ProjectCard";
+import { fetchProject } from "../utilities/project";
+import NoteActionsDialoge from "../components/NoteActionsDialoge";
 
 const NotePage = () => {
     const [note, setNote] = useState<Note>();
+    const [project, setProject] = useState<Project>();
     const [comment, setComment] = useState("");
+    const [showDialoge, setShowDialoge] = useState(false);
+
     const { projectid, noteid } = useParams();
     const navigate = useNavigate();
+
+    const userid = useAuthStore((state) => state.userID);
 
     useEffect(() => {
         const setupNote = async () => {
@@ -20,8 +29,21 @@ const NotePage = () => {
             setNote(note);
         };
 
+        const setupProject = async () => {
+            if (!projectid) return;
+            const project = await fetchProject(+projectid);
+            if (!project) return;
+            setProject(project);
+        };
+
         setupNote();
-    }, [noteid]);
+        setupProject();
+    }, [noteid, projectid]);
+
+    const handleMenuClick = (e: React.MouseEvent<SVGElement>) => {
+        e.stopPropagation();
+        setShowDialoge((prev) => !prev);
+    };
 
     return (
         <div className="text-[20px] max-[619px]:text-[16px] text-text flex flex-col gap-[8px]">
@@ -42,9 +64,41 @@ const NotePage = () => {
                 <span className="font-bold text-[28px] max-[619px]:text-[20px]">
                     {note?.Title}
                 </span>
-                <span className="text-[20px] font-light">
-                    [{note?.Visibility}]
-                </span>
+                <div className="flex items-center gap-[8px]">
+                    <span className="text-[20px] font-light">
+                        [{note?.Visibility}]
+                    </span>
+
+                    <span>
+                        <svg
+                            fill="currentColor"
+                            version="1.1"
+                            id="Icons"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 32 32"
+                            className={`${userid === project?.UserID ? "" : "hidden"} w-[30px] h-[30px] hover:text-accent active:text-text duration-300`}
+                            onClick={(e) => {
+                                handleMenuClick(e);
+                            }}
+                        >
+                            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                            <g
+                                id="SVGRepo_tracerCarrier"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            ></g>
+                            <g id="SVGRepo_iconCarrier">
+                                {" "}
+                                <g>
+                                    {" "}
+                                    <path d="M16,10c1.7,0,3-1.3,3-3s-1.3-3-3-3s-3,1.3-3,3S14.3,10,16,10z"></path>{" "}
+                                    <path d="M16,13c-1.7,0-3,1.3-3,3s1.3,3,3,3s3-1.3,3-3S17.7,13,16,13z"></path>{" "}
+                                    <path d="M16,22c-1.7,0-3,1.3-3,3s1.3,3,3,3s3-1.3,3-3S17.7,22,16,22z"></path>{" "}
+                                </g>{" "}
+                            </g>
+                        </svg>
+                    </span>
+                </div>
             </div>
 
             <div
@@ -239,6 +293,14 @@ const NotePage = () => {
                 </div>
                 {/*TODO: Display comments*/}
             </div>
+
+            {showDialoge ? (
+                <NoteActionsDialoge
+                    color={note!.Color}
+                    note={note!}
+                    handleClose={() => setShowDialoge(false)}
+                />
+            ) : undefined}
         </div>
     );
 };

@@ -2,9 +2,9 @@ import ColorPicker from "./ColorPicker";
 
 interface NoteTitleProps {
     title: string;
-    color: string;
+    color?: string;
     setTitle: React.Dispatch<React.SetStateAction<string>>;
-    setColor: React.Dispatch<React.SetStateAction<string>>;
+    setColor?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const NoteTitle = ({ title, setTitle, color, setColor }: NoteTitleProps) => {
@@ -25,7 +25,9 @@ const NoteTitle = ({ title, setTitle, color, setColor }: NoteTitleProps) => {
                     style={{ border: `1px solid ${color}` }}
                     className="w-full py-[4px] px-[12px] rounded-[8px] outline-none"
                 />
-                <ColorPicker color={color} setColor={setColor} />
+                {color && setColor ? (
+                    <ColorPicker color={color} setColor={setColor} />
+                ) : undefined}
             </div>
         </div>
     );

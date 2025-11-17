@@ -97,3 +97,128 @@ export const fetchNote = async (noteID: number): Promise<Note | undefined> => {
         return undefined;
     }
 };
+
+export const deleteNote = async (noteID: number): Promise<boolean> => {
+    try {
+        const res = await api(`/notes/${noteID}`, {
+            method: "DELETE",
+        });
+        if (!res) {
+            return false;
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            console.error(errors);
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
+
+export const toggleVisibility = async (
+    noteID: number,
+    newVisibility: string,
+): Promise<boolean> => {
+    try {
+        const res = await api(`/notes/${noteID}/visibility`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                visibility: newVisibility,
+            }),
+        });
+        if (!res) {
+            return false;
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            console.error(errors);
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
+
+export const editNote = async (
+    noteid: number,
+    title: string,
+    content: string,
+    handleError: (errors: Record<string, string>) => void,
+): Promise<boolean> => {
+    try {
+        const res = await api(`/notes/${noteid}/content`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title,
+                content,
+            }),
+        });
+        if (!res) {
+            return false;
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            if (errors) {
+                handleError(errors);
+                console.error(errors);
+                return false;
+            }
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
+
+export const editNoteColor = async (
+    noteid: number,
+    newColor: string,
+): Promise<boolean> => {
+    try {
+        const res = await api(`/notes/${noteid}/color`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                color: newColor,
+            }),
+        });
+        if (!res) {
+            return false;
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            if (errors) {
+                console.error(errors);
+                return false;
+            }
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};

@@ -270,24 +270,39 @@ BUILD:
 }
 
 func (r *Repository) delete(noteID, projectID int) error {
-	query := `
+	deletQuery := `
 		DELETE FROM notes
 		WHERE id = $1
-
+	`
+	updateQuery := `
 		UPDATE projects
 		SET entries_count = entries_count - 1
-		WHERE id = $2
+		WHERE id = $1
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, err := r.DB.ExecContext(ctx, query, noteID, projectID)
+	res, err := r.DB.ExecContext(ctx, deletQuery, noteID)
 	if err != nil {
 		return err
 	}
 
 	affectedRows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affectedRows == 0 {
+		return custom_errors.ErrNoRecord
+	}
+
+	res, err = r.DB.ExecContext(ctx, updateQuery, projectID)
+	if err != nil {
+		return err
+	}
+
+	affectedRows, err = res.RowsAffected()
 	if err != nil {
 		return err
 	}

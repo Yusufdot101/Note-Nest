@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { editNoteColor } from "../utilities/note";
 
 export interface Note {
     ID: number;
@@ -48,9 +49,10 @@ const NoteCard = ({
                             className="inline-block absolute cursor-pointer w-full h-full opacity-0"
                             type="color"
                             value={color}
-                            onChange={(e) => {
+                            onChange={async (e) => {
                                 e.stopPropagation();
                                 setColor(e.target.value);
+                                await editNoteColor(note.ID, e.target.value);
                             }}
                             onInput={() => {}}
                         />
