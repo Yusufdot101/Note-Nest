@@ -109,15 +109,20 @@ func (ns *NoteService) updateNoteTitleContent(
 ) error {
 	var cleanedTitle, cleanedContent *string
 
+	if title == nil && content == nil {
+		v.AddError("input", "at least one field (title or content) must be provided")
+		return validator.ErrFailedValidation
+	}
+
 	if title != nil {
-		cleanedTitle = title
-		*cleanedTitle = strings.TrimSpace(*title)
+		trimmed := strings.TrimSpace(*title)
+		cleanedTitle = &trimmed
 		validateTitle(v, *cleanedTitle)
 	}
 
 	if content != nil {
-		cleanedContent = content
-		*cleanedContent = strings.TrimSpace(*content)
+		trimmed := strings.TrimSpace(*content)
+		cleanedContent = &trimmed
 		validateContent(v, *cleanedContent)
 	}
 

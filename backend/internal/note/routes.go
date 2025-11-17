@@ -10,10 +10,13 @@ import (
 )
 
 func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
+	repo, err := NewRepository(DB)
+	if err != nil {
+		panic(err)
+	}
+
 	h := newHandler(&NoteService{
-		Repo: &Repository{
-			DB: DB,
-		},
+		Repo: repo,
 		ProjectSvc: &project.ProjectService{
 			Repo: &project.Repository{
 				DB: DB,

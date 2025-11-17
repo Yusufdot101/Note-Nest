@@ -15,7 +15,19 @@ import (
 )
 
 type Repository struct {
-	DB *sql.DB
+	DB            *sql.DB
+	UpdateTimeout time.Duration
+}
+
+func NewRepository(db *sql.DB) (*Repository, error) {
+	timeout, err := time.ParseDuration(os.Getenv("NOTE_UPDATE_TIMEOUT"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid NOTE_UPDATE_TIMEOUT: %w", err)
+	}
+	return &Repository{
+		DB:            db,
+		UpdateTimeout: timeout,
+	}, nil
 }
 
 func (r *Repository) insert(n *Note) error {
@@ -339,7 +351,12 @@ func (r *Repository) updateNoteTitleContent(userID, noteID int, title, content *
 		&p.UserID,
 	)
 	if err != nil {
-		return err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return custom_errors.ErrNoRecord
+		default:
+			return err
+		}
 	}
 
 	// do checks
@@ -347,12 +364,7 @@ func (r *Repository) updateNoteTitleContent(userID, noteID int, title, content *
 		return custom_errors.ErrNoRecord
 	}
 
-	updateTimout, err := time.ParseDuration(os.Getenv("NOTE_UPDATE_TIMEOUT"))
-	if err != nil {
-		return err
-	}
-
-	if time.Since(*n.CreatedAt) > updateTimout {
+	if time.Since(*n.CreatedAt) > r.UpdateTimeout {
 		return custom_errors.ErrUpdateTimeout
 	}
 
