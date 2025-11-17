@@ -42,7 +42,7 @@ const EditNote = () => {
     }, [noteid]);
 
     const handleSave = async () => {
-        if (content === "" || title === "") return;
+        if (content === "" || title === "" || visibility === "") return;
         setShowErrors(false);
         const handleError = (errors: Record<string, string>) => {
             setShowErrors(true);

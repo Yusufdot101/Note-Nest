@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { Note } from "../components/NoteCard";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchNote } from "../utilities/note";
@@ -40,7 +40,9 @@ const NotePage = () => {
         setupProject();
     }, [noteid, projectid]);
 
-    const handleMenuClick = (e: React.MouseEvent<SVGElement>) => {
+    const handleMenuClick = (
+        e: React.MouseEvent<SVGElement> | React.KeyboardEvent<SVGElement>,
+    ) => {
         e.stopPropagation();
         setShowDialoge((prev) => !prev);
     };
@@ -71,6 +73,14 @@ const NotePage = () => {
 
                     <span>
                         <svg
+                            role="button"
+                            aria-label="open note actions menu"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                    handleMenuClick(e);
+                                }
+                            }}
                             fill="currentColor"
                             version="1.1"
                             id="Icons"
@@ -294,10 +304,10 @@ const NotePage = () => {
                 {/*TODO: Display comments*/}
             </div>
 
-            {showDialoge ? (
+            {showDialoge && note ? (
                 <NoteActionsDialoge
-                    color={note!.Color}
-                    note={note!}
+                    color={note.Color}
+                    note={note}
                     handleClose={() => setShowDialoge(false)}
                 />
             ) : undefined}

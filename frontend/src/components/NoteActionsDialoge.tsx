@@ -38,10 +38,20 @@ const NoteActionsDialoge = ({
             </p>
             <ul className="flex flex-col gap-[8px]">
                 <li
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                         navigate(
                             `/projects/${note.ProjectID}/notes/${note.ID}/edit`,
                         );
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key == " ") {
+                            e.preventDefault();
+                            navigate(
+                                `/projects/${note.ProjectID}/notes/${note.ID}/edit`,
+                            );
+                        }
                     }}
                     className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
                 >

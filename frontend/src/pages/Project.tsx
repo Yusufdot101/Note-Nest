@@ -61,13 +61,13 @@ const ProjectPage = () => {
                         }
                     />
                 )}
-                {showDialoge && (
+                {showDialoge && project && (
                     <ProjectActionsDialoge
                         color={color}
                         handleClose={() => {
                             setShowDialoge(false);
                         }}
-                        project={project!}
+                        project={project}
                     />
                 )}
             </div>

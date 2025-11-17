@@ -51,8 +51,14 @@ const NoteCard = ({
                             value={color}
                             onChange={async (e) => {
                                 e.stopPropagation();
-                                setColor(e.target.value);
-                                await editNoteColor(note.ID, e.target.value);
+                                const newColor = e.target.value;
+                                const success = await editNoteColor(
+                                    note.ID,
+                                    newColor,
+                                );
+                                if (success) {
+                                    setColor(e.target.value);
+                                }
                             }}
                             onInput={() => {}}
                         />

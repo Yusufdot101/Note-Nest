@@ -19,7 +19,7 @@ interface ProjectCardProps {
     Color?: string;
     project: Project;
     handleMenuClick?: (
-        e: React.MouseEvent<SVGElement>,
+        e: React.MouseEvent<SVGElement> | React.KeyboardEvent<SVGElement>,
         project: Project,
     ) => void;
     handleProjectClick?: (
@@ -79,6 +79,17 @@ const ProjectCard = ({
                     </span>
                     <span>
                         <svg
+                            role="button"
+                            aria-label="open project actions menu"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (
+                                    (e.key === "Enter" || e.key === " ") &&
+                                    handleMenuClick
+                                ) {
+                                    handleMenuClick(e, project);
+                                }
+                            }}
                             fill="currentColor"
                             version="1.1"
                             id="Icons"
