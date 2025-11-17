@@ -18,7 +18,7 @@ const ProjectPage = () => {
 
     const navigate = useNavigate();
     const { id } = useParams();
-    const { userID } = useAuthStore.getState();
+    const userID = useAuthStore((state) => state.userID);
 
     useEffect(() => {
         const setupProject = async () => {

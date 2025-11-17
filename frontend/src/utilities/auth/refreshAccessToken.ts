@@ -19,6 +19,19 @@ export async function refreshAccessToken() {
     const token = data.access_token;
     const { payload } = decodeJWT(token ?? "");
 
+    if (!payload || !payload.sub) {
+        console.error("invalid JWT payload");
+        useAuthStore.getState().clearAccessToken();
+        return;
+    }
+
+    const userId = +payload.sub;
+    if (isNaN(userId)) {
+        console.error("invalid user ID in JWT");
+        useAuthStore.getState().clearAccessToken();
+        return;
+    }
+
     useAuthStore.getState().setAccessToken(token);
-    useAuthStore.getState().setUserID(+payload.sub);
+    useAuthStore.getState().setUserID(userId);
 }
