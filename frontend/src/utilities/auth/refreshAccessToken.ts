@@ -1,5 +1,6 @@
 import { useAuthStore } from "../../store/useAuthStore";
 import { BASE_APIURL } from "../api";
+import { decodeJWT } from "../userIdFromJWT";
 
 export async function refreshAccessToken() {
     const res = await fetch(`${BASE_APIURL}/auth/refreshtoken`, {
@@ -15,5 +16,9 @@ export async function refreshAccessToken() {
     }
 
     const data = await res.json();
-    useAuthStore.getState().setAccessToken(data.access_token);
+    const token = data.access_token;
+    const { payload } = decodeJWT(token ?? "");
+
+    useAuthStore.getState().setAccessToken(token);
+    useAuthStore.getState().setUserID(+payload.sub);
 }

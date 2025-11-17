@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { fetchNotes } from "../utilities/note";
 import type { Note } from "../components/NoteCard";
 import NoteCard from "../components/NoteCard";
+import { useAuthStore } from "../store/useAuthStore";
 
 const ProjectPage = () => {
     const [project, setProject] = useState<Project>();
@@ -17,6 +18,7 @@ const ProjectPage = () => {
 
     const navigate = useNavigate();
     const { id } = useParams();
+    const { userID } = useAuthStore.getState();
 
     useEffect(() => {
         const setupProject = async () => {
@@ -45,14 +47,18 @@ const ProjectPage = () => {
                         Color={color}
                         SetColor={setColor}
                         project={project}
-                        handleMenuClick={(
-                            e: React.MouseEvent<SVGElement>,
-                            project: Project,
-                        ) => {
-                            e.stopPropagation();
-                            setShowDialoge((prev) => !prev);
-                            setProject(project);
-                        }}
+                        handleMenuClick={
+                            project.UserID === userID
+                                ? (
+                                      e: React.MouseEvent<SVGElement>,
+                                      project: Project,
+                                  ) => {
+                                      e.stopPropagation();
+                                      setShowDialoge((prev) => !prev);
+                                      setProject(project);
+                                  }
+                                : undefined
+                        }
                     />
                 )}
                 {showDialoge && (

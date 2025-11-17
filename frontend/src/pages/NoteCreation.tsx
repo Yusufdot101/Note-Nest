@@ -11,6 +11,9 @@ const NoteCreation = () => {
     const [content, setContent] = useState("");
     const [visibility, setVisibility] = useState("private");
 
+    const [errors, setErrors] = useState<string[]>([]);
+    const [showErrors, setShowErrors] = useState(false);
+
     const navigate = useNavigate();
     const { projectid } = useParams();
 
@@ -21,12 +24,22 @@ const NoteCreation = () => {
 
     const handleCreate = async () => {
         if (content === "" || title === "" || !projectid) return;
+        setShowErrors(false);
+        const handleError = (errors: Record<string, string>) => {
+            setShowErrors(true);
+            const errorMessages = Object.entries(errors).map(
+                ([key, value]) => `${key}: ${value}`,
+            );
+            setErrors(errorMessages);
+        };
+
         const success = await newNote(
             +projectid,
             title,
             content,
             visibility,
             color,
+            handleError,
         );
 
         if (!success) return;
@@ -90,6 +103,15 @@ const NoteCreation = () => {
                 setContent={setContent}
                 color={color}
             />
+
+            <div
+                className={`w-full text-text text-center text-[24px] max-[619px]:text-[16px] p-[12px] rounded-[8px] bg-red-500 mx-auto ${!showErrors ? "hidden" : ""}`}
+            >
+                {errors.map((error) => (
+                    <p key={error}>{error}</p>
+                ))}
+            </div>
+
             <div className="flex gap-[4px] text-[24px] max-[619px]:text-[16px]">
                 <SubmitButton
                     handleSubmit={handleDiscard}
@@ -100,10 +122,11 @@ const NoteCreation = () => {
                     bgColor={"red"}
                 />
                 <SubmitButton
-                    handleSubmit={handleCreate}
+                    handleSubmit={() => {}}
                     text={"Create Note"}
                     textColor={"white"}
                     aria_label={"create note"}
+                    type="submit"
                 />
             </div>
         </form>

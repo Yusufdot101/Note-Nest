@@ -1,5 +1,6 @@
 import { useAuthStore } from "../../store/useAuthStore";
 import { BASE_APIURL } from "../api";
+import { decodeJWT } from "../userIdFromJWT";
 
 export const initAuth = async () => {
     try {
@@ -12,7 +13,11 @@ export const initAuth = async () => {
             return;
         }
         const data = await res.json();
-        useAuthStore.getState().setAccessToken(data.accessToken);
+        const token = data.accessToken;
+        const { payload } = decodeJWT(token ?? "");
+
+        useAuthStore.getState().setAccessToken(token);
+        useAuthStore.getState().setUserID(+payload.sub);
         useAuthStore.getState().setIsLoggedIn(true);
     } catch (error) {
         console.error(error);
