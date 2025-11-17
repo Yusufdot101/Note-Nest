@@ -404,3 +404,175 @@ func (r *Repository) updateNoteTitleContent(userID, noteID int, title, content *
 
 	return nil
 }
+
+func (r *Repository) updateNoteVisibility(userID, noteID int, visibility string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Println(err)
+		}
+	}()
+
+	// fetch note
+	n := &Note{}
+	fetchNoteQuery := `
+		SELECT id, project_id
+		FROM notes
+		WHERE id = $1
+		FOR UPDATE
+	`
+
+	err = tx.QueryRowContext(ctx, fetchNoteQuery, noteID).Scan(
+		&n.ID,
+		&n.ProjectID,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return custom_errors.ErrNoRecord
+		default:
+			return err
+		}
+	}
+
+	// fetch project
+	fetchProjectQuery := `
+		SELECT user_id
+		FROM projects
+		WHERE id = $1
+	`
+
+	p := &project.Project{}
+	err = tx.QueryRowContext(ctx, fetchProjectQuery, n.ProjectID).Scan(
+		&p.UserID,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return custom_errors.ErrNoRecord
+		default:
+			return err
+		}
+	}
+
+	// do checks
+	if p.UserID != userID {
+		return custom_errors.ErrNoRecord
+	}
+
+	// save note
+	updateQuery := `
+		UPDATE notes
+		SET visibility = $1
+		WHERE id = $2
+	`
+
+	values := []any{
+		visibility,
+		n.ID,
+	}
+
+	_, err = tx.ExecContext(ctx, updateQuery, values...)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) updateNoteColor(userID, noteID int, color string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Println(err)
+		}
+	}()
+
+	// fetch note
+	n := &Note{}
+	fetchNoteQuery := `
+		SELECT id, project_id
+		FROM notes
+		WHERE id = $1
+		FOR UPDATE
+	`
+
+	err = tx.QueryRowContext(ctx, fetchNoteQuery, noteID).Scan(
+		&n.ID,
+		&n.ProjectID,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return custom_errors.ErrNoRecord
+		default:
+			return err
+		}
+	}
+
+	// fetch project
+	fetchProjectQuery := `
+		SELECT user_id
+		FROM projects
+		WHERE id = $1
+	`
+
+	p := &project.Project{}
+	err = tx.QueryRowContext(ctx, fetchProjectQuery, n.ProjectID).Scan(
+		&p.UserID,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return custom_errors.ErrNoRecord
+		default:
+			return err
+		}
+	}
+
+	// do checks
+	if p.UserID != userID {
+		return custom_errors.ErrNoRecord
+	}
+
+	// save note
+	updateQuery := `
+		UPDATE notes
+		SET color = $1
+		WHERE id = $2
+	`
+
+	values := []any{
+		color,
+		n.ID,
+	}
+
+	_, err = tx.ExecContext(ctx, updateQuery, values...)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -132,3 +132,23 @@ func (ns *NoteService) updateNoteTitleContent(
 
 	return ns.Repo.updateNoteTitleContent(userID, noteID, cleanedTitle, cleanedContent)
 }
+
+func (ns *NoteService) updateNoteVisibility(
+	v *validator.Validator, userID, noteID int, visibily string,
+) error {
+	cleanedVisibility := strings.TrimSpace(visibily)
+	if validateVisibility(v, cleanedVisibility); !v.IsValid() {
+		return validator.ErrFailedValidation
+	}
+	return ns.Repo.updateNoteVisibility(userID, noteID, cleanedVisibility)
+}
+
+func (ns *NoteService) updateNoteColor(
+	v *validator.Validator, userID, noteID int, color string,
+) error {
+	cleanedColor := strings.TrimSpace(color)
+	if validateColor(v, cleanedColor); !v.IsValid() {
+		return validator.ErrFailedValidation
+	}
+	return ns.Repo.updateNoteColor(userID, noteID, cleanedColor)
+}

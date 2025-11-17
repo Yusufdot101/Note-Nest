@@ -52,6 +52,8 @@ type Repo interface {
 	getMany(currentUserID, queryUserID, projectID *int, visibility string) ([]*Note, error)
 	delete(noteID, projectID int) error
 	updateNoteTitleContent(userID, noteID int, title, content *string) error
+	updateNoteVisibility(userID, noteID int, visibility string) error
+	updateNoteColor(userID, noteID int, color string) error
 }
 
 type NoteService struct {
