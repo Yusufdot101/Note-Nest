@@ -1,5 +1,6 @@
 import { useAuthStore } from "../../store/useAuthStore";
 import { BASE_APIURL } from "../api";
+import { decodeJWT } from "../userIdFromJWT";
 
 export async function refreshAccessToken() {
     const res = await fetch(`${BASE_APIURL}/auth/refreshtoken`, {
@@ -15,5 +16,22 @@ export async function refreshAccessToken() {
     }
 
     const data = await res.json();
-    useAuthStore.getState().setAccessToken(data.access_token);
+    const token = data.access_token;
+    const { payload } = decodeJWT(token ?? "");
+
+    if (!payload || !payload.sub) {
+        console.error("invalid JWT payload");
+        useAuthStore.getState().clearAccessToken();
+        return;
+    }
+
+    const userId = +payload.sub;
+    if (isNaN(userId)) {
+        console.error("invalid user ID in JWT");
+        useAuthStore.getState().clearAccessToken();
+        return;
+    }
+
+    useAuthStore.getState().setAccessToken(token);
+    useAuthStore.getState().setUserID(userId);
 }

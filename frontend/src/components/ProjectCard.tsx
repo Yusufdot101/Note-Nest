@@ -15,8 +15,8 @@ export interface Project {
 }
 
 interface ProjectCardProps {
-    SetColor: React.Dispatch<React.SetStateAction<string>>;
-    Color: string;
+    SetColor?: React.Dispatch<React.SetStateAction<string>>;
+    Color?: string;
     project: Project;
     handleMenuClick?: (
         e: React.MouseEvent<SVGElement>,
@@ -36,8 +36,8 @@ const ProjectCard = ({
 }: ProjectCardProps) => {
     return (
         <div
-            style={{ border: `1px solid ${Color}` }}
-            className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col gap-[12px] h-[200px]"
+            style={{ border: `1px solid ${Color ?? "#ffffff"}` }}
+            className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col justify-between gap-[12px] h-[220px]"
             onClick={(e) =>
                 handleProjectClick
                     ? handleProjectClick(e, project.ID)
@@ -48,17 +48,19 @@ const ProjectCard = ({
                 <div className="flex items-center gap-[8px]">
                     <div
                         className="relative min-w-[40px] h-[30px] rounded-lg"
-                        style={{ backgroundColor: Color }}
+                        style={{ backgroundColor: Color ?? "#ffffff" }}
                         onClick={(e) => {
                             e.stopPropagation();
                         }}
                     >
                         <input
-                            className="inline-block absolute cursor-pointer w-full h-full opacity-0"
+                            disabled={SetColor ? false : true} // cant select if SetColor was not provided
+                            className="inline-block  absolute cursor-pointer w-full h-full opacity-0"
                             type="color"
-                            value={Color}
+                            value={Color ?? "#ffffff"}
                             onChange={(e) => {
                                 e.stopPropagation();
+                                if (!SetColor) return;
                                 SetColor(e.target.value);
                             }}
                             onInput={() => {}}
@@ -107,9 +109,9 @@ const ProjectCard = ({
                 </div>
             </div>
 
-            <div className="flex flex-col gap-[12px] font-bold">
+            <div className="h-full flex flex-col gap-[12px] font-bold">
                 <p
-                    className={`line-clamp-2 wrap-break-word ${!project.Description ? "opacity-50" : ""}`}
+                    className={`line-clamp-2 wrap-break-word h-full ${!project.Description ? "opacity-50" : ""}`}
                 >
                     {project.Description
                         ? project.Description

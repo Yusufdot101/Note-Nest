@@ -29,13 +29,16 @@ const AllProjects = () => {
         <div
             className={`py-[12px] items-center text-text grid gap-[16px] ${projects.length > 1 ? "grid-cols-[repeat(auto-fit,minmax(300px,1fr))]" : "grid-cols-[repeat(auto-fit,minmax(300px,400px))]"}`}
         >
-            {projects.map((project) => (
-                <ProjectCard
-                    key={project.ID}
-                    project={project}
-                    handleProjectClick={handleProjectClick}
-                />
-            ))}
+            {projects.map((project) => {
+                return (
+                    <ProjectCard
+                        key={project.ID}
+                        Color={project.Color}
+                        project={project}
+                        handleProjectClick={handleProjectClick}
+                    />
+                );
+            })}
         </div>
     );
 };

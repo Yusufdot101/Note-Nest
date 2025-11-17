@@ -7,6 +7,7 @@ export const newNote = async (
     content: string,
     visibility: string,
     color: string,
+    handleError: (errors: Record<string, string>) => void,
 ): Promise<boolean> => {
     try {
         const res = await api(`/projects/${projectID}/notes`, {
@@ -28,6 +29,7 @@ export const newNote = async (
         if (!res.ok) {
             const errors = data.error;
             if (errors) {
+                handleError(errors);
                 console.error(errors);
                 return false;
             }
