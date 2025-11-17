@@ -6,10 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/project"
 )
 
 type Repository struct {
@@ -280,6 +282,112 @@ func (r *Repository) delete(noteID, projectID int) error {
 
 	if affectedRows == 0 {
 		return custom_errors.ErrNoRecord
+	}
+
+	return nil
+}
+
+func (r *Repository) updateNoteTitleContent(userID, noteID int, title, content *string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Println(err)
+		}
+	}()
+
+	// fetch note
+	n := &Note{}
+	fetchNoteQuery := `
+		SELECT id, project_id, created_at, title, content
+		FROM notes
+		WHERE id = $1
+		FOR UPDATE
+	`
+
+	err = tx.QueryRowContext(ctx, fetchNoteQuery, noteID).Scan(
+		&n.ID,
+		&n.ProjectID,
+		&n.CreatedAt,
+		&n.Title,
+		&n.Content,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return custom_errors.ErrNoRecord
+		default:
+			return err
+		}
+	}
+
+	// fetch project
+	fetchProjectQuery := `
+		SELECT user_id
+		FROM projects
+		WHERE id = $1
+	`
+
+	p := &project.Project{}
+	err = tx.QueryRowContext(ctx, fetchProjectQuery, n.ProjectID).Scan(
+		&p.UserID,
+	)
+	if err != nil {
+		return err
+	}
+
+	// do checks
+	if p.UserID != userID {
+		return custom_errors.ErrNoRecord
+	}
+
+	updateTimout, err := time.ParseDuration(os.Getenv("NOTE_UPDATE_TIMEOUT"))
+	if err != nil {
+		return err
+	}
+
+	if time.Since(*n.CreatedAt) > updateTimout {
+		return custom_errors.ErrUpdateTimeout
+	}
+
+	// update fields
+	if title != nil {
+		n.Title = *title
+	}
+
+	if content != nil {
+		n.Content = *content
+	}
+
+	// save note
+	updateQuery := `
+		UPDATE notes
+		SET title = $1,
+			content = $2,
+			updated_at = $3
+		WHERE id = $4
+	`
+
+	values := []any{
+		n.Title,
+		n.Content,
+		time.Now(),
+		n.ID,
+	}
+
+	_, err = tx.ExecContext(ctx, updateQuery, values...)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
 	}
 
 	return nil

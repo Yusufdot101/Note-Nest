@@ -12,6 +12,7 @@ import (
 var (
 	ErrNoRecord           = errors.New("record not found")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrUpdateTimeout      = errors.New("cannot update")
 )
 
 func ServerErrorResponse(w http.ResponseWriter, err error) {
@@ -58,4 +59,9 @@ func RequireAuthenticationErrorResponse(w http.ResponseWriter) {
 func InvalidAuthenticationTokenErrorResponse(w http.ResponseWriter) {
 	msg := "invalid or expired token"
 	errorResponse(w, msg, http.StatusUnauthorized)
+}
+
+func UpdateTimeoutErrorResponse(w http.ResponseWriter) {
+	msg := "You can no longer update the content of this note."
+	errorResponse(w, msg, http.StatusForbidden)
 }

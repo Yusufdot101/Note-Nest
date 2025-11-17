@@ -51,6 +51,7 @@ type Repo interface {
 	get(noteID int) (*Note, error)
 	getMany(currentUserID, queryUserID, projectID *int, visibility string) ([]*Note, error)
 	delete(noteID, projectID int) error
+	updateNoteTitleContent(userID, noteID int, title, content *string) error
 }
 
 type NoteService struct {
@@ -74,8 +75,12 @@ func validateNote(v *validator.Validator, n *Note) {
 	validateColor(v, n.Color)
 }
 
-func validateTitle(v *validator.Validator, name string) {
-	v.CheckAddError(name != "", "name", "must be given")
+func validateTitle(v *validator.Validator, title string) {
+	v.CheckAddError(title != "", "title", "must be given")
+}
+
+func validateContent(v *validator.Validator, content string) {
+	v.CheckAddError(content != "", "content", "must be given")
 }
 
 func validateVisibility(v *validator.Validator, visibility string) {

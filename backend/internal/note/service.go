@@ -103,3 +103,27 @@ func (ns *NoteService) deleteNote(userID, noteID int) error {
 	// delete the note
 	return ns.Repo.delete(noteID, project.ID)
 }
+
+func (ns *NoteService) updateNoteTitleContent(
+	v *validator.Validator, userID, noteID int, title, content *string,
+) error {
+	var cleanedTitle, cleanedContent *string
+
+	if title != nil {
+		cleanedTitle = title
+		*cleanedTitle = strings.TrimSpace(*title)
+		validateTitle(v, *cleanedTitle)
+	}
+
+	if content != nil {
+		cleanedContent = content
+		*cleanedContent = strings.TrimSpace(*content)
+		validateContent(v, *cleanedContent)
+	}
+
+	if !v.IsValid() {
+		return validator.ErrFailedValidation
+	}
+
+	return ns.Repo.updateNoteTitleContent(userID, noteID, cleanedTitle, cleanedContent)
+}
