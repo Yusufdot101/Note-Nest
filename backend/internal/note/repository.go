@@ -423,7 +423,7 @@ func (r *Repository) updateNoteVisibility(userID, noteID int, visibility string)
 	// fetch note
 	n := &Note{}
 	fetchNoteQuery := `
-		SELECT id, project_id
+		SELECT id
 		FROM notes
 		WHERE id = $1
 		FOR UPDATE
@@ -431,7 +431,6 @@ func (r *Repository) updateNoteVisibility(userID, noteID int, visibility string)
 
 	err = tx.QueryRowContext(ctx, fetchNoteQuery, noteID).Scan(
 		&n.ID,
-		&n.ProjectID,
 	)
 	if err != nil {
 		switch {
@@ -440,42 +439,19 @@ func (r *Repository) updateNoteVisibility(userID, noteID int, visibility string)
 		default:
 			return err
 		}
-	}
-
-	// fetch project
-	fetchProjectQuery := `
-		SELECT user_id
-		FROM projects
-		WHERE id = $1
-	`
-
-	p := &project.Project{}
-	err = tx.QueryRowContext(ctx, fetchProjectQuery, n.ProjectID).Scan(
-		&p.UserID,
-	)
-	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			return custom_errors.ErrNoRecord
-		default:
-			return err
-		}
-	}
-
-	// do checks
-	if p.UserID != userID {
-		return custom_errors.ErrNoRecord
 	}
 
 	// save note
 	updateQuery := `
 		UPDATE notes
-		SET visibility = $1
-		WHERE id = $2
+		SET visibility = $1,
+			updated_at = $2
+		WHERE id = $3
 	`
 
 	values := []any{
 		visibility,
+		time.Now(),
 		n.ID,
 	}
 
@@ -556,12 +532,14 @@ func (r *Repository) updateNoteColor(userID, noteID int, color string) error {
 	// save note
 	updateQuery := `
 		UPDATE notes
-		SET color = $1
-		WHERE id = $2
+		SET color = $1,
+			updated_at = $2
+		WHERE id = $3
 	`
 
 	values := []any{
 		color,
+		time.Now(),
 		n.ID,
 	}
 

@@ -134,12 +134,34 @@ func (ns *NoteService) updateNoteTitleContent(
 }
 
 func (ns *NoteService) updateNoteVisibility(
-	v *validator.Validator, userID, noteID int, visibily string,
+	v *validator.Validator, userID, noteID int, visibility string,
 ) error {
-	cleanedVisibility := strings.TrimSpace(visibily)
+	cleanedVisibility := strings.TrimSpace(visibility)
 	if validateVisibility(v, cleanedVisibility); !v.IsValid() {
 		return validator.ErrFailedValidation
 	}
+	// Fetch note and project to validate visibility constraints
+	note, err := ns.Repo.get(noteID)
+	if err != nil {
+		return err
+	}
+
+	p, err := ns.ProjectSvc.GetProject(userID, note.ProjectID)
+	if err != nil {
+		return err
+	}
+
+	// Ensure note can't be more public than its project
+	if p.Visibility == "private" && cleanedVisibility == "public" {
+		v.AddError("visibility", "cannot be more public than the project")
+		return validator.ErrFailedValidation
+	}
+
+	// cannot update other's notes
+	if p.UserID != userID {
+		return custom_errors.ErrNoRecord
+	}
+
 	return ns.Repo.updateNoteVisibility(userID, noteID, cleanedVisibility)
 }
 
