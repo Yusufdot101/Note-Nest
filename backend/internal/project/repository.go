@@ -65,36 +65,34 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 				args = append(args, visibility)
 			}
 		} else {
-			// cant access only public projects of others
+			// can only access public projects of others
 			if visibility != "public" && visibility != "" {
 				return nil, nil
 			}
 			conds = append(conds, "visibility = 'public'")
 		}
-		goto BUILD
-	}
-
-	// =====================================================================
-	// CASE 2: userID not provided
-	// =====================================================================
-	if visibility != "" {
-		switch visibility {
-		case "public":
-			conds = append(conds, "visibility = 'public'")
-		case "private":
-			conds = append(conds, fmt.Sprintf("visibility = 'private' AND user_id = $%d", idx))
+	} else {
+		// =====================================================================
+		// CASE 2: userID not provided
+		// =====================================================================
+		if visibility != "" {
+			switch visibility {
+			case "public":
+				conds = append(conds, "visibility = 'public'")
+			case "private":
+				conds = append(conds, fmt.Sprintf("visibility = 'private' AND user_id = $%d", idx))
+				args = append(args, currentUserID)
+				idx++
+			default:
+				return nil, nil
+			}
+		} else {
+			conds = append(conds, fmt.Sprintf("visibility = 'public' OR user_id = $%d", idx))
 			args = append(args, currentUserID)
 			idx++
-		default:
-			return nil, nil
 		}
-	} else {
-		conds = append(conds, fmt.Sprintf("visibility = 'public' OR user_id = $%d", idx))
-		args = append(args, currentUserID)
-		idx++
 	}
 
-BUILD:
 	if len(conds) == 0 {
 		conds = []string{"1=1"}
 	}
@@ -109,11 +107,7 @@ BUILD:
 
 	args = append(args, title)
 	args = append(args, filter.Limit())
-	args = append(args, filter.Offest())
-
-	log.Println(query)
-	log.Println(conds)
-	log.Println(args)
+	args = append(args, filter.Offset())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -153,67 +147,6 @@ BUILD:
 	}
 
 	return projects, nil
-
-	/*
-		queryUserID := currentUserID
-		// -1 means it was not given
-		if userID != -1 {
-			queryUserID = userID
-			visibility = "public"
-		}
-
-		query := `
-			SELECT
-				id, created_at, updated_at, user_id, title, description, visibility, entries_count, likes_count,
-				comments_count, color
-			FROM projects
-			WHERE user_id = $1
-		`
-		args := []any{userID}
-		if visibility != "" {
-			query += " AND visibility = $2"
-			args = append(args, visibility)
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		projects := []*Project{}
-		rows, err := r.DB.QueryContext(ctx, query, args...)
-		if err != nil {
-			return nil, err
-		}
-		defer func() {
-			if err := rows.Close(); err != nil {
-				log.Println("rows close error:", err)
-			}
-		}()
-		for rows.Next() {
-			p := &Project{}
-			err = rows.Scan(
-				&p.ID,
-				&p.CreatedAt,
-				&p.UpdatedAt,
-				&p.UserID,
-				&p.Title,
-				&p.Description,
-				&p.Visibility,
-				&p.EntriesCount,
-				&p.LikesCount,
-				&p.CommentsCount,
-				&p.Color,
-			)
-			if err != nil {
-				return nil, err
-			}
-			projects = append(projects, p)
-		}
-		if err = rows.Err(); err != nil {
-			return nil, err
-		}
-
-		return projects, nil
-	*/
 }
 
 func (r *Repository) getOne(ID int) (*Project, error) {

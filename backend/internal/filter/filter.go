@@ -24,7 +24,7 @@ func (f *Filter) Limit() int {
 	return f.PageSize
 }
 
-func (f *Filter) Offest() int {
+func (f *Filter) Offset() int {
 	return (f.Page - 1) * f.PageSize
 }
 
