@@ -10,8 +10,7 @@ export const logout = async () => {
         if (!res.ok) {
             throw new Error(`Logout failed: ${res.status} ${res.statusText}`);
         }
-        useAuthStore.getState().setIsLoggedIn(false);
-        useAuthStore.getState().setAccessToken(null);
+        useAuthStore.getState().clearAccessToken();
     } catch (error) {
         alert("an error occurred, please try again");
         console.error(error);

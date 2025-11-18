@@ -27,7 +27,7 @@ const EditProject = () => {
             if (id === "") return;
             const project = await fetchProject(+id!);
             if (!project) return;
-            setProjectTitle(project.Name);
+            setProjectTitle(project.Title);
             setProjectDescription(project.Description);
             setProjectVisibility(project.Visibility);
             setProjectColor(project.Color);

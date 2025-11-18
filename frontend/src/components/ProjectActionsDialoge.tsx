@@ -34,7 +34,7 @@ const ProjectActionsDialoge = ({
                 style={{ color: color }}
                 className="font-bold text-[32px] max-[629px]:text-[24px] p-[8px] text-center"
             >
-                {project.Name}
+                {project.Title}
             </p>
             <ul className="flex flex-col gap-[8px]">
                 <li

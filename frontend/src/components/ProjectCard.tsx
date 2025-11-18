@@ -6,7 +6,7 @@ export interface Project {
     CreatedAt: string;
     UpdatedAt: string;
     UserID: number;
-    Name: string;
+    Title: string;
     Description: string;
     Visibility: string;
     Color: string;
@@ -76,7 +76,7 @@ const ProjectCard = ({
                         style={{ color: Color }}
                         className="text-[28px] max-[629px]:text-[20px] font-bold w-full line-clamp-1 underline"
                     >
-                        {project.Name}
+                        {project.Title}
                     </span>
                 </div>
                 <div className="flex gap-[12px] items-center">

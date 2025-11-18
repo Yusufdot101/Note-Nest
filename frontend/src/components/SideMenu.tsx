@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import logo from "./../assets/logo.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { logout } from "../utilities/auth/logout";
 interface SideMenuProps {
@@ -9,11 +9,12 @@ interface SideMenuProps {
 }
 
 const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
+    const navigate = useNavigate();
     const ref = useRef<HTMLDivElement>(null);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const handleLogout = () => {
         logout();
-        window.location.replace("/");
+        navigate("/");
     };
 
     const navigationLinks = [
