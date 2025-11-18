@@ -6,34 +6,50 @@ import (
 	"strconv"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
+	"github.com/Yusufdot101/note-nest/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
-	var userID int
-	queryUserID := r.URL.Query().Get("user")
-	visibility := r.URL.Query().Get("visibility")
-
-	if queryUserID != "" {
-		var err error
-		userID, err = strconv.Atoi(queryUserID)
-		if err != nil {
-			custom_errors.BadRequestErrorResponse(w, err)
-			return
-		}
-		visibility = "public"
-	} else {
-		var ok bool
-		userID, ok = r.Context().Value(middleware.CtxUserIDKey).(int)
-		if !ok {
-			custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
-			return
-		}
+	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	if !ok {
+		custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
+		return
 	}
 
-	projects, err := h.svc.getProjects(userID, visibility)
+	var input struct {
+		title      string
+		userID     int
+		visibility string
+		filter.Filter
+	}
+
+	qs := r.URL.Query()
+	v := validator.NewValidator()
+
+	input.title = utilities.ReadStr(qs, "name", "")
+	input.visibility = utilities.ReadStr(qs, "visibility", "")
+	input.userID = utilities.ReadInt(qs, "user_id", -1, v)
+	input.Page = utilities.ReadInt(qs, "page", 1, v)
+	input.PageSize = utilities.ReadInt(qs, "page_size", 100, v)
+	input.Sort = utilities.ReadStr(qs, "sort", "created_at")
+	input.SafeSortList = []string{
+		"id", "-id",
+		"name", "-name",
+		"user_id", "-user_id",
+		"visibility", "-visibility",
+		"created_at", "-created_at",
+	}
+
+	if filter.ValidateFilter(v, &input.Filter); !v.IsValid() {
+		custom_errors.FailedValidationErrorResponse(w, v.Errors)
+		return
+	}
+
+	projects, err := h.svc.getProjects(userID, input.userID, input.title, input.visibility, input.Filter)
 	if err != nil {
 		switch {
 		case errors.Is(err, custom_errors.ErrNoRecord):

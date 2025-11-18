@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -31,8 +32,8 @@ func (ps *ProjectService) newProject(v *validator.Validator, userID int, title, 
 	return nil
 }
 
-func (ps *ProjectService) getProjects(userID int, visibility string) ([]*Project, error) {
-	return ps.Repo.get(userID, visibility)
+func (ps *ProjectService) getProjects(currentUserID, userID int, title, visibility string, filter filter.Filter) ([]*Project, error) {
+	return ps.Repo.get(currentUserID, userID, title, visibility, filter)
 }
 
 func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {

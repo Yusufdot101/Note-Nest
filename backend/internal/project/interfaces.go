@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -34,7 +35,7 @@ func (mr *MockRepo) insert(p *Project) error {
 	return nil
 }
 
-func (mr *MockRepo) get(userID int, visibility string) ([]*Project, error) {
+func (mr *MockRepo) get(currentUserID, userID int, title, visibility string, filter filter.Filter) ([]*Project, error) {
 	mr.getCalled = true
 	projects := []*Project{}
 	for i := range 10 {
@@ -75,7 +76,7 @@ func (mr *MockRepo) update(userID, projectID int, name, description, visibility,
 
 type Repo interface {
 	insert(p *Project) error
-	get(userID int, visibility string) ([]*Project, error)
+	get(currentUserID, userID int, title, visibility string, filter filter.Filter) ([]*Project, error)
 	getOne(ID int) (*Project, error)
 	delete(projectID int) error
 	update(userID, projectID int, name, description, visibility, color *string) error
