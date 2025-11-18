@@ -108,7 +108,7 @@ const NoteCard = ({
             </div>
 
             <div
-                className={`line-clamp-2 wrap-break-word ${!note.Content ? "opacity-50" : ""}`}
+                className={`line-clamp-3 wrap-break-word ${!note.Content ? "opacity-50" : ""}`}
             >
                 <div className="markdown">
                     <ReactMarkdown>{note.Content}</ReactMarkdown>

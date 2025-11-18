@@ -1,4 +1,4 @@
-import newNote from "../assets/newNoteButton.svg";
+import newResource from "../assets/newResource.svg";
 import React, { useEffect, useState } from "react";
 import type { Project } from "../components/ProjectCard";
 import { fetchProject } from "../utilities/project";
@@ -31,7 +31,7 @@ const ProjectPage = () => {
 
         const setupNotes = async () => {
             if (id == "") return;
-            const notes = await fetchNotes(+id!);
+            const notes = await fetchNotes(undefined, +id!);
             if (!notes) return;
             setNotes(notes);
         };
@@ -103,9 +103,9 @@ const ProjectPage = () => {
                             onClick={() => {
                                 navigate(`/projects/${project?.ID}/notes/new`);
                             }}
-                            src={newNote}
-                            alt="logo"
-                            className="absolute right-0 bottom-[-40px] cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
+                            src={newResource}
+                            alt="new note"
+                            className="sticky bottom-[32px] mt-[-64px] ml-auto cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
                         />
                     )}
                 </div>

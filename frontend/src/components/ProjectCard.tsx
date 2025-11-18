@@ -51,7 +51,7 @@ const ProjectCard = ({
                 }
             }}
             style={{ border: `1px solid ${Color ?? "#ffffff"}` }}
-            className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col justify-between gap-[12px] h-[220px]"
+            className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col justify-between gap-[12px] h-full"
             onClick={(e) =>
                 handleProjectClick
                     ? handleProjectClick(e, project.ID)
@@ -128,7 +128,7 @@ const ProjectCard = ({
 
             <div className="h-full flex flex-col gap-[12px] font-bold">
                 <p
-                    className={`line-clamp-2 wrap-break-word h-full ${!project.Description ? "opacity-50" : ""}`}
+                    className={`line-clamp-3 wrap-break-word h-full ${!project.Description ? "opacity-50" : ""}`}
                 >
                     {project.Description
                         ? project.Description

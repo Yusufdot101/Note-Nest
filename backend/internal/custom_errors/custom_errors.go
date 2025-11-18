@@ -2,7 +2,6 @@ package custom_errors
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -33,12 +32,12 @@ func BadRequestErrorResponse(w http.ResponseWriter, err error) {
 }
 
 func NotFoundErrorResponse(w http.ResponseWriter, r *http.Request) {
-	msg := "the resource you requested for could not be found"
+	msg := map[string]string{"resource": "could not be found"}
 	errorResponse(w, msg, http.StatusNotFound)
 }
 
 func MethodNotAllowedErrorResponse(w http.ResponseWriter, r *http.Request) {
-	msg := fmt.Sprintf("the %s method is not allowed for this resource", r.Method)
+	msg := map[string]string{r.Method: "not allowed for this resource"}
 	errorResponse(w, msg, http.StatusMethodNotAllowed)
 }
 
@@ -47,21 +46,21 @@ func FailedValidationErrorResponse(w http.ResponseWriter, errors map[string]stri
 }
 
 func InvalidCredentialsErrorResponse(w http.ResponseWriter) {
-	msg := "invalid credentials"
+	msg := map[string]string{"credentials": "invalid"}
 	errorResponse(w, msg, http.StatusBadRequest)
 }
 
 func RequireAuthenticationErrorResponse(w http.ResponseWriter) {
-	msg := "you must be logged in to access this resource"
+	msg := map[string]string{"session status": "you must be logged in to access this resource"}
 	errorResponse(w, msg, http.StatusUnauthorized)
 }
 
 func InvalidAuthenticationTokenErrorResponse(w http.ResponseWriter) {
-	msg := "invalid or expired token"
+	msg := map[string]string{"token": "invalid or expired token"}
 	errorResponse(w, msg, http.StatusUnauthorized)
 }
 
 func UpdateTimeoutErrorResponse(w http.ResponseWriter) {
-	msg := "You can no longer update the content of this note."
+	msg := map[string]string{"update time": "You can no longer update the content of this note."}
 	errorResponse(w, msg, http.StatusForbidden)
 }

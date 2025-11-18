@@ -14,7 +14,7 @@ const EditNote = () => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [color, setColor] = useState("#00FFFF");
-    const [visibility, setVisibility] = useState("");
+    const [visibility, setVisibility] = useState("private");
 
     const [errors, setErrors] = useState<string[]>([]);
     const [showErrors, setShowErrors] = useState(false);

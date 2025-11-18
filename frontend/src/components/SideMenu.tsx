@@ -28,7 +28,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
             text: "Notes",
         },
         {
-            url: `/projects${userID ? "?user=${userID}" : ""}`,
+            url: `/projects${userID ? `?user=${userID}` : ""}`,
             text: "My Projects",
         },
         {
