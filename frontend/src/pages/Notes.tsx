@@ -15,7 +15,6 @@ const Notes = () => {
     useEffect(() => {
         const setupNotes = async () => {
             const notes = await fetchNotes();
-            console.log(notes);
             if (!notes) return;
             setNotes(notes);
         };
@@ -33,6 +32,7 @@ const Notes = () => {
             <div className="flex flex-col gap-[8px]">
                 {notes.map((note) => (
                     <NoteCard
+                        key={note.ID}
                         colorEditable={false}
                         note={note}
                         handleNoteClick={() =>

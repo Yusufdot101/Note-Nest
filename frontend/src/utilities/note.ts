@@ -49,7 +49,7 @@ export const fetchNotes = async (
 ): Promise<Note[]> => {
     try {
         const res = await api(
-            `/notes?${userID === null ? "" : `user=${userID}&`}${projectID ? `projectid=${projectID}&` : ""}`,
+            `/notes?${userID !== undefined ? `user=${userID}&` : ""}${projectID ? `projectid=${projectID}&` : ""}`,
             {
                 method: "GET",
                 headers: {
