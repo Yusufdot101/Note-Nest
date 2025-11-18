@@ -1,4 +1,5 @@
 import React from "react";
+import ColorPicker from "./ColorPicker";
 
 export interface Project {
     ID: number;
@@ -23,7 +24,9 @@ interface ProjectCardProps {
         project: Project,
     ) => void;
     handleProjectClick?: (
-        e: React.MouseEvent<HTMLDivElement>,
+        e:
+            | React.MouseEvent<HTMLDivElement>
+            | React.KeyboardEvent<HTMLDivElement>,
         projectID: number,
     ) => void;
 }
@@ -36,6 +39,17 @@ const ProjectCard = ({
 }: ProjectCardProps) => {
     return (
         <div
+            tabIndex={0}
+            aria-label="project card"
+            role="group"
+            onKeyDown={(e) => {
+                if (
+                    (e.key === "Enter" || e.key === " ") &&
+                    handleProjectClick
+                ) {
+                    handleProjectClick(e, project.ID);
+                }
+            }}
             style={{ border: `1px solid ${Color ?? "#ffffff"}` }}
             className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col justify-between gap-[12px] h-[220px]"
             onClick={(e) =>
@@ -46,24 +60,16 @@ const ProjectCard = ({
         >
             <div className="flex items-center justify-between gap-[4px]">
                 <div className="flex items-center gap-[8px]">
-                    <div
-                        className="relative min-w-[40px] h-[30px] rounded-lg"
-                        style={{ backgroundColor: Color ?? "#ffffff" }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                        }}
-                    >
-                        <input
-                            disabled={SetColor ? false : true} // cant select if SetColor was not provided
-                            className="inline-block  absolute cursor-pointer w-full h-full opacity-0"
-                            type="color"
-                            value={Color ?? "#ffffff"}
-                            onChange={(e) => {
-                                e.stopPropagation();
-                                if (!SetColor) return;
-                                SetColor(e.target.value);
-                            }}
-                            onInput={() => {}}
+                    <div className="h-[35px]">
+                        <ColorPicker
+                            color={Color ?? "#ffffff"}
+                            handleChange={
+                                SetColor
+                                    ? (value) => {
+                                          SetColor(value);
+                                      }
+                                    : undefined
+                            }
                         />
                     </div>
                     <span

@@ -6,7 +6,7 @@ import {
 } from "../utilities/inputValidation";
 import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { signup } from "../utilities/auth/signup";
 
 const Signup = () => {
@@ -21,8 +21,6 @@ const Signup = () => {
     const [usernameError, setUsernameError] = useState("");
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
-
-    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -43,7 +41,7 @@ const Signup = () => {
         const success = await signup(username, email, password, handleErrors);
         if (!success) return;
         // navigate to the home page when the the account is created
-        navigate("/");
+        window.location.replace("/");
     };
 
     useEffect(() => {

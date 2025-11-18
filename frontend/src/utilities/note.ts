@@ -43,12 +43,13 @@ export const newNote = async (
     }
 };
 
-export const fetchNotes = async (projectID: number): Promise<Note[]> => {
+export const fetchNotes = async (
+    userID?: number,
+    projectID?: number,
+): Promise<Note[]> => {
     try {
-        const params = new URLSearchParams(window.location.search);
-        const user = params.get("user");
         const res = await api(
-            `/notes?${user === null ? "" : `user=${user}&`}${projectID ? `projectid=${projectID}&` : ""}`,
+            `/notes?${userID === null ? "" : `user=${userID}&`}${projectID ? `projectid=${projectID}&` : ""}`,
             {
                 method: "GET",
                 headers: {

@@ -1,5 +1,5 @@
 interface inputProps {
-    labelString: string;
+    labelString?: string;
     inputType: string;
     isRequired?: boolean;
     minLength?: number;
@@ -8,6 +8,8 @@ interface inputProps {
     inputId: string;
     inputName: string;
     handleChange: (value: string) => void;
+    placeholder?: string;
+    ariaLabel?: string;
 }
 const Input = ({
     labelString,
@@ -19,11 +21,14 @@ const Input = ({
     inputValue,
     inputId,
     handleChange,
+    placeholder,
+    ariaLabel,
 }: inputProps) => {
     return (
         <>
-            <label htmlFor={inputId}>{labelString}</label>
+            {labelString && <label htmlFor={inputId}>{labelString}</label>}
             <input
+                aria-label={ariaLabel}
                 required={isRequired}
                 minLength={minLength}
                 maxLength={maxLength}
@@ -32,7 +37,8 @@ const Input = ({
                 name={inputName}
                 value={inputValue}
                 onChange={(e) => handleChange(e.target.value)}
-                className="bg-white p-[8px] rounded-[8px] h-[50px] outline-none text-black"
+                className="bg-white w-full p-[8px] rounded-[8px] h-[50px] outline-none text-black"
+                placeholder={placeholder}
             />
         </>
     );

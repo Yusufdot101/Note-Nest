@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import logo from "./../assets/logo.svg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { logout } from "../utilities/auth/logout";
 interface SideMenuProps {
@@ -9,12 +9,11 @@ interface SideMenuProps {
 }
 
 const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
-    const navigate = useNavigate();
     const ref = useRef<HTMLDivElement>(null);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const handleLogout = () => {
         logout();
-        navigate("/");
+        window.location.replace("/");
     };
 
     const navigationLinks = [
@@ -54,6 +53,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
         <div
             ref={ref}
             className={`${menuIsOpen ? "" : "mr-[-100%]"} transition-all duration-300 fixed right-0 top-0 min-w-[250px] w-[40vw] h-screen bg-primary text-text px-[12px] py-[32px] border-[1px] border-solid border-[#ffffff] rounded-[8px] flex flex-col gap-[12px] z-10`}
+            tabIndex={menuIsOpen ? 0 : -1}
         >
             <div className="flex justify-between items-center">
                 <Link to={"/"} onClick={handleClose}>
@@ -90,6 +90,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
                         to={link.url}
                         key={`${link.url}-${link.text}`}
                         onClick={handleClose}
+                        tabIndex={menuIsOpen ? 0 : -1}
                     >
                         <li className="bg-[#747474] p-[8px] hover:text-accent duration-300">
                             {link.text}

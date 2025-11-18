@@ -82,6 +82,7 @@ const ProjectPage = () => {
 
                     {notes.map((note) => (
                         <NoteCard
+                            colorEditable={true}
                             key={note.ID}
                             note={note}
                             handleNoteClick={() => navigate(`notes/${note.ID}`)}
@@ -89,6 +90,13 @@ const ProjectPage = () => {
                     ))}
 
                     <img
+                        tabIndex={0}
+                        aria-label="new note"
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                                navigate(`/projects/${project?.ID}/notes/new`);
+                            }
+                        }}
                         onClick={() => {
                             navigate(`/projects/${project?.ID}/notes/new`);
                         }}

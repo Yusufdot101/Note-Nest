@@ -26,7 +26,10 @@ const NoteTitle = ({ title, setTitle, color, setColor }: NoteTitleProps) => {
                     className="w-full py-[4px] px-[12px] rounded-[8px] outline-none"
                 />
                 {color && setColor ? (
-                    <ColorPicker color={color} setColor={setColor} />
+                    <ColorPicker
+                        color={color}
+                        handleChange={(value) => setColor(value)}
+                    />
                 ) : undefined}
             </div>
         </div>

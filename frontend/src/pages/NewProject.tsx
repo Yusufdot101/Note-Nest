@@ -65,7 +65,10 @@ const NewProject = () => {
                 <p className="text-accent text-[32px] max-[619px]:text-[24px] font-semibold text-center">
                     NEW PROJECT
                 </p>
-                <ColorPicker color={projectColor} setColor={setProjectColor} />
+                <ColorPicker
+                    color={projectColor}
+                    handleChange={(value) => setProjectColor(value)}
+                />
             </div>
 
             <form

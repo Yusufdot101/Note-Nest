@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { editNoteColor } from "../utilities/note";
+import ColorPicker from "./ColorPicker";
 
 export interface Note {
     ID: number;
@@ -16,9 +17,12 @@ export interface Note {
 
 interface NoteCardProps {
     note: Note;
+    colorEditable?: boolean;
     handleMenuClick?: (e: React.MouseEvent<SVGElement>, note: Note) => void;
     handleNoteClick?: (
-        e: React.MouseEvent<HTMLDivElement>,
+        e:
+            | React.MouseEvent<HTMLDivElement>
+            | React.KeyboardEvent<HTMLDivElement>,
         noteID: number,
     ) => void;
 }
@@ -26,8 +30,10 @@ const NoteCard = ({
     note,
     handleMenuClick,
     handleNoteClick,
+    colorEditable = true,
 }: NoteCardProps) => {
     const [color, setColor] = useState(note.Color ? note.Color : "white");
+
     return (
         <div
             style={{ border: `1px solid ${color}` }}
@@ -35,32 +41,27 @@ const NoteCard = ({
             onClick={(e) =>
                 handleNoteClick ? handleNoteClick(e, note.ID) : () => {}
             }
+            role="group"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if ((e.key === "Enter" || e.key === " ") && handleNoteClick) {
+                    handleNoteClick(e, note.ID);
+                }
+            }}
         >
             <div className="flex items-center justify-between gap-[4px]">
                 <div className="flex items-center gap-[8px]">
-                    <div
-                        className="relative min-w-[40px] h-[30px] rounded-lg"
-                        style={{ backgroundColor: color }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                        }}
-                    >
-                        <input
-                            className="inline-block absolute cursor-pointer w-full h-full opacity-0"
-                            type="color"
-                            value={color}
-                            onChange={async (e) => {
-                                e.stopPropagation();
-                                const newColor = e.target.value;
-                                const success = await editNoteColor(
-                                    note.ID,
-                                    newColor,
-                                );
-                                if (success) {
-                                    setColor(e.target.value);
-                                }
-                            }}
-                            onInput={() => {}}
+                    <div className="h-[35px]">
+                        <ColorPicker
+                            color={color}
+                            handleChange={
+                                colorEditable
+                                    ? (value) => {
+                                          editNoteColor(note.ID, value);
+                                          setColor(value);
+                                      }
+                                    : undefined
+                            }
                         />
                     </div>
                     <span
