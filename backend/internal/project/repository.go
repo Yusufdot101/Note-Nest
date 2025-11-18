@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 )
 
 type Repository struct {
@@ -17,7 +20,7 @@ type Repository struct {
 func (r *Repository) insert(p *Project) error {
 	query := `
 		INSERT INTO projects
-		(user_id, name, description, visibility, color)
+		(user_id, title, description, visibility, color)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at
 	`
@@ -36,19 +39,75 @@ func (r *Repository) insert(p *Project) error {
 	return err
 }
 
-func (r *Repository) get(userID int, visibility string) ([]*Project, error) {
-	query := `
+func (r *Repository) get(currentUserID, queryUserID int, title, visibility string, filter filter.Filter) ([]*Project, error) {
+	baseQuery := `
 		SELECT 
-			id, created_at, updated_at, user_id, name, description, visibility, entries_count, likes_count, 
+			id, created_at, updated_at, user_id, title, description, visibility, entries_count, likes_count, 
 			comments_count, color
 		FROM projects
-		WHERE user_id = $1
 	`
-	args := []any{userID}
-	if visibility != "" {
-		query += " AND visibility = $2"
-		args = append(args, visibility)
+
+	conds := []string{}
+	args := []any{}
+	idx := 1
+
+	// =====================================================================
+	// CASE 1: userID is provided
+	// =====================================================================
+	if queryUserID != -1 {
+		conds = append(conds, fmt.Sprintf("user_id = $%d", idx))
+		args = append(args, queryUserID)
+		idx++
+
+		if queryUserID == currentUserID {
+			if visibility != "" {
+				conds = append(conds, fmt.Sprintf("visibility = $%d", idx))
+				args = append(args, visibility)
+			}
+		} else {
+			// can only access public projects of others
+			if visibility != "public" && visibility != "" {
+				return nil, nil
+			}
+			conds = append(conds, "visibility = 'public'")
+		}
+	} else {
+		// =====================================================================
+		// CASE 2: userID not provided
+		// =====================================================================
+		if visibility != "" {
+			switch visibility {
+			case "public":
+				conds = append(conds, "visibility = 'public'")
+			case "private":
+				conds = append(conds, fmt.Sprintf("visibility = 'private' AND user_id = $%d", idx))
+				args = append(args, currentUserID)
+				idx++
+			default:
+				return nil, nil
+			}
+		} else {
+			conds = append(conds, fmt.Sprintf("visibility = 'public' OR user_id = $%d", idx))
+			args = append(args, currentUserID)
+			idx++
+		}
 	}
+
+	if len(conds) == 0 {
+		conds = []string{"1=1"}
+	}
+
+	query := baseQuery + " WHERE " + strings.Join(conds, " AND ")
+	query += fmt.Sprintf(`
+			AND (to_tsvector('simple', title) @@ plainto_tsquery('simple', $%d) OR $%d = '')
+			ORDER BY %s %s, id ASC
+			LIMIT $%d
+			OFFSET $%d
+		`, idx, idx, filter.SortColumn(), filter.SortDirection(), idx+1, idx+2)
+
+	args = append(args, title)
+	args = append(args, filter.Limit())
+	args = append(args, filter.Offset())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -93,7 +152,7 @@ func (r *Repository) get(userID int, visibility string) ([]*Project, error) {
 func (r *Repository) getOne(ID int) (*Project, error) {
 	query := `
 		SELECT 
-			id, created_at, updated_at, user_id, name, description, visibility, entries_count, likes_count, 
+			id, created_at, updated_at, user_id, title, description, visibility, entries_count, likes_count, 
 			comments_count, color
 		FROM projects
 		WHERE id = $1
@@ -155,7 +214,7 @@ func (r *Repository) delete(projectID int) error {
 }
 
 // could not find a way around doing some logic here to avoid race conditions
-func (r *Repository) update(userID, projectID int, name, description, visibility, color *string) error {
+func (r *Repository) update(userID, projectID int, title, description, visibility, color *string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -172,7 +231,7 @@ func (r *Repository) update(userID, projectID int, name, description, visibility
 
 	getQuery := `
 		SELECT 
-			id, updated_at, user_id, name, description, visibility, color
+			id, updated_at, user_id, title, description, visibility, color
 		FROM projects
 		WHERE id = $1
 		FOR UPDATE
@@ -201,8 +260,8 @@ func (r *Repository) update(userID, projectID int, name, description, visibility
 		return custom_errors.ErrNoRecord
 	}
 
-	if name != nil {
-		p.Title = *name
+	if title != nil {
+		p.Title = *title
 	}
 
 	if description != nil {
@@ -219,7 +278,7 @@ func (r *Repository) update(userID, projectID int, name, description, visibility
 
 	updateQuery := `
 		UPDATE projects
-		SET name = $1,
+		SET title = $1,
 			description = $2,
 			visibility = $3,
 			color = $4,
