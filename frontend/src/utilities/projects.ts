@@ -6,7 +6,7 @@ export const fetchProjects = async (): Promise<Project[]> => {
         const params = new URLSearchParams(window.location.search);
         const user = params.get("user");
         const res = await api(
-            `/projects${user === null ? "" : `?user=${user}`}`,
+            `/projects${+(user === null) ? "" : `?user_id=${user}`}`,
             {
                 method: "GET",
                 headers: {

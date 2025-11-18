@@ -89,21 +89,25 @@ const ProjectPage = () => {
                         />
                     ))}
 
-                    <img
-                        tabIndex={0}
-                        aria-label="new note"
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
+                    {project?.UserID === userID && (
+                        <img
+                            tabIndex={0}
+                            aria-label="new note"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                    navigate(
+                                        `/projects/${project?.ID}/notes/new`,
+                                    );
+                                }
+                            }}
+                            onClick={() => {
                                 navigate(`/projects/${project?.ID}/notes/new`);
-                            }
-                        }}
-                        onClick={() => {
-                            navigate(`/projects/${project?.ID}/notes/new`);
-                        }}
-                        src={newNote}
-                        alt="logo"
-                        className="absolute right-0 bottom-[-40px] cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
-                    />
+                            }}
+                            src={newNote}
+                            alt="logo"
+                            className="absolute right-0 bottom-[-40px] cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
+                        />
+                    )}
                 </div>
             </div>
         </div>

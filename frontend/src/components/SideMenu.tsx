@@ -12,6 +12,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
     const navigate = useNavigate();
     const ref = useRef<HTMLDivElement>(null);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const userID = useAuthStore((state) => state.userID);
     const handleLogout = () => {
         logout();
         navigate("/");
@@ -27,7 +28,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
             text: "Notes",
         },
         {
-            url: "/projects",
+            url: `/projects${userID ? "?user=${userID}" : ""}`,
             text: "My Projects",
         },
         {

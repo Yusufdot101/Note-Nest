@@ -14,7 +14,7 @@ export const newProject = async (
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                name: projectTitle,
+                title: projectTitle,
                 description: projectDescription,
                 visibility: projectVisibility,
                 color: projectColor,
