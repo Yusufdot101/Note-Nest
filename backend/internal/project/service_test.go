@@ -10,7 +10,7 @@ func TestNewProject(t *testing.T) {
 	tests := []struct {
 		name             string
 		userID           int
-		projectName      string
+		projectTitle     string
 		description      string
 		visibility       string
 		color            string
@@ -20,20 +20,20 @@ func TestNewProject(t *testing.T) {
 		{
 			name:             "valid",
 			userID:           1,
-			projectName:      "project name",
+			projectTitle:     "project name",
 			description:      "project description",
 			visibility:       "private",
 			color:            "#ffffff",
 			wantInsertCalled: true,
 		},
 		{
-			name:        "invalid - empty name",
-			userID:      1,
-			projectName: "",
-			description: "project description",
-			color:       "#ffffff",
-			visibility:  "private",
-			wantErr:     true,
+			name:         "invalid - empty name",
+			userID:       1,
+			projectTitle: "",
+			description:  "project description",
+			color:        "#ffffff",
+			visibility:   "private",
+			wantErr:      true,
 		},
 	}
 	for _, test := range tests {
@@ -43,7 +43,7 @@ func TestNewProject(t *testing.T) {
 				Repo: repo,
 			}
 			v := validator.NewValidator()
-			err := svc.newProject(v, test.userID, test.projectName, test.description, test.visibility, test.color)
+			err := svc.newProject(v, test.userID, test.projectTitle, test.description, test.visibility, test.color)
 			if (err != nil) != test.wantErr {
 				t.Fatalf("expected err = %v, got err = %v", test.wantErr, err)
 			}

@@ -28,10 +28,10 @@ export const getPasswordErrorMessages = (password: string): string => {
     return message;
 };
 
-export const getProjectNameErrorMessages = (projectName: string): string => {
+export const getProjectTitleErrorMessages = (projectTitle: string): string => {
     let message = "";
     const minLength = 1;
-    if (projectName.trim().length < minLength) {
+    if (projectTitle.trim().length < minLength) {
         message += `Project name must be at least ${minLength} character(s).`;
     }
     return message;

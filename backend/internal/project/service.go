@@ -7,14 +7,14 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
-func (ps *ProjectService) newProject(v *validator.Validator, userID int, name, description, visibility, color string) error {
-	cleanedName := strings.TrimSpace(name)
+func (ps *ProjectService) newProject(v *validator.Validator, userID int, title, description, visibility, color string) error {
+	cleanedTitle := strings.TrimSpace(title)
 	cleanedDescription := strings.TrimSpace(description)
 	cleanedVisibility := strings.ToLower(strings.TrimSpace(visibility))
 	cleanedColor := strings.ToLower(strings.TrimSpace(color))
 	p := &Project{
 		UserID:      userID,
-		Name:        cleanedName,
+		Title:       cleanedTitle,
 		Description: cleanedDescription,
 		Visibility:  cleanedVisibility,
 		Color:       cleanedColor,
@@ -35,7 +35,6 @@ func (ps *ProjectService) getProjects(userID int, visibility string) ([]*Project
 	return ps.Repo.get(userID, visibility)
 }
 
-// is exported because note package depends on it
 func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {
 	project, err := ps.Repo.getOne(projectID)
 	if err != nil {
@@ -63,10 +62,10 @@ func (ps *ProjectService) deleteProject(userID, projectID int) error {
 	return ps.Repo.delete(project.ID)
 }
 
-func (ps *ProjectService) updateProject(v *validator.Validator, userID, projectID int, name, description, visibility, color *string) error {
-	if name != nil {
-		cleanedName := strings.TrimSpace(*name)
-		validateName(v, cleanedName)
+func (ps *ProjectService) updateProject(v *validator.Validator, userID, projectID int, title, description, visibility, color *string) error {
+	if title != nil {
+		cleanedTitle := strings.TrimSpace(*title)
+		validateTitle(v, cleanedTitle)
 	}
 
 	if visibility != nil {
@@ -83,5 +82,5 @@ func (ps *ProjectService) updateProject(v *validator.Validator, userID, projectI
 		return validator.ErrFailedValidation
 	}
 
-	return ps.Repo.update(userID, projectID, name, description, visibility, color)
+	return ps.Repo.update(userID, projectID, title, description, visibility, color)
 }

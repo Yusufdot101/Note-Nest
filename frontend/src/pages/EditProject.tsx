@@ -3,7 +3,7 @@ import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import {
     getProjectDescriptionErrorMessages,
-    getProjectNameErrorMessages,
+    getProjectTitleErrorMessages,
     getProjectVisibilityErrorMessages,
 } from "../utilities/inputValidation";
 import {
@@ -15,7 +15,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ColorPicker from "../components/ColorPicker";
 
 const EditProject = () => {
-    const [projectName, setProjectName] = useState("");
+    const [projectTitle, setProjectTitle] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
     const [projectVisibility, setProjectVisibility] = useState("");
     const [projectColor, setProjectColor] = useState("#00FFFF");
@@ -27,7 +27,7 @@ const EditProject = () => {
             if (id === "") return;
             const project = await fetchProject(+id!);
             if (!project) return;
-            setProjectName(project.Name);
+            setProjectTitle(project.Name);
             setProjectDescription(project.Description);
             setProjectVisibility(project.Visibility);
             setProjectColor(project.Color);
@@ -35,7 +35,7 @@ const EditProject = () => {
         setupProject();
     }, [id]);
 
-    const [projectNameError, setProjectNameError] = useState("");
+    const [projectTitleError, setProjectTitleError] = useState("");
     const [projectDescriptionError, setProjectDescriptionError] = useState("");
     const [projectVisibilityError, setProjectVisibilityError] = useState("");
     const [showError, setShowError] = useState(false);
@@ -45,7 +45,7 @@ const EditProject = () => {
     const handleSave = async () => {
         setShowError(true);
         if (
-            projectNameError ||
+            projectTitleError ||
             projectDescriptionError ||
             projectVisibilityError ||
             !id
@@ -53,7 +53,7 @@ const EditProject = () => {
             return;
         const success = await updateProject(
             +id,
-            projectName,
+            projectTitle,
             projectDescription,
             projectVisibility,
             projectColor,
@@ -68,8 +68,8 @@ const EditProject = () => {
     };
 
     useEffect(() => {
-        setProjectNameError(getProjectNameErrorMessages(projectName));
-    }, [projectName]);
+        setProjectTitleError(getProjectTitleErrorMessages(projectTitle));
+    }, [projectTitle]);
     useEffect(() => {
         setProjectDescriptionError(
             getProjectDescriptionErrorMessages(projectDescription),
@@ -104,16 +104,16 @@ const EditProject = () => {
                         inputType={"text"}
                         inputName={"project name"}
                         isRequired
-                        inputValue={projectName}
-                        inputId={"projectName"}
-                        handleChange={(value) => setProjectName(value)}
+                        inputValue={projectTitle}
+                        inputId={"projectTitle"}
+                        handleChange={(value) => setProjectTitle(value)}
                     />
                     <p
                         aria-label={"project name error"}
                         className={`text-red-500 ${!showError ? "hidden" : ""}`}
-                        id="projectNameError"
+                        id="projectTitleError"
                     >
-                        {projectNameError}
+                        {projectTitleError}
                     </p>
                 </div>
                 <div className="flex flex-col">

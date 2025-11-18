@@ -14,7 +14,7 @@ import (
 
 func (h *ProjectHandler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Name        *string `json:"name"`
+		Title       *string `json:"title"`
 		Description *string `json:"description"`
 		Visibility  *string `json:"visibility"`
 		Color       *string `json:"color"`
@@ -40,7 +40,7 @@ func (h *ProjectHandler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.NewValidator()
-	err = h.svc.updateProject(v, userID, projectID, input.Name, input.Description, input.Visibility, input.Color)
+	err = h.svc.updateProject(v, userID, projectID, input.Title, input.Description, input.Visibility, input.Color)
 	if err != nil {
 		switch {
 		case errors.Is(err, custom_errors.ErrNoRecord):

@@ -23,7 +23,7 @@ func (r *Repository) insert(p *Project) error {
 	`
 	values := []any{
 		p.UserID,
-		p.Name,
+		p.Title,
 		p.Description,
 		p.Visibility,
 		p.Color,
@@ -70,7 +70,7 @@ func (r *Repository) get(userID int, visibility string) ([]*Project, error) {
 			&p.CreatedAt,
 			&p.UpdatedAt,
 			&p.UserID,
-			&p.Name,
+			&p.Title,
 			&p.Description,
 			&p.Visibility,
 			&p.EntriesCount,
@@ -108,7 +108,7 @@ func (r *Repository) getOne(ID int) (*Project, error) {
 		&p.CreatedAt,
 		&p.UpdatedAt,
 		&p.UserID,
-		&p.Name,
+		&p.Title,
 		&p.Description,
 		&p.Visibility,
 		&p.EntriesCount,
@@ -182,7 +182,7 @@ func (r *Repository) update(userID, projectID int, name, description, visibility
 		&p.ID,
 		&p.UpdatedAt,
 		&p.UserID,
-		&p.Name,
+		&p.Title,
 		&p.Description,
 		&p.Visibility,
 		&p.Color,
@@ -202,7 +202,7 @@ func (r *Repository) update(userID, projectID int, name, description, visibility
 	}
 
 	if name != nil {
-		p.Name = *name
+		p.Title = *name
 	}
 
 	if description != nil {
@@ -228,7 +228,7 @@ func (r *Repository) update(userID, projectID int, name, description, visibility
 	`
 	now := time.Now()
 	values := []any{
-		p.Name,
+		p.Title,
 		p.Description,
 		p.Visibility,
 		p.Color,

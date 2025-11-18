@@ -8,45 +8,45 @@ import (
 
 func TestValidateProject(t *testing.T) {
 	tests := []struct {
-		name        string
-		projectName string
-		description string
-		visibility  string
-		color       string
-		wantValid   bool
-		wantErrors  map[string]string
+		name         string
+		projectTitle string
+		description  string
+		visibility   string
+		color        string
+		wantValid    bool
+		wantErrors   map[string]string
 	}{
 		{
-			name:        "valid",
-			projectName: "project name",
-			description: "project description",
-			visibility:  "public",
-			color:       "#ffffff",
-			wantValid:   true,
+			name:         "valid",
+			projectTitle: "project name",
+			description:  "project description",
+			visibility:   "public",
+			color:        "#ffffff",
+			wantValid:    true,
 		},
 		{
-			name:        "missing name",
-			projectName: "",
-			description: "project description",
-			visibility:  "private",
-			color:       "#ffffff",
-			wantValid:   false,
-			wantErrors:  map[string]string{"name": "must be given"},
+			name:         "missing name",
+			projectTitle: "",
+			description:  "project description",
+			visibility:   "private",
+			color:        "#ffffff",
+			wantValid:    false,
+			wantErrors:   map[string]string{"name": "must be given"},
 		},
 		{
-			name:        "invalid visibility value",
-			projectName: "project name",
-			description: "project description",
-			visibility:  "unknown",
-			color:       "#ffffff",
-			wantValid:   false,
-			wantErrors:  map[string]string{"visibility": "value not allowed"},
+			name:         "invalid visibility value",
+			projectTitle: "project name",
+			description:  "project description",
+			visibility:   "unknown",
+			color:        "#ffffff",
+			wantValid:    false,
+			wantErrors:   map[string]string{"visibility": "value not allowed"},
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			p := &Project{
-				Name:        test.projectName,
+				Title:       test.projectTitle,
 				Description: test.description,
 				Visibility:  test.visibility,
 				Color:       test.color,

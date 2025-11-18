@@ -12,7 +12,7 @@ type Project struct {
 	CreatedAt     *time.Time
 	UpdatedAt     *time.Time
 	UserID        int
-	Name          string
+	Title         string
 	Description   string
 	Visibility    string
 	Color         string
@@ -96,13 +96,13 @@ func NewHandler(svc *ProjectService) *ProjectHandler {
 }
 
 func validateProject(v *validator.Validator, p *Project) {
-	validateName(v, p.Name)
+	validateTitle(v, p.Title)
 	validateVisibility(v, p.Visibility)
 	validateColor(v, p.Color)
 }
 
-func validateName(v *validator.Validator, name string) {
-	v.CheckAddError(name != "", "name", "must be given")
+func validateTitle(v *validator.Validator, title string) {
+	v.CheckAddError(title != "", "title", "must be given")
 }
 
 func validateVisibility(v *validator.Validator, visibility string) {

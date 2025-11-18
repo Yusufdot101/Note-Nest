@@ -2,7 +2,7 @@ import type { Project } from "../components/ProjectCard";
 import { api } from "./api";
 
 export const newProject = async (
-    projectName: string,
+    projectTitle: string,
     projectDescription: string,
     projectVisibility: string,
     projectColor: string,
@@ -14,7 +14,7 @@ export const newProject = async (
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                name: projectName,
+                name: projectTitle,
                 description: projectDescription,
                 visibility: projectVisibility,
                 color: projectColor,
@@ -42,7 +42,7 @@ export const newProject = async (
 
 export const updateProject = async (
     projectID: number,
-    projectName: string,
+    projectTitle: string,
     projectDescription: string,
     projectVisibility: string,
     projectColor: string,
@@ -54,7 +54,7 @@ export const updateProject = async (
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                name: projectName,
+                name: projectTitle,
                 description: projectDescription,
                 visibility: projectVisibility,
                 color: projectColor,

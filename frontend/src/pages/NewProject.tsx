@@ -4,19 +4,19 @@ import SubmitButton from "../components/SubmitButton";
 import { useNavigate } from "react-router-dom";
 import {
     getProjectDescriptionErrorMessages,
-    getProjectNameErrorMessages,
+    getProjectTitleErrorMessages,
     getProjectVisibilityErrorMessages,
 } from "../utilities/inputValidation";
 import { newProject } from "../utilities/project";
 import ColorPicker from "../components/ColorPicker";
 
 const NewProject = () => {
-    const [projectName, setProjectName] = useState("");
+    const [projectTitle, setProjectTitle] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
     const [projectVisibility, setProjectVisibility] = useState("private");
     const [projectColor, setProjectColor] = useState("#00FFFF");
 
-    const [projectNameError, setProjectNameError] = useState("");
+    const [projectTitleError, setProjectTitleError] = useState("");
     const [projectDescriptionError, setProjectDescriptionError] = useState("");
     const [projectVisibilityError, setProjectVisibilityError] = useState("");
     const [showError, setShowError] = useState(false);
@@ -26,13 +26,13 @@ const NewProject = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setShowError(true);
-        if (projectNameError || projectVisibilityError) {
+        if (projectTitleError || projectVisibilityError) {
             return;
         }
 
         // use the api
         const success = await newProject(
-            projectName,
+            projectTitle,
             projectDescription,
             projectVisibility,
             projectColor,
@@ -43,8 +43,8 @@ const NewProject = () => {
     };
 
     useEffect(() => {
-        setProjectNameError(getProjectNameErrorMessages(projectName));
-    }, [projectName]);
+        setProjectTitleError(getProjectTitleErrorMessages(projectTitle));
+    }, [projectTitle]);
     useEffect(() => {
         setProjectDescriptionError(
             getProjectDescriptionErrorMessages(projectDescription),
@@ -81,16 +81,16 @@ const NewProject = () => {
                         inputType={"text"}
                         inputName={"project name"}
                         isRequired
-                        inputValue={projectName}
-                        inputId={"projectName"}
-                        handleChange={(value) => setProjectName(value)}
+                        inputValue={projectTitle}
+                        inputId={"projectTitle"}
+                        handleChange={(value) => setProjectTitle(value)}
                     />
                     <p
                         aria-label={"project name error"}
                         className={`text-red-500 ${!showError ? "hidden" : ""}`}
-                        id="projectNameError"
+                        id="projectTitleError"
                     >
-                        {projectNameError}
+                        {projectTitleError}
                     </p>
                 </div>
                 <div className="flex flex-col">
