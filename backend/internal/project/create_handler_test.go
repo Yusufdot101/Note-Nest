@@ -12,17 +12,17 @@ import (
 
 func TestNewProjectHandler(t *testing.T) {
 	tests := []struct {
-		name             string
+		title            string
 		userID           any
 		payload          string
 		wantStatusCode   int
 		wantInsertCalled bool
 	}{
 		{
-			name:   "valid",
+			title:  "valid",
 			userID: 1,
 			payload: `{
-				"name": "project name",
+				"title": "project title",
 				"description": "project description",
 				"visibility": "private",
 				"color": "#ffffff"
@@ -31,10 +31,10 @@ func TestNewProjectHandler(t *testing.T) {
 			wantInsertCalled: true,
 		},
 		{
-			name:   "missing name",
+			title:  "missing title",
 			userID: 1,
 			payload: `{
-				"name": "",
+				"title": "",
 				"description": "project description",
 				"visibility": "private",
 				"color": "#ffffff"
@@ -42,10 +42,10 @@ func TestNewProjectHandler(t *testing.T) {
 			wantStatusCode: http.StatusBadRequest,
 		},
 		{
-			name:   "userID missing from context",
+			title:  "userID missing from context",
 			userID: nil,
 			payload: `{
-				"name": "project name",
+				"title": "project title",
 				"description": "project description",
 				"visibility": "private",
 				"color": "#ffffff"
@@ -53,10 +53,10 @@ func TestNewProjectHandler(t *testing.T) {
 			wantStatusCode: http.StatusInternalServerError,
 		},
 		{
-			name:   "unknown field",
+			title:  "unknown field",
 			userID: 1,
 			payload: `{
-				"name": "project name",
+				"title": "project title",
 				"description": "project description",
 				"visibility": "private",
 				"color": "#ffffff",
@@ -66,7 +66,7 @@ func TestNewProjectHandler(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.title, func(t *testing.T) {
 			rr := httptest.NewRecorder()
 			req, err := http.NewRequest(http.MethodPost, "/projects", strings.NewReader(test.payload))
 			if err != nil {

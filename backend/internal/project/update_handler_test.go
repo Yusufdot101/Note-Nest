@@ -23,7 +23,7 @@ func TestUpdateProjectHandler(t *testing.T) {
 			name:   "valid",
 			userID: 1,
 			payload: `{
-				"name": "project name",
+				"title": "project title",
 				"description": "project description",
 				"visibility": "private",
 				"color": "#ffffff"
@@ -32,7 +32,7 @@ func TestUpdateProjectHandler(t *testing.T) {
 			wantUpdateCalled: true,
 		},
 		{
-			name:   "valid-missing name",
+			name:   "valid-missing title",
 			userID: 1,
 			payload: `{
 				"description": "project description",
@@ -68,7 +68,7 @@ func TestUpdateProjectHandler(t *testing.T) {
 			name:   "userID missing from context",
 			userID: nil,
 			payload: `{
-				"name": "project name",
+				"title": "project title",
 				"description": "project description",
 				"visibility": "private",
 				"color": "#ffffff"
@@ -79,7 +79,7 @@ func TestUpdateProjectHandler(t *testing.T) {
 			name:   "unknown field",
 			userID: 1,
 			payload: `{
-				"name": "project name",
+				"title": "project title",
 				"description": "project description",
 				"visibility": "private",
 				"color": "#ffffff",

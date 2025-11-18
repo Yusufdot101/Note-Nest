@@ -18,24 +18,24 @@ func TestValidateProject(t *testing.T) {
 	}{
 		{
 			name:         "valid",
-			projectTitle: "project name",
+			projectTitle: "project title",
 			description:  "project description",
 			visibility:   "public",
 			color:        "#ffffff",
 			wantValid:    true,
 		},
 		{
-			name:         "missing name",
+			name:         "missing title",
 			projectTitle: "",
 			description:  "project description",
 			visibility:   "private",
 			color:        "#ffffff",
 			wantValid:    false,
-			wantErrors:   map[string]string{"name": "must be given"},
+			wantErrors:   map[string]string{"title": "must be given"},
 		},
 		{
 			name:         "invalid visibility value",
-			projectTitle: "project name",
+			projectTitle: "project title",
 			description:  "project description",
 			visibility:   "unknown",
 			color:        "#ffffff",
