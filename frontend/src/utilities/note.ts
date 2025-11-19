@@ -1,4 +1,3 @@
-import { queries } from "@testing-library/react";
 import type { Note } from "../components/NoteCard";
 import { api } from "./api";
 
