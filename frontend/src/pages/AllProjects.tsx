@@ -17,6 +17,13 @@ const AllProjects = () => {
     );
 
     const handleSearch = async () => {
+        if (!searchValue.trim()) {
+            const newOptions = new Map(options);
+            newOptions.delete("title");
+            setOptions(newOptions);
+            return;
+        }
+
         setOptions(
             (prev) =>
                 new Map<string, string | number>([

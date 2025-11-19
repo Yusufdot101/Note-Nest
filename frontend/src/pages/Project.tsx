@@ -21,10 +21,17 @@ const ProjectPage = () => {
     const userID = useAuthStore((state) => state.userID);
     const [searchValue, setSearchValue] = useState("");
     const [options, setOptions] = useState<Map<string, number | string>>(
-        new Map<string, number | string>([["project_id", id ?? -1]]),
+        new Map<string, number | string>(id ? [["project_id", id]] : []),
     );
 
     const handleSearch = async () => {
+        if (!searchValue.trim()) {
+            const newOptions = new Map(options);
+            newOptions.delete("title");
+            setOptions(newOptions);
+            return;
+        }
+
         setOptions(
             (prev) =>
                 new Map<string, string | number>([

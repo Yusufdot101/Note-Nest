@@ -5,16 +5,18 @@ export const fetchProjects = async (
     options: Map<string, string | number>,
 ): Promise<Project[]> => {
     try {
-        let queries = "";
+        const params = new URLSearchParams();
         for (const [key, value] of options) {
-            queries = queries + `${key}=${value}&`;
+            params.append(key, String(value));
         }
-        const res = await api(`/projects?${queries}`, {
+
+        const res = await api(`/projects?${params.toString()}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
         });
+
         if (!res) {
             return [];
         }

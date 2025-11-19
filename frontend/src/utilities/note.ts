@@ -1,3 +1,4 @@
+import { queries } from "@testing-library/react";
 import type { Note } from "../components/NoteCard";
 import { api } from "./api";
 
@@ -47,16 +48,14 @@ export const fetchNotes = async (
     options: Map<string, string | number>,
 ): Promise<Note[]> => {
     try {
-        let queries = "";
+        const params = new URLSearchParams();
         for (const [key, value] of options) {
-            queries = queries + `${key}=${value}&`;
+            params.append(key, String(value));
         }
-        const res = await api(`/notes?${queries}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+
+        const queryString = params.toString();
+        const res = await api(`/notes${queryString ? `?${queryString}` : ""}`);
+
         if (!res) {
             return [];
         }

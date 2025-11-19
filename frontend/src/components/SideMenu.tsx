@@ -34,6 +34,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
         },
         {
             reload: true,
+            hidden: !isLoggedIn,
             url: `/projects${userID ? `?user=${userID}` : ""}`,
             text: "My Projects",
         },
@@ -100,6 +101,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
                         key={`${link.url}-${link.text}`}
                         onClick={handleClose}
                         tabIndex={menuIsOpen ? 0 : -1}
+                        hidden={link.hidden}
                     >
                         <li className="bg-[#747474] p-[8px] hover:text-accent duration-300">
                             {link.text}
