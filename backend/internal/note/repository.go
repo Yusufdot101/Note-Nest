@@ -124,7 +124,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 	idx := 1
 
 	// =====================================================================
-	// CASE 1: BOTH projectId AND userId are provided
+	// CASE 1: BOTH projectID AND userID are provided
 	// =====================================================================
 	if queryUserID != -1 && projectID != -1 {
 		var owner int
@@ -136,6 +136,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 			return nil, err
 		}
 
+		// userId must match actual project owner
 		if owner != queryUserID {
 			return nil, custom_errors.ErrNoRecord
 		}
@@ -143,17 +144,28 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
 		args = append(args, projectID)
 		idx++
-		if queryUserID != currentUserID {
-			if visibility != "" && visibility != "public" {
-				return nil, custom_errors.ErrNoRecord
+		if visibility != "" {
+			if queryUserID != currentUserID {
+				if visibility != "public" {
+					return nil, custom_errors.ErrNoRecord
+				}
+				conds = append(conds, "n.visibility = 'public'")
+			} else {
+				conds = append(conds, fmt.Sprintf("n.visibility = $%d", idx))
+				args = append(args, visibility)
+				idx++
 			}
-			conds = append(conds, "n.visibility = 'public'")
+		} else {
+			conds = append(conds, fmt.Sprintf("( n.visibility = 'public' OR p.user_id = $%d )", idx))
+			args = append(args, currentUserID)
+			idx++
 		}
+
 		goto BUILD
 	}
 
 	// =====================================================================
-	// CASE 2: ONLY userId is provided
+	// CASE 2: ONLY userID is provided
 	// =====================================================================
 	if queryUserID != -1 {
 		conds = append(conds, fmt.Sprintf("p.user_id = $%d", idx))
