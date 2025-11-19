@@ -4,17 +4,35 @@ import type { Project } from "../components/ProjectCard";
 import ProjectCard from "../components/ProjectCard";
 import { fetchProjects } from "../utilities/projects";
 import { useNavigate } from "react-router-dom";
+import SearchBar from "../components/SearchBar";
 
 const AllProjects = () => {
     const [projects, setProjects] = useState<Project[]>([]);
+    const [searchValue, setSearchValue] = useState("");
+
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get("user");
+    const [options, setOptions] = useState<Map<string, number | string>>(
+        new Map<string, number | string>([["user_id", user ?? -1]]),
+    );
+
+    const handleSearch = async () => {
+        setOptions(
+            (prev) =>
+                new Map<string, string | number>([
+                    ...prev,
+                    ["title", searchValue],
+                ]),
+        );
+    };
 
     useEffect(() => {
         const setupProjects = async () => {
-            const projects = await fetchProjects();
+            const projects = await fetchProjects(options);
             setProjects(projects);
         };
         setupProjects();
-    }, []);
+    }, [options]);
 
     const navigate = useNavigate();
 
@@ -33,6 +51,12 @@ const AllProjects = () => {
             <h1 className="text-text font-bold text-[32px] max-[629px]:text-[24px] text-center">
                 PROJECTS
             </h1>
+            <SearchBar
+                placeholder="Search projects"
+                searchValue={searchValue}
+                handleValueChange={(value) => setSearchValue(value)}
+                handleSearch={handleSearch}
+            />
             <div
                 className={`py-[12px] items-center text-text grid gap-[16px] ${projects.length > 1 ? " grid-cols-[repeat(auto-fit,minmax(400px,1fr))] max-[619px]:grid-cols-[repeat(auto-fit,minmax(284px,1fr))]" : "grid-cols-[repeat(auto-fit,minmax(284px,700px))]"}`}
             >

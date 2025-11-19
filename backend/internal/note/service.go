@@ -19,13 +19,14 @@ func (ns *NoteService) newNote(
 
 	// do checks
 	cleanedTitle := strings.TrimSpace(title)
+	cleanedContent := strings.TrimSpace(content)
 	cleanedVisibility := strings.ToLower(strings.TrimSpace(visibility))
 	cleanColor := strings.ToLower(strings.TrimSpace(color))
 
 	n := &Note{
 		ProjectID:  projectID,
 		Title:      cleanedTitle,
-		Content:    content,
+		Content:    cleanedContent,
 		Visibility: cleanedVisibility,
 		Color:      cleanColor,
 	}

@@ -3,19 +3,25 @@ import Input from "./Input";
 
 interface SearchBarProps {
     searchValue: string;
-    setSearchValue: React.Dispatch<React.SetStateAction<string>>;
+    handleValueChange: (value: string) => void;
     placeholder: string;
     handleSearch: () => void;
 }
 
 const SearchBar = ({
     searchValue,
-    setSearchValue,
+    handleValueChange,
     placeholder,
     handleSearch,
 }: SearchBarProps) => {
     return (
-        <div className="w-full flex gap-[8px] h-[50px]">
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                handleSearch();
+            }}
+            className="w-full flex gap-[8px] h-[50px]"
+        >
             <Input
                 ariaLabel="search value"
                 inputType="text"
@@ -23,7 +29,7 @@ const SearchBar = ({
                 inputName="searchValue"
                 placeholder={placeholder}
                 inputValue={searchValue}
-                handleChange={(value: string) => setSearchValue(value)}
+                handleChange={handleValueChange}
             />
             <img
                 role="button"
@@ -34,11 +40,15 @@ const SearchBar = ({
                         handleSearch();
                     }
                 }}
+                onClick={(e) => {
+                    e.preventDefault();
+                    handleSearch();
+                }}
                 src={searchIcon}
                 alt="search icon"
                 className="h-full cursor-pointer"
             />
-        </div>
+        </form>
     );
 };
 

@@ -44,19 +44,19 @@ export const newNote = async (
 };
 
 export const fetchNotes = async (
-    userID?: number,
-    projectID?: number,
+    options: Map<string, string | number>,
 ): Promise<Note[]> => {
     try {
-        const res = await api(
-            `/notes?${userID !== undefined ? `user=${userID}&` : ""}${projectID ? `projectid=${projectID}&` : ""}`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+        let queries = "";
+        for (const [key, value] of options) {
+            queries = queries + `${key}=${value}&`;
+        }
+        const res = await api(`/notes?${queries}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
             },
-        );
+        });
         if (!res) {
             return [];
         }

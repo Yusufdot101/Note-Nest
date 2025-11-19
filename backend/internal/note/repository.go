@@ -258,7 +258,6 @@ BUILD:
 		words[i] += ":*" // add prefix operator
 	}
 	formattedTitle := strings.Join(words, " & ") // join with &
-	log.Println(formattedTitle)
 	args = append(args, formattedTitle)
 	args = append(args, filter.Limit())
 	args = append(args, filter.Offset())

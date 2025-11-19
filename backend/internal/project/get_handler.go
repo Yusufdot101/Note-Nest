@@ -30,7 +30,7 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 	v := validator.NewValidator()
 
-	input.title = utilities.ReadStr(qs, "name", "")
+	input.title = utilities.ReadStr(qs, "title", "")
 	input.visibility = utilities.ReadStr(qs, "visibility", "")
 	input.userID = utilities.ReadInt(qs, "user_id", -1, v)
 	input.Page = utilities.ReadInt(qs, "page", 1, v)

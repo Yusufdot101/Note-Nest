@@ -28,6 +28,12 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
             text: "Notes",
         },
         {
+            reload: true,
+            url: "/projects",
+            text: "Projects",
+        },
+        {
+            reload: true,
             url: `/projects${userID ? `?user=${userID}` : ""}`,
             text: "My Projects",
         },
@@ -89,6 +95,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
             <ul className="flex flex-col gap-[8px]">
                 {navigationLinks.map((link) => (
                     <Link
+                        reloadDocument={link.reload}
                         to={link.url}
                         key={`${link.url}-${link.text}`}
                         onClick={handleClose}

@@ -74,6 +74,7 @@ func newHandler(svc *NoteService) *NoteHandler {
 
 func validateNote(v *validator.Validator, n *Note) {
 	validateTitle(v, n.Title)
+	validateContent(v, n.Content)
 	validateVisibility(v, n.Visibility)
 	validateColor(v, n.Color)
 }

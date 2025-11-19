@@ -67,7 +67,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 		} else {
 			// can only access public projects of others
 			if visibility != "public" && visibility != "" {
-				return nil, nil
+				return nil, custom_errors.ErrNoRecord
 			}
 			conds = append(conds, "visibility = 'public'")
 		}
@@ -84,10 +84,10 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 				args = append(args, currentUserID)
 				idx++
 			default:
-				return nil, nil
+				return nil, custom_errors.ErrNoRecord
 			}
 		} else {
-			conds = append(conds, fmt.Sprintf("visibility = 'public' OR user_id = $%d", idx))
+			conds = append(conds, fmt.Sprintf("( visibility = 'public' OR user_id = $%d )", idx))
 			args = append(args, currentUserID)
 			idx++
 		}
@@ -99,13 +99,18 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 
 	query := baseQuery + " WHERE " + strings.Join(conds, " AND ")
 	query += fmt.Sprintf(`
-			AND (to_tsvector('simple', title) @@ plainto_tsquery('simple', $%d) OR $%d = '')
+			AND (to_tsvector('simple', title) @@ to_tsquery('simple', $%d) OR $%d = '')
 			ORDER BY %s %s, id ASC
 			LIMIT $%d
 			OFFSET $%d
 		`, idx, idx, filter.SortColumn(), filter.SortDirection(), idx+1, idx+2)
 
-	args = append(args, title)
+	words := strings.Fields(title)
+	for i := range words {
+		words[i] += ":*"
+	}
+	formattedTitle := strings.Join(words, " & ") // join with &
+	args = append(args, formattedTitle)
 	args = append(args, filter.Limit())
 	args = append(args, filter.Offset())
 

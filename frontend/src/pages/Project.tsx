@@ -9,6 +9,7 @@ import { fetchNotes } from "../utilities/note";
 import type { Note } from "../components/NoteCard";
 import NoteCard from "../components/NoteCard";
 import { useAuthStore } from "../store/useAuthStore";
+import SearchBar from "../components/SearchBar";
 
 const ProjectPage = () => {
     const [project, setProject] = useState<Project>();
@@ -16,9 +17,24 @@ const ProjectPage = () => {
     const [showDialoge, setShowDialoge] = useState(false);
     const [color, setColor] = useState("#ffffff");
 
-    const navigate = useNavigate();
     const { id } = useParams();
     const userID = useAuthStore((state) => state.userID);
+    const [searchValue, setSearchValue] = useState("");
+    const [options, setOptions] = useState<Map<string, number | string>>(
+        new Map<string, number | string>([["project_id", id ?? -1]]),
+    );
+
+    const handleSearch = async () => {
+        setOptions(
+            (prev) =>
+                new Map<string, string | number>([
+                    ...prev,
+                    ["title", searchValue],
+                ]),
+        );
+    };
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const setupProject = async () => {
@@ -30,14 +46,14 @@ const ProjectPage = () => {
         };
 
         const setupNotes = async () => {
-            if (id == "") return;
-            const notes = await fetchNotes(undefined, +id!);
+            if (!id) return;
+            const notes = await fetchNotes(options);
             if (!notes) return;
             setNotes(notes);
         };
         setupProject();
         setupNotes();
-    }, [id]);
+    }, [options, id]);
 
     return (
         <div className="flex flex-col gap-[12px]">
@@ -79,6 +95,13 @@ const ProjectPage = () => {
                     <h1 className="text-text font-bold text-[32px] max-[629px]:text-[24px] text-center">
                         NOTES
                     </h1>
+
+                    <SearchBar
+                        placeholder="Search notes"
+                        searchValue={searchValue}
+                        handleValueChange={(value) => setSearchValue(value)}
+                        handleSearch={handleSearch}
+                    />
 
                     {notes.map((note) => (
                         <NoteCard

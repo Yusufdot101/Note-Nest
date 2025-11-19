@@ -1,19 +1,20 @@
 import type { Project } from "../components/ProjectCard";
 import { api } from "./api";
 
-export const fetchProjects = async (): Promise<Project[]> => {
+export const fetchProjects = async (
+    options: Map<string, string | number>,
+): Promise<Project[]> => {
     try {
-        const params = new URLSearchParams(window.location.search);
-        const user = params.get("user");
-        const res = await api(
-            `/projects${+(user === null) ? "" : `?user_id=${user}`}`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+        let queries = "";
+        for (const [key, value] of options) {
+            queries = queries + `${key}=${value}&`;
+        }
+        const res = await api(`/projects?${queries}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
             },
-        );
+        });
         if (!res) {
             return [];
         }

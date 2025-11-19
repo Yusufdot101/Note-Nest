@@ -8,25 +8,37 @@ import { useNavigate } from "react-router-dom";
 const Notes = () => {
     const [searchValue, setSearchValue] = useState("");
     const [notes, setNotes] = useState<Note[]>([]);
-    const handleSearch = async () => {};
+    const [options, setOptions] = useState<Map<string, number | string>>(
+        new Map<string, number | string>(),
+    );
+
+    const handleSearch = async () => {
+        setOptions(
+            (prev) =>
+                new Map<string, string | number>([
+                    ...prev,
+                    ["title", searchValue],
+                ]),
+        );
+    };
 
     const navigate = useNavigate();
 
     useEffect(() => {
         const setupNotes = async () => {
-            const notes = await fetchNotes();
+            const notes = await fetchNotes(options);
             if (!notes) return;
             setNotes(notes);
         };
 
         setupNotes();
-    }, []);
+    }, [options]);
     return (
         <div className="flex flex-col gap-y-[12px]">
             <SearchBar
                 placeholder="Search notes"
                 searchValue={searchValue}
-                setSearchValue={setSearchValue}
+                handleValueChange={(value) => setSearchValue(value)}
                 handleSearch={handleSearch}
             />
             <div className="flex flex-col gap-[8px]">
