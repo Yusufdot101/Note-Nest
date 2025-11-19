@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/project"
 )
 
@@ -107,11 +108,9 @@ func (r *Repository) get(noteID int) (*Note, error) {
 	return note, nil
 }
 
-func (r *Repository) getMany(currentUserID, queryUserID, projectID *int, visibility string) ([]*Note, error) {
+func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	uid := *currentUserID // guaranteed non-nil cause the endpoint has requireAccess middleware that needs access token which has the currentUserID
 
 	baseQuery := `
 		SELECT
@@ -127,109 +126,101 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID *int, visibil
 	// =====================================================================
 	// CASE 1: BOTH projectId AND userId are provided
 	// =====================================================================
-	if projectID != nil && queryUserID != nil {
-		// fetch project owner
-		var ownerID int
-		err := r.DB.QueryRowContext(ctx,
-			"SELECT user_id FROM projects WHERE id = $1",
-			*projectID,
-		).Scan(&ownerID)
+	if queryUserID != -1 && projectID != -1 {
+		var owner int
+		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
 		if err != nil {
-			if err == sql.ErrNoRows {
+			if errors.Is(err, sql.ErrNoRows) {
 				return nil, custom_errors.ErrNoRecord
 			}
 			return nil, err
 		}
 
-		// userId must match actual project owner
-		if ownerID != *queryUserID {
+		if owner != queryUserID {
 			return nil, custom_errors.ErrNoRecord
 		}
 
-		// filter by project
 		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
-		args = append(args, *projectID)
+		args = append(args, projectID)
 		idx++
-
-		// if the requester is the owner → full visibility rules apply
-		if ownerID == uid {
-			if visibility != "" {
-				conds = append(conds, fmt.Sprintf("n.visibility = $%d", idx))
-				args = append(args, visibility)
+		if queryUserID != currentUserID {
+			if visibility != "" && visibility != "public" {
+				return nil, custom_errors.ErrNoRecord
 			}
-		} else {
-			// not owner → only public allowed
 			conds = append(conds, "n.visibility = 'public'")
 		}
-
 		goto BUILD
 	}
 
 	// =====================================================================
-	// CASE 2: ONLY projectId is provided
+	// CASE 2: ONLY userId is provided
 	// =====================================================================
-	if projectID != nil {
-		var ownerID int
-		err := r.DB.QueryRowContext(ctx,
-			"SELECT user_id FROM projects WHERE id = $1",
-			*projectID,
-		).Scan(&ownerID)
+	if queryUserID != -1 {
+		conds = append(conds, fmt.Sprintf("p.user_id = $%d", idx))
+		args = append(args, queryUserID)
+		idx++
+		if visibility != "" {
+			if queryUserID != currentUserID && visibility == "private" {
+				return nil, custom_errors.ErrNoRecord
+			}
+			conds = append(conds, "n.visibility = 'public'")
+		} else {
+			conds = append(conds, fmt.Sprintf("( n.visibility = 'public' OR p.user_id = $%d )", idx))
+			args = append(args, currentUserID)
+			idx++
+		}
+		goto BUILD
+	}
+
+	// =====================================================================
+	// CASE 2: ONLY projectID is provided
+	// =====================================================================
+	if projectID != -1 {
+		var owner int
+		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
 		if err != nil {
-			if err == sql.ErrNoRows {
+			if errors.Is(err, sql.ErrNoRows) {
 				return nil, custom_errors.ErrNoRecord
 			}
 			return nil, err
 		}
 
 		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
-		args = append(args, *projectID)
+		args = append(args, projectID)
 		idx++
-
-		if ownerID == uid {
-			if visibility != "" {
+		if visibility != "" {
+			if owner != currentUserID {
+				if visibility != "public" {
+					return nil, custom_errors.ErrNoRecord
+				} else {
+					conds = append(conds, "n.visibility = 'public'")
+				}
+			} else {
 				conds = append(conds, fmt.Sprintf("n.visibility = $%d", idx))
 				args = append(args, visibility)
+				idx++
 			}
 		} else {
-			conds = append(conds, "n.visibility = 'public'")
+			conds = append(conds, fmt.Sprintf("(n.visibility = 'public' OR p.user_id = $%d)", idx))
+			args = append(args, currentUserID)
+			idx++
 		}
 
 		goto BUILD
 	}
 
-	// =====================================================================
-	// CASE 3: ONLY userId is provided
-	// =====================================================================
-	if queryUserID != nil {
-		conds = append(conds, fmt.Sprintf("p.user_id = $%d", idx))
-		args = append(args, *queryUserID)
-		idx++
-
-		if *queryUserID == uid {
-			if visibility != "" {
-				conds = append(conds, fmt.Sprintf("n.visibility = $%d", idx))
-				args = append(args, visibility)
-			}
-		} else {
-			conds = append(conds, "n.visibility = 'public'")
-		}
-
-		goto BUILD
-	}
-
-	// =====================================================================
-	// CASE 4: GLOBAL FEED (no projectId, no userId)
-	// =====================================================================
 	if visibility != "" {
 		if visibility == "public" {
 			conds = append(conds, "n.visibility = 'public'")
 		} else {
 			conds = append(conds, fmt.Sprintf("n.visibility = 'private' AND p.user_id = $%d", idx))
-			args = append(args, uid)
+			args = append(args, currentUserID)
+			idx++
 		}
 	} else {
 		conds = append(conds, fmt.Sprintf("(n.visibility = 'public' OR p.user_id = $%d)", idx))
-		args = append(args, uid)
+		args = append(args, currentUserID)
+		idx++
 	}
 
 BUILD:
@@ -237,7 +228,28 @@ BUILD:
 		conds = []string{"1=1"}
 	}
 
-	query := baseQuery + " WHERE " + strings.Join(conds, " AND ") + " ORDER BY n.created_at DESC"
+	query := baseQuery + " WHERE " + strings.Join(conds, " AND ")
+	query += fmt.Sprintf(`
+			AND (
+				$%d = ''
+				OR to_tsvector('simple', n.title) @@ to_tsquery('simple', $%d)
+			)
+			ORDER BY %s %s, id ASC
+			LIMIT $%d
+			OFFSET $%d
+		`, idx, idx, filter.SortColumn(), filter.SortDirection(), idx+1, idx+2)
+
+	// to_tsquery wont work directly if you pass spaces, like "go is great" because spaces are treated as operators so you need to convert to into "go&is&great"
+	// we add ':*' before the '&' so that partial word search is possible
+	words := strings.Fields(title) // splits by spaces
+	for i := range words {
+		words[i] += ":*" // add prefix operator
+	}
+	formattedTitle := strings.Join(words, " & ") // join with &
+	log.Println(formattedTitle)
+	args = append(args, formattedTitle)
+	args = append(args, filter.Limit())
+	args = append(args, filter.Offset())
 
 	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -73,13 +74,8 @@ func (ns *NoteService) GetNote(userID, noteID int) (*Note, error) {
 	return note, nil
 }
 
-func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID *int, visibility string) ([]*Note, error) {
-	notes, err := ns.Repo.getMany(currentUserID, queryUserID, projectID, visibility)
-	if err != nil {
-		return nil, err
-	}
-
-	return notes, nil
+func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, error) {
+	return ns.Repo.getMany(currentUserID, queryUserID, projectID, title, visibility, filter)
 }
 
 func (ns *NoteService) deleteNote(userID, noteID int) error {

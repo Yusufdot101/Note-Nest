@@ -3,6 +3,7 @@ package note
 import (
 	"time"
 
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/project"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
@@ -49,7 +50,7 @@ type MockRepo struct {
 type Repo interface {
 	insert(n *Note) error
 	get(noteID int) (*Note, error)
-	getMany(currentUserID, queryUserID, projectID *int, visibility string) ([]*Note, error)
+	getMany(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, error)
 	delete(noteID, projectID int) error
 	updateNoteTitleContent(userID, noteID int, title, content *string) error
 	updateNoteVisibility(userID, noteID int, visibility string) error

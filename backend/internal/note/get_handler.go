@@ -6,8 +6,10 @@ import (
 	"strconv"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
+	"github.com/Yusufdot101/note-nest/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -50,34 +52,39 @@ func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := r.URL.Query()
-
-	var queryUserID, projectID *int
-	var visibility string
-
-	projectIDStr := query.Get("projectid")
-	queryUserIDStr := query.Get("userid")
-	visibility = query.Get("visibility")
-
-	if projectIDStr != "" {
-		i, err := strconv.Atoi(projectIDStr)
-		if err != nil {
-			custom_errors.BadRequestErrorResponse(w, err)
-			return
-		}
-		projectID = &i
+	var input struct {
+		title      string
+		projectID  int
+		userID     int
+		visibility string
+		filter.Filter
 	}
 
-	if queryUserIDStr != "" {
-		i, err := strconv.Atoi(queryUserIDStr)
-		if err != nil {
-			custom_errors.BadRequestErrorResponse(w, err)
-			return
-		}
-		queryUserID = &i
+	qs := r.URL.Query()
+	v := validator.NewValidator()
+
+	input.title = utilities.ReadStr(qs, "title", "")
+	input.visibility = utilities.ReadStr(qs, "visibility", "")
+	input.userID = utilities.ReadInt(qs, "user_id", -1, v)
+	input.projectID = utilities.ReadInt(qs, "project_id", -1, v)
+	input.Page = utilities.ReadInt(qs, "page", 1, v)
+	input.PageSize = utilities.ReadInt(qs, "page_size", 100, v)
+	input.Sort = utilities.ReadStr(qs, "sort", "created_at")
+	input.SafeSortList = []string{
+		"id", "-id",
+		"name", "-name",
+		"user_id", "-user_id",
+		"visibility", "-visibility",
+		"created_at", "-created_at",
+		"likes_count", "-likes_count",
 	}
 
-	notes, err := h.svc.getNotes(&userID, queryUserID, projectID, visibility)
+	if filter.ValidateFilter(v, &input.Filter); !v.IsValid() {
+		custom_errors.FailedValidationErrorResponse(w, v.Errors)
+		return
+	}
+
+	notes, err := h.svc.getNotes(userID, input.userID, input.projectID, input.title, input.visibility, &input.Filter)
 	if err != nil {
 		switch {
 		case errors.Is(err, custom_errors.ErrNoRecord):
