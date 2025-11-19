@@ -2,6 +2,7 @@ package custom_errors
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -16,7 +17,7 @@ var (
 
 func ServerErrorResponse(w http.ResponseWriter, err error) {
 	log.Println(err)
-	msg := "the server encountered an error and could not proceed with your request"
+	msg := map[string]string{"message": "the server encountered an error and could not proceed with your request"}
 	errorResponse(w, msg, http.StatusInternalServerError)
 }
 
@@ -32,12 +33,12 @@ func BadRequestErrorResponse(w http.ResponseWriter, err error) {
 }
 
 func NotFoundErrorResponse(w http.ResponseWriter, r *http.Request) {
-	msg := map[string]string{"resource": "could not be found"}
+	msg := map[string]string{"message": "resource could not be found"}
 	errorResponse(w, msg, http.StatusNotFound)
 }
 
 func MethodNotAllowedErrorResponse(w http.ResponseWriter, r *http.Request) {
-	msg := map[string]string{r.Method: "not allowed for this resource"}
+	msg := map[string]string{"message": fmt.Sprintf("%s method not allowed for this resource", r.Method)}
 	errorResponse(w, msg, http.StatusMethodNotAllowed)
 }
 
@@ -46,21 +47,21 @@ func FailedValidationErrorResponse(w http.ResponseWriter, errors map[string]stri
 }
 
 func InvalidCredentialsErrorResponse(w http.ResponseWriter) {
-	msg := map[string]string{"credentials": "invalid"}
+	msg := map[string]string{"message": "invalid credentials"}
 	errorResponse(w, msg, http.StatusBadRequest)
 }
 
 func RequireAuthenticationErrorResponse(w http.ResponseWriter) {
-	msg := map[string]string{"session status": "you must be logged in to access this resource"}
+	msg := map[string]string{"message": "you must be logged in to access this resource"}
 	errorResponse(w, msg, http.StatusUnauthorized)
 }
 
 func InvalidAuthenticationTokenErrorResponse(w http.ResponseWriter) {
-	msg := map[string]string{"token": "invalid or expired token"}
+	msg := map[string]string{"message": "invalid or expired token"}
 	errorResponse(w, msg, http.StatusUnauthorized)
 }
 
 func UpdateTimeoutErrorResponse(w http.ResponseWriter) {
-	msg := map[string]string{"update time": "You can no longer update the content of this note."}
+	msg := map[string]string{"message": "you can no longer update the content of this note"}
 	errorResponse(w, msg, http.StatusForbidden)
 }
