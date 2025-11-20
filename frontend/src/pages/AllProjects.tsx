@@ -91,7 +91,7 @@ const AllProjects = () => {
                 }}
                 src={newResource}
                 alt="new project"
-                className="sticky ml-auto bottom-[32px] mt-[-64px] cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
+                className="sticky ml-auto bottom-[32px] mt-[-20px] cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
             />
         </div>
     );

@@ -33,6 +33,7 @@ const Signup = () => {
         // use the api
         setSignupShowErrors(false);
         setSignupErrors([]);
+
         const handleErrors = (errors: Record<string, string>) => {
             setSignupShowErrors(true);
             const errorMessages = Object.entries(errors).map(
@@ -40,6 +41,7 @@ const Signup = () => {
             );
             setSignupErrors(errorMessages);
         };
+
         const success = await signup(username, email, password, handleErrors);
         if (!success) return;
         // navigate to the home page when the the account is created

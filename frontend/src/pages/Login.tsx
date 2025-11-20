@@ -15,7 +15,7 @@ const Login = () => {
     const [showError, setShowError] = useState(false);
     const [showLoginErrors, setShowLoginError] = useState(false);
 
-    const [loginError, setLoginError] = useState<string>("");
+    const [loginError, setLoginError] = useState<string[]>([]);
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
 
@@ -29,12 +29,17 @@ const Login = () => {
         }
         // use the api
         setShowLoginError(false);
-        setLoginError("");
-        const handleError = (error: string) => {
+        setLoginError([]);
+
+        const handleErrors = (errors: Record<string, string>) => {
             setShowLoginError(true);
-            setLoginError(error);
+            const errorMessages = Object.entries(errors).map(
+                ([key, val]) => `${key}: ${val}`,
+            );
+            setLoginError(errorMessages);
         };
-        const success = await login(email, password, handleError);
+
+        const success = await login(email, password, handleErrors);
         if (!success) return;
 
         // navigate to the home page when the the account is created
@@ -112,7 +117,9 @@ const Login = () => {
                 <div
                     className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showLoginErrors ? "hidden" : ""}`}
                 >
-                    {loginError}
+                    {loginError.map((error) => (
+                        <p key={error}>{error}</p>
+                    ))}
                 </div>
             </form>
         </div>

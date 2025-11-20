@@ -135,7 +135,7 @@ const ProjectPage = () => {
                             }}
                             src={newResource}
                             alt="new note"
-                            className="sticky bottom-[32px] mt-[-64px] ml-auto cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
+                            className="sticky bottom-[32px] mt-[-8px] ml-auto cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
                         />
                     )}
                 </div>

@@ -24,9 +24,9 @@ export const signup = async (
 
         const data = await res.json();
         if (!res.ok) {
-            const errors = data.error;
-            if (errors) {
-                handleErrors(errors);
+            const error = data.error;
+            if (error) {
+                handleErrors(error);
                 return false;
             }
             throw new Error(`HTTP error! status: ${res.status}`);

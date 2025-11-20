@@ -5,7 +5,7 @@ import { decodeJWT } from "../userIdFromJWT";
 export const login = async (
     email: string,
     password: string,
-    handleErrors: (error: string) => void,
+    handleErrors: (errors: Record<string, string>) => void,
 ): Promise<boolean> => {
     try {
         const res = await fetch(`${BASE_APIURL}/auth/login`, {
@@ -18,6 +18,7 @@ export const login = async (
         });
 
         const data = await res.json();
+        console.log(data);
         if (!res.ok) {
             const error = data.error;
             if (error) {

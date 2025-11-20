@@ -20,7 +20,7 @@ const SearchBar = ({
                 e.preventDefault();
                 handleSearch();
             }}
-            className="w-full flex gap-[8px] h-[50px]"
+            className="w-full flex gap-[4px] h-[50px]"
         >
             <Input
                 ariaLabel="search value"
