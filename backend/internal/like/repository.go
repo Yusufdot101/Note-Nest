@@ -32,12 +32,23 @@ func (r *repo) insert(l *like) error {
 	}()
 
 	insertQuery := `
-		INSERT INTO likes
-		(user_id, note_id)
-		VALUES ($1, $2)
+		INSERT INTO likes (user_id, note_id)
+		SELECT $1, $2
+		FROM notes n
+		JOIN projects p ON n.project_id = p.id
+		WHERE n.id = $2
+		  AND (
+				-- public note: anyone allowed
+				n.visibility = 'public'
+				
+				OR
+				
+				-- private note: only owner allowed
+				(n.visibility = 'private' AND p.user_id = $1)
+			  );
 	`
 
-	_, err = tx.ExecContext(ctx, insertQuery, l.userID, l.noteID)
+	res, err := tx.ExecContext(ctx, insertQuery, l.userID, l.noteID)
 	if err != nil {
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "likes_pkey"`:
@@ -46,6 +57,15 @@ func (r *repo) insert(l *like) error {
 			return custom_errors.ErrNoRecord
 		}
 		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return custom_errors.ErrNoRecord
 	}
 
 	updateNoteQuery := `
@@ -64,6 +84,7 @@ func (r *repo) insert(l *like) error {
 		SET likes_count = p.likes_count + 1
 		FROM notes n
 		WHERE n.id = $1
+			AND n.project_id = p.id
 	`
 
 	_, err = tx.ExecContext(ctx, updateProjectQuery, l.noteID)
@@ -94,8 +115,16 @@ func (r *repo) delete(userID, noteID int) error {
 	}()
 
 	deleteQuery := `
-		DELETE FROM likes
-		WHERE user_id = $1 AND note_id = $2
+		DELETE FROM likes l
+		USING notes n
+		JOIN projects p ON n.project_id = p.id
+		WHERE l.note_id = n.id
+			AND l.user_id = $1
+			AND l.note_id = $2
+			AND (
+				n.visibility = 'public'
+				OR p.user_id = $1
+			  );
 	`
 
 	res, err := tx.ExecContext(ctx, deleteQuery, userID, noteID)
@@ -128,6 +157,7 @@ func (r *repo) delete(userID, noteID int) error {
 		SET likes_count = p.likes_count - 1
 		FROM notes n
 		WHERE n.id = $1
+			AND n.project_id = p.id
 	`
 
 	_, err = tx.ExecContext(ctx, updateProjectQuery, noteID)

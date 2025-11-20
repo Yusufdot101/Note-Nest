@@ -6,18 +6,15 @@ import (
 	"strconv"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (h *likeHandler) addLike(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		UserID int `json:"user_id"`
-	}
-
-	err := utilities.ReadJSON(w, r, &input)
-	if err != nil {
-		custom_errors.BadRequestErrorResponse(w, err)
+	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	if !ok {
+		custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
 	}
 
@@ -28,7 +25,7 @@ func (h *likeHandler) addLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.svc.addLike(input.UserID, noteID)
+	err = h.svc.addLike(userID, noteID)
 	if err != nil {
 		switch {
 		case errors.Is(err, custom_errors.ErrNoRecord):
@@ -49,13 +46,9 @@ func (h *likeHandler) addLike(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *likeHandler) removeLike(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		UserID int `json:"user_id"`
-	}
-
-	err := utilities.ReadJSON(w, r, &input)
-	if err != nil {
-		custom_errors.BadRequestErrorResponse(w, err)
+	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	if !ok {
+		custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
 	}
 
@@ -66,7 +59,7 @@ func (h *likeHandler) removeLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.svc.removeLike(input.UserID, noteID)
+	err = h.svc.removeLike(userID, noteID)
 	if err != nil {
 		switch {
 		case errors.Is(err, custom_errors.ErrNoRecord):
