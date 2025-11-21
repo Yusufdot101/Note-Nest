@@ -1,13 +1,13 @@
 import { useState } from "react";
 import Input from "./Input";
 import { newComment } from "../utilities/comments";
+import SubmitButton from "./SubmitButton";
 
 interface CommentsProps {
     noteID: number;
 }
 
 const Comments = ({ noteID }: CommentsProps) => {
-    console.log(noteID);
     const [comment, setComment] = useState("");
     const handlePost = async () => {
         if (comment.trim() === "") return;
@@ -27,19 +27,27 @@ const Comments = ({ noteID }: CommentsProps) => {
                     e.stopPropagation();
                     handlePost();
                 }}
-                className="flex flex-col"
+                className="flex flex-col gap-[4px] text-[20px]"
             >
-                <Input
-                    minLength={1}
-                    isRequired
-                    inputType="string"
-                    labelString="What are your thoughts?"
-                    inputValue={comment}
-                    handleChange={(value: string) => {
-                        setComment(value);
-                    }}
-                    inputId="comment"
-                    inputName="comment"
+                <div>
+                    <Input
+                        minLength={1}
+                        isRequired
+                        inputType="string"
+                        labelString="What are your thoughts?"
+                        inputValue={comment}
+                        handleChange={(value: string) => {
+                            setComment(value);
+                        }}
+                        inputId="comment"
+                        inputName="comment"
+                    />
+                </div>
+                <SubmitButton
+                    aria_label="add comment"
+                    type="submit"
+                    text="Post Comment"
+                    handleSubmit={() => {}}
                 />
             </form>
             {/*TODO: Display comments*/}
