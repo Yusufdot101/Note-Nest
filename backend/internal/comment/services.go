@@ -23,3 +23,7 @@ func (svc *commentService) newComment(v *validator.Validator, userID, noteID int
 	// insert comment
 	return svc.repo.insert(c, n.ProjectID)
 }
+
+func (svc *commentService) getComments(userID, noteID int) ([]*comment, error) {
+	return svc.repo.get(userID, noteID)
+}

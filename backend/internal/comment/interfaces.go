@@ -18,6 +18,7 @@ type comment struct {
 
 type repo interface {
 	insert(c *comment, projectID int) error
+	get(userID, noteID int) ([]*comment, error)
 }
 
 type commentService struct {
