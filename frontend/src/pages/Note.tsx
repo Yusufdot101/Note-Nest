@@ -3,16 +3,15 @@ import type { Note } from "../components/NoteCard";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchNote, likeUnlinkeNote, noteIsLiked } from "../utilities/note";
 import ReactMarkdown from "react-markdown";
-import Input from "../components/Input";
 import { useAuthStore } from "../store/useAuthStore";
 import type { Project } from "../components/ProjectCard";
 import { fetchProject } from "../utilities/project";
 import NoteActionsDialoge from "../components/NoteActionsDialoge";
+import Comments from "../components/Comments";
 
 const NotePage = () => {
     const [note, setNote] = useState<Note>();
     const [project, setProject] = useState<Project>();
-    const [comment, setComment] = useState("");
     const [showDialoge, setShowDialoge] = useState(false);
 
     const { projectid, noteid } = useParams();
@@ -407,24 +406,7 @@ const NotePage = () => {
                 style={{ border: `1px solid ${note?.Color}` }}
                 className="bg-primary p-[12px] rounded-[8px] flex flex-col gap-y-[8px]"
             >
-                <p className="font-bold text-[32px] text-center max-[619px]:text-[20px]">
-                    Comments
-                </p>
-                <div className="flex flex-col">
-                    <Input
-                        minLength={1}
-                        isRequired
-                        inputType="string"
-                        labelString="What are your thoughts?"
-                        inputValue={comment}
-                        handleChange={(value: string) => {
-                            setComment(value);
-                        }}
-                        inputId="comment"
-                        inputName="comment"
-                    />
-                </div>
-                {/*TODO: Display comments*/}
+                {noteid && <Comments noteID={+noteid} />}
             </div>
 
             {showDialoge && note ? (
