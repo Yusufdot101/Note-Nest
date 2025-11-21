@@ -9,6 +9,7 @@ import (
 
 type comment struct {
 	ID         int
+	Edited     bool
 	CreatedAt  time.Time
 	UserID     int
 	NoteID     int
@@ -19,6 +20,7 @@ type comment struct {
 type repo interface {
 	insert(c *comment, projectID int) error
 	get(userID, noteID int) ([]*comment, error)
+	update(userID, commentID int, content string) error
 }
 
 type commentService struct {

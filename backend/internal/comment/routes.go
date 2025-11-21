@@ -29,4 +29,5 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 
 	router.Handler(http.MethodPost, "/notes/:id/comments", middleware.RequireAccess(h.newComment))
 	router.Handler(http.MethodGet, "/notes/:id/comments", middleware.RequireAccess(h.getComments))
+	router.Handler(http.MethodPatch, "/comments/:id", middleware.RequireAccess(h.updateComment))
 }

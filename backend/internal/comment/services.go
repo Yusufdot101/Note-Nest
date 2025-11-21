@@ -27,3 +27,7 @@ func (svc *commentService) newComment(v *validator.Validator, userID, noteID int
 func (svc *commentService) getComments(userID, noteID int) ([]*comment, error) {
 	return svc.repo.get(userID, noteID)
 }
+
+func (svc *commentService) updateComment(userID, commentID int, content string) error {
+	return svc.repo.update(userID, commentID, content)
+}
