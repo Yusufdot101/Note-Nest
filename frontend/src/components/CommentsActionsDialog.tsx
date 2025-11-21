@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Comment } from "../utilities/comments";
 // import { useNavigate } from "react-router-dom";
 
-const CommentActionsDialoge = ({
+const CommentActionsDialog = ({
     comment,
     color,
     handleClose,
@@ -12,7 +12,6 @@ const CommentActionsDialoge = ({
     handleClose: () => void;
 }) => {
     // TODO: enable actions like editing and deleting comment
-    console.log(comment);
     const ref = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -20,8 +19,19 @@ const CommentActionsDialoge = ({
                 handleClose();
             }
         };
+
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                handleClose();
+            }
+        };
         document.addEventListener("click", handleClick);
-        return () => document.removeEventListener("click", handleClick);
+        document.addEventListener("keydown", handleEscape);
+
+        return () => {
+            document.removeEventListener("click", handleClick);
+            document.removeEventListener("keydown", handleEscape);
+        };
     }, [handleClose]);
 
     return (
@@ -47,4 +57,4 @@ const CommentActionsDialoge = ({
     );
 };
 
-export default CommentActionsDialoge;
+export default CommentActionsDialog;

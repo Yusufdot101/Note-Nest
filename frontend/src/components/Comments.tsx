@@ -3,7 +3,7 @@ import Input from "./Input";
 import { fetchComments, newComment, type Comment } from "../utilities/comments";
 import SubmitButton from "./SubmitButton";
 import CommentCard from "./CommentCard";
-import CommentActionsDialoge from "./CommentsActionsDialoge";
+import CommentActionsDialog from "./CommentsActionsDialog";
 import { useAuthStore } from "../store/useAuthStore";
 
 interface CommentsProps {
@@ -14,14 +14,13 @@ const Comments = ({ noteID }: CommentsProps) => {
     const [comment, setComment] = useState("");
     const [clickedComment, setClickedComment] = useState<Comment>();
     const [comments, setComments] = useState<Comment[]>([]);
-    const [showDialoge, setShowDialoge] = useState(false);
+    const [showDialog, setShowDialog] = useState(false);
 
     const userid = useAuthStore((state) => state.userID);
 
     const setupComments = useCallback(async () => {
         const comments = await fetchComments(noteID);
         if (!comments) return;
-        setComment("");
         setComments(comments);
     }, [noteID]);
 
@@ -33,6 +32,7 @@ const Comments = ({ noteID }: CommentsProps) => {
         if (comment.trim() === "") return;
         const success = await newComment(noteID, comment);
         if (!success) return;
+        setComment("");
         setupComments();
     };
 
@@ -80,7 +80,7 @@ const Comments = ({ noteID }: CommentsProps) => {
                             comment.UserID === userid
                                 ? (e) => {
                                       e.stopPropagation();
-                                      setShowDialoge((prev) => !prev);
+                                      setShowDialog(true);
                                       setClickedComment(comment);
                                   }
                                 : undefined
@@ -89,12 +89,12 @@ const Comments = ({ noteID }: CommentsProps) => {
                 ))}
             </div>
 
-            {showDialoge && comments && (
-                <CommentActionsDialoge
+            {showDialog && comments && (
+                <CommentActionsDialog
                     comment={clickedComment ? clickedComment : undefined}
                     color="white"
                     handleClose={() => {
-                        setShowDialoge(false);
+                        setShowDialog(false);
                     }}
                 />
             )}

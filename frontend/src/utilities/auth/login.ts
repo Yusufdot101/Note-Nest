@@ -18,7 +18,6 @@ export const login = async (
         });
 
         const data = await res.json();
-        console.log(data);
         if (!res.ok) {
             const error = data.error;
             if (error) {

@@ -49,6 +49,7 @@ const CommentCard = ({ comment, handleMenuClick }: CommentCardProps) => {
                             style={{ color: color }}
                             className="text-[16px] max-[629px]:text-[12px] font-bold w-full line-clamp-1"
                         >
+                            {/* Hardcoded for now */}
                             {"Yusuf Mohamed"}
                         </span>
                         <span
@@ -93,9 +94,7 @@ const CommentCard = ({ comment, handleMenuClick }: CommentCardProps) => {
                 </div>
             </div>
 
-            <div>
-                <ReactMarkdown>{comment.Content}</ReactMarkdown>
-            </div>
+            <div>{comment.Content}</div>
 
             <div className="flex flex-col gap-[12px] font-bold">
                 <div className="flex flex-col gap-[4px]">
