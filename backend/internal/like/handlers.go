@@ -76,3 +76,35 @@ func (h *likeHandler) removeLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *likeHandler) noteIsLiked(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	if !ok {
+		custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
+		return
+	}
+
+	params := httprouter.ParamsFromContext(r.Context())
+	noteID, err := strconv.Atoi(params.ByName("id"))
+	if err != nil {
+		custom_errors.BadRequestErrorResponse(w, err)
+		return
+	}
+
+	isLiked, err := h.svc.noteIsLiked(userID, noteID)
+	if err != nil {
+		switch {
+		case errors.Is(err, custom_errors.ErrNoRecord):
+			custom_errors.NotFoundErrorResponse(w, r)
+		default:
+			custom_errors.ServerErrorResponse(w, err)
+		}
+		return
+	}
+
+	err = utilities.WriteJSON(w, utilities.Message{"state": isLiked}, http.StatusOK)
+	if err != nil {
+		custom_errors.ServerErrorResponse(w, err)
+		return
+	}
+}

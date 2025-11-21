@@ -11,3 +11,7 @@ func (svc *likeService) addLike(userID, noteID int) error {
 func (svc *likeService) removeLike(userID, noteID int) error {
 	return svc.repo.delete(userID, noteID)
 }
+
+func (svc *likeService) noteIsLiked(userID, noteID int) (bool, error) {
+	return svc.repo.isLiked(userID, noteID)
+}

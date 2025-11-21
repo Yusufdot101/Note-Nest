@@ -9,6 +9,7 @@ type like struct {
 type Repo interface {
 	insert(l *like) error
 	delete(userID, noteID int) error
+	isLiked(userID, noteID int) (bool, error)
 }
 
 type likeService struct {

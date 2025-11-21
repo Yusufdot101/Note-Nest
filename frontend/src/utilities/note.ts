@@ -221,3 +221,49 @@ export const editNoteColor = async (
         return false;
     }
 };
+
+export const likeUnlinkeNote = async (
+    noteID: number,
+    action: "like" | "unlike",
+): Promise<boolean> => {
+    try {
+        const res = await api(`/notes/${noteID}/like`, {
+            method: action === "like" ? "POST" : "DELETE",
+        });
+
+        if (!res) {
+            return false;
+        }
+
+        if (!res.ok) {
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
+
+export const noteIsLiked = async (noteID: number): Promise<boolean> => {
+    try {
+        const res = await api(`/notes/${noteID}/like`);
+
+        if (!res) {
+            return false;
+        }
+
+        if (!res.ok) {
+            return false;
+        }
+
+        const data = await res.json();
+        return data.state ?? false;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};

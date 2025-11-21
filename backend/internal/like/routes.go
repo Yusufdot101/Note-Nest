@@ -13,6 +13,7 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 		repo: &repo{DB: DB},
 	})
 
+	router.Handler(http.MethodGet, "/notes/:id/like", middleware.RequireAccess(h.noteIsLiked))
 	router.Handler(http.MethodPost, "/notes/:id/like", middleware.RequireAccess(h.addLike))
 	router.Handler(http.MethodDelete, "/notes/:id/like", middleware.RequireAccess(h.removeLike))
 }
