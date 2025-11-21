@@ -1,5 +1,4 @@
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
 import ColorPicker from "./ColorPicker";
 import type { Comment } from "../utilities/comments";
 import { useAuthStore } from "../store/useAuthStore";

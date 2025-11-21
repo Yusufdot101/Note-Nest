@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
-import type { Comment } from "../utilities/comments";
+// import type { Comment } from "../utilities/comments";
 // import { useNavigate } from "react-router-dom";
 
 const CommentActionsDialog = ({
-    comment,
+    // comment,
     color,
     handleClose,
 }: {
-    comment?: Comment;
+    // comment?: Comment;
     color: string;
     handleClose: () => void;
 }) => {
