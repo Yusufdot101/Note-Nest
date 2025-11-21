@@ -208,6 +208,11 @@ const NotePage = () => {
                         <div className="flex items-center gap-x-[4px]">
                             <svg
                                 onClick={handleLike}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        handleLike();
+                                    }
+                                }}
                                 role="button"
                                 aria-label="like note"
                                 tabIndex={0}
@@ -307,6 +312,11 @@ const NotePage = () => {
                         <div className="flex items-center gap-x-[4px]">
                             <svg
                                 onClick={handleLike}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        handleLike();
+                                    }
+                                }}
                                 role="button"
                                 aria-label="like note"
                                 tabIndex={0}
