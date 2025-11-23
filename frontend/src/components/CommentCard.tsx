@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ColorPicker from "./ColorPicker";
 import type { Comment } from "../utilities/comments";
 import { useAuthStore } from "../store/useAuthStore";
