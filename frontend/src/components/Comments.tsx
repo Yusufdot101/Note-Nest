@@ -94,6 +94,11 @@ const Comments = ({ noteID }: CommentsProps) => {
                         handleSaveEdit={(newContent: string) => {
                             handleEdit(comment.ID, newContent);
                         }}
+                        handleCancelEdit={(commentID) => {
+                            setCurrentEditingID((prev) =>
+                                prev === commentID ? undefined : prev,
+                            );
+                        }}
                         isEditing={currentEditingID === comment.ID}
                         key={comment.ID}
                         comment={comment}

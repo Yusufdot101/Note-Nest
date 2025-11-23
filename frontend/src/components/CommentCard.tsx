@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ColorPicker from "./ColorPicker";
 import type { Comment } from "../utilities/comments";
 import { useAuthStore } from "../store/useAuthStore";
@@ -12,6 +12,7 @@ interface CommentCardProps {
     ) => void;
     isEditing: boolean;
     handleSaveEdit: (newContent: string) => void;
+    handleCancelEdit: (commentID: number) => void;
 }
 
 const CommentCard = ({
@@ -19,6 +20,7 @@ const CommentCard = ({
     handleMenuClick,
     isEditing,
     handleSaveEdit,
+    handleCancelEdit,
 }: CommentCardProps) => {
     // TODO: enable liking comments and also add color comments
     const [color, setColor] = useState("white");
@@ -105,7 +107,7 @@ const CommentCard = ({
                 </div>
             </div>
 
-            <div hidden={!isEditing}>
+            <div hidden={!isEditing} className="flex flex-col gap-[4px]">
                 <textarea
                     name="projectDescription"
                     value={content}
@@ -113,12 +115,21 @@ const CommentCard = ({
                     id="projectDescription"
                     className="w-[100%] min-h-[50px] h-fit bg-white rounded-[8px] p-[8px] outline-none text-black"
                 />
-                <div>
+                <div className="flex max-[619px]:flex-col gap-[4px]">
                     <SubmitButton
                         disabled={content.trim() === comment.Content}
                         handleSubmit={() => handleSaveEdit(content)}
-                        aria_label="save changes"
-                        text="save"
+                        aria_label="Save changes"
+                        text="Save Changes"
+                    />
+                    <SubmitButton
+                        handleSubmit={() => {
+                            setContent(comment.Content);
+                            handleCancelEdit(comment.ID);
+                        }}
+                        aria_label="Cancel changes"
+                        text="Cancel Changes"
+                        bgColor="red"
                     />
                 </div>
             </div>

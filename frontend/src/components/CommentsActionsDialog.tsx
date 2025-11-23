@@ -50,7 +50,10 @@ const CommentActionsDialog = ({
             </p>
             <ul className="flex flex-col gap-[8px]">
                 <li
-                    onClick={() => handleClickEdit(comment?.ID ?? -1)}
+                    onClick={() => {
+                        if (!comment?.ID) return;
+                        handleClickEdit(comment.ID);
+                    }}
                     className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
                 >
                     Edit Comment
