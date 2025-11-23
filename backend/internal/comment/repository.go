@@ -171,3 +171,90 @@ func (r *repository) update(userID, commentID int, newContent string) error {
 
 	return nil
 }
+
+func (r *repository) delete(userID, commentID int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Println("rollback error: ", err)
+		}
+	}()
+
+	var noteID, projectID int
+	fetchQuery := `
+		SELECT c.note_id, n.project_id
+		FROM comments c
+		INNER JOIN notes n
+		ON c.note_id = n.id
+		INNER JOIN projects p
+		ON n.project_id = p.id
+		WHERE c.id = $1
+			AND c.user_id = $2
+			AND ( n.visibility = 'public' OR p.user_id = $2 )
+	`
+
+	err = tx.QueryRowContext(ctx, fetchQuery, commentID, userID).Scan(
+		&noteID,
+		&projectID,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return custom_errors.ErrNoRecord
+		}
+		return err
+	}
+
+	deleteQuery := `
+		DELETE FROM comments c
+		WHERE id = $1
+	`
+
+	res, err := tx.ExecContext(ctx, deleteQuery, commentID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return custom_errors.ErrNoRecord
+	}
+
+	updateNotesQuery := `
+		UPDATE notes n
+		SET comments_count = n.comments_count - 1
+		WHERE id = $1
+	`
+
+	_, err = tx.ExecContext(ctx, updateNotesQuery, noteID)
+	if err != nil {
+		return err
+	}
+
+	updateProjectsQuery := `
+		UPDATE projects p
+		set comments_count = p.comments_count - 1
+		WHERE id = $1
+	`
+
+	_, err = tx.ExecContext(ctx, updateProjectsQuery, projectID)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}

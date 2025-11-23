@@ -21,6 +21,7 @@ type repo interface {
 	insert(c *comment, projectID int) error
 	get(userID, noteID int) ([]*comment, error)
 	update(userID, commentID int, content string) error
+	delete(userID, commentID int) error
 }
 
 type commentService struct {

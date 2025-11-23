@@ -31,3 +31,7 @@ func (svc *commentService) getComments(userID, noteID int) ([]*comment, error) {
 func (svc *commentService) updateComment(userID, commentID int, content string) error {
 	return svc.repo.update(userID, commentID, content)
 }
+
+func (svc *commentService) deleteComment(userID, commentID int) error {
+	return svc.repo.delete(userID, commentID)
+}
