@@ -36,7 +36,7 @@ func (h *commentHandler) deleteComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"message": "comment delete successfully"}, http.StatusOK)
+	err = utilities.WriteJSON(w, utilities.Message{"message": "comment deleted successfully"}, http.StatusOK)
 	if err != nil {
 		custom_errors.ServerErrorResponse(w, err)
 		return

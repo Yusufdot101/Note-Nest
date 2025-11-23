@@ -198,6 +198,7 @@ func (r *repository) delete(userID, commentID int) error {
 		WHERE c.id = $1
 			AND c.user_id = $2
 			AND ( n.visibility = 'public' OR p.user_id = $2 )
+		FOR UPDATE
 	`
 
 	err = tx.QueryRowContext(ctx, fetchQuery, commentID, userID).Scan(
