@@ -5,6 +5,7 @@ interface submitButtonProps {
     aria_label: string;
     bgColor?: string;
     textColor?: string;
+    disabled?: boolean;
 }
 const SubmitButton = ({
     text,
@@ -13,9 +14,11 @@ const SubmitButton = ({
     aria_label,
     bgColor,
     textColor,
+    disabled,
 }: submitButtonProps) => {
     return (
         <button
+            disabled={disabled}
             aria-label={aria_label}
             onClick={handleSubmit}
             style={{
@@ -23,7 +26,7 @@ const SubmitButton = ({
                 color: textColor ? textColor : "",
             }}
             type={type ?? "button"}
-            className="w-full py-[12px] rounded-[8px] cursor-pointer bg-accent mx-auto"
+            className={`${disabled ? "opacity-80 cursor-not-allowed" : "opacity-100 cursor-pointer"} w-full py-[12px] rounded-[8px] bg-accent mx-auto`}
         >
             {text}
         </button>

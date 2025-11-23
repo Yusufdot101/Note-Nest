@@ -2,6 +2,7 @@ import { useState } from "react";
 import ColorPicker from "./ColorPicker";
 import type { Comment } from "../utilities/comments";
 import { useAuthStore } from "../store/useAuthStore";
+import SubmitButton from "./SubmitButton";
 
 interface CommentCardProps {
     comment: Comment;
@@ -9,11 +10,21 @@ interface CommentCardProps {
         e: React.MouseEvent<SVGElement>,
         comment: Comment,
     ) => void;
+    isEditing: boolean;
+    handleSaveEdit: (newContent: string) => void;
 }
-const CommentCard = ({ comment, handleMenuClick }: CommentCardProps) => {
+
+const CommentCard = ({
+    comment,
+    handleMenuClick,
+    isEditing,
+    handleSaveEdit,
+}: CommentCardProps) => {
     // TODO: enable liking comments and also add color comments
     const [color, setColor] = useState("white");
     const [liked, setLike] = useState(false);
+
+    const [content, setContent] = useState(comment.Content);
 
     const handleLike = async () => {
         setLike((prev) => !prev);
@@ -61,6 +72,7 @@ const CommentCard = ({ comment, handleMenuClick }: CommentCardProps) => {
                 </div>
 
                 <div className="flex gap-[12px] items-center">
+                    <span>{comment.Edited ? "Edited" : ""}</span>
                     <span>
                         <svg
                             fill="currentColor"
@@ -93,7 +105,24 @@ const CommentCard = ({ comment, handleMenuClick }: CommentCardProps) => {
                 </div>
             </div>
 
-            <div>{comment.Content}</div>
+            <div hidden={!isEditing}>
+                <textarea
+                    name="projectDescription"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    id="projectDescription"
+                    className="w-[100%] min-h-[50px] h-fit bg-white rounded-[8px] p-[8px] outline-none text-black"
+                />
+                <div>
+                    <SubmitButton
+                        disabled={content.trim() === comment.Content}
+                        handleSubmit={() => handleSaveEdit(content)}
+                        aria_label="save changes"
+                        text="save"
+                    />
+                </div>
+            </div>
+            <div hidden={isEditing}>{comment.Content}</div>
 
             <div className="flex flex-col gap-[12px] font-bold">
                 <div className="flex flex-col gap-[4px]">

@@ -1,16 +1,19 @@
 import { useEffect, useRef } from "react";
-// import type { Comment } from "../utilities/comments";
-// import { useNavigate } from "react-router-dom";
+import type { Comment } from "../utilities/comments";
 
-const CommentActionsDialog = ({
-    // comment,
-    color,
-    handleClose,
-}: {
-    // comment?: Comment;
+interface CommentActionsDialogProps {
+    comment?: Comment;
     color: string;
     handleClose: () => void;
-}) => {
+    handleClickEdit: (id: number) => void;
+}
+
+const CommentActionsDialog = ({
+    comment,
+    color,
+    handleClose,
+    handleClickEdit,
+}: CommentActionsDialogProps) => {
     // TODO: enable actions like editing and deleting comment
     const ref = useRef<HTMLDivElement>(null);
     useEffect(() => {
@@ -46,7 +49,10 @@ const CommentActionsDialog = ({
                 Comment Actions
             </p>
             <ul className="flex flex-col gap-[8px]">
-                <li className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
+                <li
+                    onClick={() => handleClickEdit(comment?.ID ?? -1)}
+                    className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
+                >
                     Edit Comment
                 </li>
                 <li className="bg-[#FF0000] p-[8px] hover:opacity-80 duration-300 cursor-pointer">

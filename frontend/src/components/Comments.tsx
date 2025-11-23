@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import Input from "./Input";
-import { fetchComments, newComment, type Comment } from "../utilities/comments";
+import {
+    fetchComments,
+    newComment,
+    updateComment,
+    type Comment,
+} from "../utilities/comments";
 import SubmitButton from "./SubmitButton";
 import CommentCard from "./CommentCard";
 import CommentActionsDialog from "./CommentsActionsDialog";
@@ -13,6 +18,10 @@ interface CommentsProps {
 const Comments = ({ noteID }: CommentsProps) => {
     const [comment, setComment] = useState("");
     const [clickedComment, setClickedComment] = useState<Comment>();
+    const [currentEditingID, setCurrentEditingID] = useState<
+        number | undefined
+    >();
+
     const [comments, setComments] = useState<Comment[]>([]);
     const [showDialog, setShowDialog] = useState(false);
 
@@ -34,6 +43,14 @@ const Comments = ({ noteID }: CommentsProps) => {
         if (!success) return;
         setComment("");
         setupComments();
+    };
+
+    const handleEdit = async (commentID: number, newContent: string) => {
+        if (newContent.trim() === "") return;
+        const success = await updateComment(commentID, newContent);
+        if (!success) return;
+        setupComments();
+        setCurrentEditingID(undefined);
     };
 
     return (
@@ -74,11 +91,15 @@ const Comments = ({ noteID }: CommentsProps) => {
             <div className="flex flex-col gap-y-[8px]">
                 {comments.map((comment) => (
                     <CommentCard
+                        handleSaveEdit={(newContent: string) => {
+                            handleEdit(comment.ID, newContent);
+                        }}
+                        isEditing={currentEditingID === comment.ID}
                         key={comment.ID}
                         comment={comment}
                         handleMenuClick={
                             comment.UserID === userid
-                                ? (e) => {
+                                ? (e, comment) => {
                                       e.stopPropagation();
                                       setShowDialog(true);
                                       setClickedComment(comment);
@@ -92,6 +113,10 @@ const Comments = ({ noteID }: CommentsProps) => {
             {showDialog && comments && (
                 <CommentActionsDialog
                     comment={clickedComment ? clickedComment : undefined}
+                    handleClickEdit={(id: number) => {
+                        setCurrentEditingID(id);
+                        setShowDialog(false);
+                    }}
                     color="white"
                     handleClose={() => {
                         setShowDialog(false);

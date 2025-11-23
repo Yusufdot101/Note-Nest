@@ -2,6 +2,7 @@ import { api } from "./api";
 
 export interface Comment {
     ID: number;
+    Edited: boolean;
     CreatedAt: string;
     UserID: number;
     NoteID: number;
@@ -50,5 +51,29 @@ export const fetchComments = async (
         alert("an error occurred, please try again");
         console.error(error);
         return undefined;
+    }
+};
+
+export const updateComment = async (
+    commentID: number,
+    content: string,
+): Promise<boolean> => {
+    try {
+        const res = await api(`/comments/${commentID}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content: content }),
+        });
+
+        if (!res) return false;
+        if (!res.ok) return false;
+
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
     }
 };
