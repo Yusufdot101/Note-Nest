@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Input from "./Input";
 import {
+    deleteComment,
     fetchComments,
     newComment,
     updateComment,
@@ -51,6 +52,13 @@ const Comments = ({ noteID }: CommentsProps) => {
         if (!success) return;
         setupComments();
         setCurrentEditingID(undefined);
+    };
+
+    const handleDelete = async (commentID: number) => {
+        if (!confirm("Are you sure you want to delete this comment?")) return;
+        const success = await deleteComment(commentID);
+        if (!success) return;
+        setupComments();
     };
 
     return (
@@ -121,6 +129,10 @@ const Comments = ({ noteID }: CommentsProps) => {
                     handleClickEdit={(id: number) => {
                         setCurrentEditingID(id);
                         setShowDialog(false);
+                    }}
+                    handleClickDelete={(id: number) => {
+                        setShowDialog(false);
+                        handleDelete(id);
                     }}
                     color="white"
                     handleClose={() => {

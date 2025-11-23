@@ -6,6 +6,7 @@ interface CommentActionsDialogProps {
     color: string;
     handleClose: () => void;
     handleClickEdit: (id: number) => void;
+    handleClickDelete: (id: number) => void;
 }
 
 const CommentActionsDialog = ({
@@ -13,6 +14,7 @@ const CommentActionsDialog = ({
     color,
     handleClose,
     handleClickEdit,
+    handleClickDelete,
 }: CommentActionsDialogProps) => {
     // TODO: enable actions like editing and deleting comment
     const ref = useRef<HTMLDivElement>(null);
@@ -54,11 +56,31 @@ const CommentActionsDialog = ({
                         if (!comment?.ID) return;
                         handleClickEdit(comment.ID);
                     }}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                            if (!comment?.ID) return;
+                            handleClickEdit(comment.ID);
+                        }
+                    }}
                     className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
                 >
                     Edit Comment
                 </li>
-                <li className="bg-[#FF0000] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
+                <li
+                    onClick={() => {
+                        if (!comment?.ID) return;
+                        handleClickDelete(comment.ID);
+                    }}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                            if (!comment?.ID) return;
+                            handleClickDelete(comment.ID);
+                        }
+                    }}
+                    className="bg-[#FF0000] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
+                >
                     Delete Comment
                 </li>
             </ul>

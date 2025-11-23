@@ -77,3 +77,20 @@ export const updateComment = async (
         return false;
     }
 };
+
+export const deleteComment = async (commentID: number): Promise<boolean> => {
+    try {
+        const res = await api(`/comments/${commentID}`, {
+            method: "DELETE",
+        });
+
+        if (!res) return false;
+        if (!res.ok) return false;
+
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
