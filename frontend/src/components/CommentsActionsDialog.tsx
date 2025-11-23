@@ -59,6 +59,7 @@ const CommentActionsDialog = ({
                     tabIndex={0}
                     onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
                             if (!comment?.ID) return;
                             handleClickEdit(comment.ID);
                         }
@@ -75,6 +76,7 @@ const CommentActionsDialog = ({
                     tabIndex={0}
                     onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
                             if (!comment?.ID) return;
                             handleClickDelete(comment.ID);
                         }
