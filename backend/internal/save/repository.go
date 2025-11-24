@@ -173,12 +173,12 @@ func (r *repository) delete(userID, noteID int) error {
 	}
 
 	defer func() {
-		if err := tx.Rollback(); err != nil && errors.Is(err, sql.ErrTxDone) {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
 			log.Println("rollback error: ", err)
 		}
 	}()
 
-	insertQuery := `
+	deleteQuery := `
 		DELETE FROM saves
 		WHERE user_id = $1 AND note_id = $2
 	`
@@ -188,7 +188,7 @@ func (r *repository) delete(userID, noteID int) error {
 		noteID,
 	}
 
-	res, err := tx.ExecContext(ctx, insertQuery, values...)
+	res, err := tx.ExecContext(ctx, deleteQuery, values...)
 	if err != nil {
 		return err
 	}
