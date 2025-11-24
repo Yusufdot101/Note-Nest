@@ -27,12 +27,7 @@ func (h *saveHandler) noteIsSaved(w http.ResponseWriter, r *http.Request) {
 
 	isSaved, err := h.svc.noteIsSaved(userID, noteID)
 	if err != nil {
-		switch {
-		case errors.Is(err, custom_errors.ErrNoRecord):
-			custom_errors.NotFoundErrorResponse(w, r)
-		default:
-			custom_errors.ServerErrorResponse(w, err)
-		}
+		custom_errors.ServerErrorResponse(w, err)
 		return
 	}
 

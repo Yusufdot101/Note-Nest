@@ -14,6 +14,12 @@ import type { Project } from "../components/ProjectCard";
 import { fetchProject } from "../utilities/project";
 import NoteActionsDialoge from "../components/NoteActionsDialoge";
 import Comments from "../components/Comments";
+import LikeButton from "../components/LikeButton";
+import SaveButton from "../components/SaveButton";
+import ShareButton from "../components/ShareButton";
+import CommentButton from "../components/CommentButton";
+import PublicOrPrivate from "../components/PublicOrPrivate";
+import Menu from "../components/Menu";
 
 const NotePage = () => {
     const [note, setNote] = useState<Note>();
@@ -32,6 +38,13 @@ const NotePage = () => {
         );
         if (!success) return;
         setLike((prev) => !prev);
+        setNote((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                LikesCount: liked ? prev.LikesCount - 1 : prev.LikesCount + 1,
+            };
+        });
     };
 
     const [saved, setSaved] = useState(false);
@@ -43,6 +56,13 @@ const NotePage = () => {
         );
         if (!success) return;
         setSaved((prev) => !prev);
+        setNote((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                SavesCount: saved ? prev.SavesCount - 1 : prev.SavesCount + 1,
+            };
+        });
     };
 
     const userid = useAuthStore((state) => state.userID);
@@ -81,7 +101,7 @@ const NotePage = () => {
 
         setupNote();
         setupProject();
-    }, [noteid, projectid, liked, saved]);
+    }, [noteid, projectid]);
 
     const handleMenuClick = (
         e: React.MouseEvent<SVGElement> | React.KeyboardEvent<SVGElement>,
@@ -127,94 +147,15 @@ const NotePage = () => {
                     {note?.Title}
                 </span>
                 <div className="flex items-center gap-[8px]">
-                    <span className="text-[20px] font-light">
-                        {note?.Visibility === "public" ? (
-                            <svg
-                                className="w-[32px] h-[32px]"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                <g
-                                    id="SVGRepo_tracerCarrier"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                ></g>
-                                <g id="SVGRepo_iconCarrier">
-                                    {" "}
-                                    <path
-                                        d="M16.584 6C15.8124 4.2341 14.0503 3 12 3C9.23858 3 7 5.23858 7 8V10.0288M12 14.5V16.5M7 10.0288C7.47142 10 8.05259 10 8.8 10H15.2C16.8802 10 17.7202 10 18.362 10.327C18.9265 10.6146 19.3854 11.0735 19.673 11.638C20 12.2798 20 13.1198 20 14.8V16.2C20 17.8802 20 18.7202 19.673 19.362C19.3854 19.9265 18.9265 20.3854 18.362 20.673C17.7202 21 16.8802 21 15.2 21H8.8C7.11984 21 6.27976 21 5.63803 20.673C5.07354 20.3854 4.6146 19.9265 4.32698 19.362C4 18.7202 4 17.8802 4 16.2V14.8C4 13.1198 4 12.2798 4.32698 11.638C4.6146 11.0735 5.07354 10.6146 5.63803 10.327C5.99429 10.1455 6.41168 10.0647 7 10.0288Z"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    ></path>{" "}
-                                </g>
-                            </svg>
-                        ) : (
-                            <svg
-                                className="w-[32px] h-[32px]"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                <g
-                                    id="SVGRepo_tracerCarrier"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                ></g>
-                                <g id="SVGRepo_iconCarrier">
-                                    {" "}
-                                    <path
-                                        d="M12 14.5V16.5M7 10.0288C7.47142 10 8.05259 10 8.8 10H15.2C15.9474 10 16.5286 10 17 10.0288M7 10.0288C6.41168 10.0647 5.99429 10.1455 5.63803 10.327C5.07354 10.6146 4.6146 11.0735 4.32698 11.638C4 12.2798 4 13.1198 4 14.8V16.2C4 17.8802 4 18.7202 4.32698 19.362C4.6146 19.9265 5.07354 20.3854 5.63803 20.673C6.27976 21 7.11984 21 8.8 21H15.2C16.8802 21 17.7202 21 18.362 20.673C18.9265 20.3854 19.3854 19.9265 19.673 19.362C20 18.7202 20 17.8802 20 16.2V14.8C20 13.1198 20 12.2798 19.673 11.638C19.3854 11.0735 18.9265 10.6146 18.362 10.327C18.0057 10.1455 17.5883 10.0647 17 10.0288M7 10.0288V8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8V10.0288"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    ></path>{" "}
-                                </g>
-                            </svg>
-                        )}
-                    </span>
-
+                    <PublicOrPrivate
+                        visibility={note?.Visibility ?? "private"}
+                    />
                     <span>
-                        <svg
-                            role="button"
-                            aria-label="open note actions menu"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                    handleMenuClick(e);
-                                }
-                            }}
-                            fill="currentColor"
-                            version="1.1"
-                            id="Icons"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 32 32"
-                            className={`${userid === project?.UserID ? "" : "hidden"} w-[30px] h-[30px] hover:text-accent active:text-text duration-300`}
-                            onClick={(e) => {
-                                handleMenuClick(e);
-                            }}
-                        >
-                            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                            <g
-                                id="SVGRepo_tracerCarrier"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            ></g>
-                            <g id="SVGRepo_iconCarrier">
-                                {" "}
-                                <g>
-                                    {" "}
-                                    <path d="M16,10c1.7,0,3-1.3,3-3s-1.3-3-3-3s-3,1.3-3,3S14.3,10,16,10z"></path>{" "}
-                                    <path d="M16,13c-1.7,0-3,1.3-3,3s1.3,3,3,3s3-1.3,3-3S17.7,13,16,13z"></path>{" "}
-                                    <path d="M16,22c-1.7,0-3,1.3-3,3s1.3,3,3,3s3-1.3,3-3S17.7,22,16,22z"></path>{" "}
-                                </g>{" "}
-                            </g>
-                        </svg>
+                        <Menu
+                            userId={userid}
+                            projectUserId={project?.UserID}
+                            handleClick={handleMenuClick}
+                        />
                     </span>
                 </div>
             </div>
@@ -228,101 +169,23 @@ const NotePage = () => {
                 <p>Created: {new Date(note?.CreatedAt || "").toDateString()}</p>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-x-[20px]">
-                        <div className="flex items-center gap-x-[4px]">
-                            <svg
-                                onClick={handleLike}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === " ") {
-                                        handleLike();
-                                    }
-                                }}
-                                role="button"
-                                aria-label="like note"
-                                tabIndex={0}
-                                width="28"
-                                height="28"
-                                className="cursor-pointer"
-                                viewBox="0 0 24 24"
-                                fill={`${liked ? "white" : "none"}`}
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                <g
-                                    id="SVGRepo_tracerCarrier"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                ></g>
-                                <g id="SVGRepo_iconCarrier">
-                                    {" "}
-                                    <path
-                                        d="M8 10V20M8 10L4 9.99998V20L8 20M8 10L13.1956 3.93847C13.6886 3.3633 14.4642 3.11604 15.1992 3.29977L15.2467 3.31166C16.5885 3.64711 17.1929 5.21057 16.4258 6.36135L14 9.99998H18.5604C19.8225 9.99998 20.7691 11.1546 20.5216 12.3922L19.3216 18.3922C19.1346 19.3271 18.3138 20 17.3604 20L8 20"
-                                        stroke="#ffffff"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    ></path>{" "}
-                                </g>
-                            </svg>
-                            <span>{note?.LikesCount}</span>
-                        </div>
+                        <LikeButton
+                            onToggle={handleLike}
+                            count={note?.LikesCount ?? 0}
+                            liked={liked}
+                        />
 
-                        <div className="flex items-center gap-x-[4px]">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="white"
-                                className="cursor-pointer"
-                            >
-                                <path d="M18.006 16.803c1.533-1.456 2.234-3.325 2.234-5.321C20.24 7.357 16.709 4 12.191 4S4 7.357 4 11.482c0 4.126 3.674 7.482 8.191 7.482.817 0 1.622-.111 2.393-.327.231.2.48.391.744.559 1.06.693 2.203 1.044 3.399 1.044.224-.008.4-.112.486-.287a.49.49 0 0 0-.042-.518c-.495-.67-.845-1.364-1.04-2.057a4 4 0 0 1-.125-.598zm-3.122 1.055-.067-.223-.315.096a8 8 0 0 1-2.311.338c-4.023 0-7.292-2.955-7.292-6.587 0-3.633 3.269-6.588 7.292-6.588 4.014 0 7.112 2.958 7.112 6.593 0 1.794-.608 3.469-2.027 4.72l-.195.168v.255c0 .056 0 .151.016.295.025.231.081.478.154.733.154.558.398 1.117.722 1.659a5.3 5.3 0 0 1-2.165-.845c-.276-.176-.714-.383-.941-.59z"></path>
-                            </svg>
-                            <span>{note?.CommentsCount}</span>
-                        </div>
+                        <CommentButton count={note?.CommentsCount ?? 0} />
                     </div>
 
                     <div className="flex gap-x-[20px]">
-                        <div className="flex items-center gap-x-[4px]">
-                            <svg
-                                onClick={() => {
-                                    handleSaved();
-                                }}
-                                aria-label="save note"
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => {
-                                    e.preventDefault();
-                                    if (e.key === "Enter" || e.key === " ") {
-                                        handleSaved();
-                                    }
-                                }}
-                                viewBox="0 0 24 24"
-                                fill={`${saved ? "currentColor" : "none"}`}
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="cursor-pointer w-[30px] h-[30px]"
-                                stroke={`${saved ? "none" : "currentColor"}`}
-                            >
-                                <path d="M6.75 6L7.5 5.25H16.5L17.25 6V19.3162L12 16.2051L6.75 19.3162V6Z" />
-                            </svg>
-                            <span>{note?.SavesCount}</span>
-                        </div>
+                        <SaveButton
+                            onToggle={handleSaved}
+                            count={note?.SavesCount ?? 0}
+                            saved={saved}
+                        />
 
-                        <div className="flex items-center gap-x-[4px]">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="white"
-                                className="cursor-pointer w-[30px] h-[30px]"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    fillRule="evenodd"
-                                    d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
-                                    clipRule="evenodd"
-                                ></path>
-                            </svg>
-                            <span>{note?.SharesCount}</span>
-                        </div>
+                        <ShareButton count={note?.SharesCount ?? 0} />
                     </div>
                 </div>
             </div>
@@ -337,103 +200,23 @@ const NotePage = () => {
 
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-x-[20px]">
-                        <div className="flex items-center gap-x-[4px]">
-                            <svg
-                                onClick={handleLike}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === " ") {
-                                        handleLike();
-                                    }
-                                }}
-                                role="button"
-                                aria-label="like note"
-                                tabIndex={0}
-                                width="28"
-                                height="28"
-                                className="cursor-pointer"
-                                viewBox="0 0 24 24"
-                                fill={`${liked ? "white" : "none"}`}
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                <g
-                                    id="SVGRepo_tracerCarrier"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                ></g>
-                                <g id="SVGRepo_iconCarrier">
-                                    {" "}
-                                    <path
-                                        d="M8 10V20M8 10L4 9.99998V20L8 20M8 10L13.1956 3.93847C13.6886 3.3633 14.4642 3.11604 15.1992 3.29977L15.2467 3.31166C16.5885 3.64711 17.1929 5.21057 16.4258 6.36135L14 9.99998H18.5604C19.8225 9.99998 20.7691 11.1546 20.5216 12.3922L19.3216 18.3922C19.1346 19.3271 18.3138 20 17.3604 20L8 20"
-                                        stroke="#ffffff"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    ></path>{" "}
-                                </g>
-                            </svg>
-                            <span>{note?.LikesCount}</span>
-                        </div>
+                        <LikeButton
+                            onToggle={handleLike}
+                            count={note?.LikesCount ?? 0}
+                            liked={liked}
+                        />
 
-                        <div className="flex items-center gap-x-[4px]">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="white"
-                                className="cursor-pointer"
-                            >
-                                <path d="M18.006 16.803c1.533-1.456 2.234-3.325 2.234-5.321C20.24 7.357 16.709 4 12.191 4S4 7.357 4 11.482c0 4.126 3.674 7.482 8.191 7.482.817 0 1.622-.111 2.393-.327.231.2.48.391.744.559 1.06.693 2.203 1.044 3.399 1.044.224-.008.4-.112.486-.287a.49.49 0 0 0-.042-.518c-.495-.67-.845-1.364-1.04-2.057a4 4 0 0 1-.125-.598zm-3.122 1.055-.067-.223-.315.096a8 8 0 0 1-2.311.338c-4.023 0-7.292-2.955-7.292-6.587 0-3.633 3.269-6.588 7.292-6.588 4.014 0 7.112 2.958 7.112 6.593 0 1.794-.608 3.469-2.027 4.72l-.195.168v.255c0 .056 0 .151.016.295.025.231.081.478.154.733.154.558.398 1.117.722 1.659a5.3 5.3 0 0 1-2.165-.845c-.276-.176-.714-.383-.941-.59z"></path>
-                            </svg>
-                            <span>{note?.CommentsCount}</span>
-                        </div>
+                        <CommentButton count={note?.CommentsCount ?? 0} />
                     </div>
 
                     <div className="flex gap-x-[20px]">
-                        <div className="flex items-center gap-x-[4px]">
-                            <svg
-                                onClick={() => {
-                                    handleSaved();
-                                }}
-                                aria-label="save note"
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => {
-                                    e.preventDefault();
-                                    if (e.key === "Enter" || e.key === " ") {
-                                        handleSaved();
-                                    }
-                                }}
-                                viewBox="0 0 24 24"
-                                fill={`${saved ? "currentColor" : "none"}`}
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="cursor-pointer w-[30px] h-[30px]"
-                                stroke={`${saved ? "none" : "currentColor"}`}
-                            >
-                                <path d="M6.75 6L7.5 5.25H16.5L17.25 6V19.3162L12 16.2051L6.75 19.3162V6Z" />
-                            </svg>
-                            <span>{note?.SavesCount}</span>
-                        </div>
+                        <SaveButton
+                            onToggle={handleSaved}
+                            count={note?.SavesCount ?? 0}
+                            saved={saved}
+                        />
 
-                        <div className="flex items-center gap-x-[4px]">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="white"
-                                className="cursor-pointer"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    fillRule="evenodd"
-                                    d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
-                                    clipRule="evenodd"
-                                ></path>
-                            </svg>
-                            <span>{note?.SharesCount}</span>
-                        </div>
+                        <ShareButton count={note?.SharesCount ?? 0} />
                     </div>
                 </div>
             </div>

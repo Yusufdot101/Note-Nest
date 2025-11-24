@@ -117,7 +117,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 	baseQuery := `
 		SELECT
 			n.id, n.project_id, n.created_at, n.title, n.content, n.color,
-			n.visibility, n.likes_count, n.comments_count
+			n.visibility, n.likes_count, n.comments_count, n.saves_count, n.shares_count
 		FROM notes n
 		JOIN projects p ON n.project_id = p.id
 	`
@@ -278,8 +278,17 @@ BUILD:
 	for rows.Next() {
 		var note Note
 		err := rows.Scan(
-			&note.ID, &note.ProjectID, &note.CreatedAt, &note.Title, &note.Content,
-			&note.Color, &note.Visibility, &note.LikesCount, &note.CommentsCount,
+			&note.ID,
+			&note.ProjectID,
+			&note.CreatedAt,
+			&note.Title,
+			&note.Content,
+			&note.Color,
+			&note.Visibility,
+			&note.LikesCount,
+			&note.CommentsCount,
+			&note.SavesCount,
+			&note.SharesCount,
 		)
 		if err != nil {
 			return nil, err
