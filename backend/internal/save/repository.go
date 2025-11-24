@@ -162,3 +162,60 @@ func (r *repository) getSavedNotes(userID int) ([]*note.Note, error) {
 
 	return notes, nil
 }
+
+func (r *repository) delete(userID, noteID int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil && errors.Is(err, sql.ErrTxDone) {
+			log.Println("rollback error: ", err)
+		}
+	}()
+
+	insertQuery := `
+		DELETE FROM saves
+		WHERE user_id = $1 AND note_id = $2
+	`
+
+	values := []any{
+		userID,
+		noteID,
+	}
+
+	res, err := tx.ExecContext(ctx, insertQuery, values...)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return custom_errors.ErrNoRecord
+	}
+
+	updateNotesQuery := `
+		UPDATE notes
+		SET saves_count = saves_count - 1
+		WHERE id = $1
+	`
+
+	_, err = tx.ExecContext(ctx, updateNotesQuery, noteID)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}

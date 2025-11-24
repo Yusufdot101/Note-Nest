@@ -10,6 +10,7 @@ type repo interface {
 	insert(s *save) error
 	isSaved(userID, noteID int) (bool, error)
 	getSavedNotes(userID int) ([]*note.Note, error)
+	delete(userID, noteID int) error
 }
 
 type saveService struct {
