@@ -6,6 +6,7 @@ type save struct {
 
 type repo interface {
 	insert(s *save) error
+	isSaved(userID, noteID int) (bool, error)
 }
 
 type saveService struct {

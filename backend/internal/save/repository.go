@@ -82,3 +82,25 @@ func (r *repository) insert(s *save) error {
 
 	return nil
 }
+
+func (r *repository) isSaved(userID, noteID int) (bool, error) {
+	query := `
+		SELECT user_id
+		FROM saves
+		WHERE user_id = $1 AND note_id = $2
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var id int
+	err := r.DB.QueryRowContext(ctx, query, userID, noteID).Scan(&id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}

@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import type { Note } from "../components/NoteCard";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchNote, likeUnlinkeNote, noteIsLiked } from "../utilities/note";
+import {
+    fetchNote,
+    likeUnlinkeNote,
+    noteIsLiked,
+    noteIsSaved,
+    saveUnsaveNote,
+} from "../utilities/note";
 import ReactMarkdown from "react-markdown";
 import { useAuthStore } from "../store/useAuthStore";
 import type { Project } from "../components/ProjectCard";
@@ -28,6 +34,17 @@ const NotePage = () => {
         setLike((prev) => !prev);
     };
 
+    const [saved, setSaved] = useState(false);
+    const handleSaved = async () => {
+        if (!noteid) return;
+        const success = await saveUnsaveNote(
+            +noteid,
+            saved ? "unsave" : "save",
+        );
+        if (!success) return;
+        setSaved((prev) => !prev);
+    };
+
     const userid = useAuthStore((state) => state.userID);
 
     useEffect(() => {
@@ -37,7 +54,14 @@ const NotePage = () => {
             setLike(liked);
         };
 
+        const setupSaved = async () => {
+            if (!noteid) return;
+            const saved = await noteIsSaved(+noteid);
+            setSaved(saved);
+        };
+
         setupLiked();
+        setupSaved();
     }, [noteid]);
 
     useEffect(() => {
@@ -57,7 +81,7 @@ const NotePage = () => {
 
         setupNote();
         setupProject();
-    }, [noteid, projectid, liked]);
+    }, [noteid, projectid, liked, saved]);
 
     const handleMenuClick = (
         e: React.MouseEvent<SVGElement> | React.KeyboardEvent<SVGElement>,
@@ -260,29 +284,34 @@ const NotePage = () => {
                     <div className="flex gap-x-[20px]">
                         <div className="flex items-center gap-x-[4px]">
                             <svg
+                                onClick={() => {
+                                    handleSaved();
+                                }}
+                                aria-label="save note"
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    e.preventDefault();
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        handleSaved();
+                                    }
+                                }}
+                                viewBox="0 0 24 24"
+                                fill={`${saved ? "currentColor" : "none"}`}
                                 xmlns="http://www.w3.org/2000/svg"
-                                width="25"
-                                height="25"
-                                fill="white"
-                                className="cursor-pointer"
-                                viewBox="0 0 25 25"
-                                aria-label="Add to list bookmark button"
+                                className="cursor-pointer w-[30px] h-[30px]"
+                                stroke={`${saved ? "none" : "currentColor"}`}
                             >
-                                <path
-                                    fill="currentColor"
-                                    d="M18 2.5a.5.5 0 0 1 1 0V5h2.5a.5.5 0 0 1 0 1H19v2.5a.5.5 0 1 1-1 0V6h-2.5a.5.5 0 0 1 0-1H18zM7 7a1 1 0 0 1 1-1h3.5a.5.5 0 0 0 0-1H8a2 2 0 0 0-2 2v14a.5.5 0 0 0 .805.396L12.5 17l5.695 4.396A.5.5 0 0 0 19 21v-8.5a.5.5 0 0 0-1 0v7.485l-5.195-4.012a.5.5 0 0 0-.61 0L7 19.985z"
-                                ></path>
+                                <path d="M6.75 6L7.5 5.25H16.5L17.25 6V19.3162L12 16.2051L6.75 19.3162V6Z" />
                             </svg>
-                            <span>{5}</span>
+                            <span>{note?.SavesCount}</span>
                         </div>
 
                         <div className="flex items-center gap-x-[4px]">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
                                 fill="white"
-                                className="cursor-pointer"
+                                className="cursor-pointer w-[30px] h-[30px]"
                                 viewBox="0 0 24 24"
                             >
                                 <path
@@ -292,7 +321,7 @@ const NotePage = () => {
                                     clipRule="evenodd"
                                 ></path>
                             </svg>
-                            <span>{3}</span>
+                            <span>{note?.SharesCount}</span>
                         </div>
                     </div>
                 </div>
@@ -364,20 +393,27 @@ const NotePage = () => {
                     <div className="flex gap-x-[20px]">
                         <div className="flex items-center gap-x-[4px]">
                             <svg
+                                onClick={() => {
+                                    handleSaved();
+                                }}
+                                aria-label="save note"
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    e.preventDefault();
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        handleSaved();
+                                    }
+                                }}
+                                viewBox="0 0 24 24"
+                                fill={`${saved ? "currentColor" : "none"}`}
                                 xmlns="http://www.w3.org/2000/svg"
-                                width="25"
-                                height="25"
-                                fill="white"
-                                className="cursor-pointer"
-                                viewBox="0 0 25 25"
-                                aria-label="Add to list bookmark button"
+                                className="cursor-pointer w-[30px] h-[30px]"
+                                stroke={`${saved ? "none" : "currentColor"}`}
                             >
-                                <path
-                                    fill="currentColor"
-                                    d="M18 2.5a.5.5 0 0 1 1 0V5h2.5a.5.5 0 0 1 0 1H19v2.5a.5.5 0 1 1-1 0V6h-2.5a.5.5 0 0 1 0-1H18zM7 7a1 1 0 0 1 1-1h3.5a.5.5 0 0 0 0-1H8a2 2 0 0 0-2 2v14a.5.5 0 0 0 .805.396L12.5 17l5.695 4.396A.5.5 0 0 0 19 21v-8.5a.5.5 0 0 0-1 0v7.485l-5.195-4.012a.5.5 0 0 0-.61 0L7 19.985z"
-                                ></path>
+                                <path d="M6.75 6L7.5 5.25H16.5L17.25 6V19.3162L12 16.2051L6.75 19.3162V6Z" />
                             </svg>
-                            <span>{5}</span>
+                            <span>{note?.SavesCount}</span>
                         </div>
 
                         <div className="flex items-center gap-x-[4px]">
@@ -396,7 +432,7 @@ const NotePage = () => {
                                     clipRule="evenodd"
                                 ></path>
                             </svg>
-                            <span>{3}</span>
+                            <span>{note?.SharesCount}</span>
                         </div>
                     </div>
                 </div>

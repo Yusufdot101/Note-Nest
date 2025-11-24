@@ -7,3 +7,7 @@ func (svc *saveService) saveNote(userID, noteID int) error {
 	}
 	return svc.repo.insert(s)
 }
+
+func (svc *saveService) noteIsSaved(userID, noteID int) (bool, error) {
+	return svc.repo.isSaved(userID, noteID)
+}

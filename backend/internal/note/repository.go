@@ -76,7 +76,7 @@ func (r *Repository) get(noteID int) (*Note, error) {
 	query := `
 		SELECT 
 			id, project_id, created_at, title, content, color, visibility, likes_count, 
-			comments_count
+			comments_count, saves_count, shares_count
 		FROM notes
 		WHERE id = $1
 	`
@@ -95,6 +95,8 @@ func (r *Repository) get(noteID int) (*Note, error) {
 		&note.Visibility,
 		&note.LikesCount,
 		&note.CommentsCount,
+		&note.SavesCount,
+		&note.SharesCount,
 	)
 	if err != nil {
 		switch {

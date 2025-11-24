@@ -19,6 +19,8 @@ type Note struct {
 	Visibility    string
 	LikesCount    uint16
 	CommentsCount uint16
+	SavesCount    uint16
+	SharesCount   uint16
 }
 
 type MockRepo struct {

@@ -13,6 +13,8 @@ export interface Note {
     Color: string;
     LikesCount: number;
     CommentsCount: number;
+    SavesCount: number;
+    SharesCount: number;
 }
 
 interface NoteCardProps {

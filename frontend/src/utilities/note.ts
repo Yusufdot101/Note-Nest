@@ -267,3 +267,49 @@ export const noteIsLiked = async (noteID: number): Promise<boolean> => {
         return false;
     }
 };
+
+export const saveUnsaveNote = async (
+    noteID: number,
+    action: "save" | "unsave",
+): Promise<boolean> => {
+    try {
+        const res = await api(`/notes/${noteID}/save`, {
+            method: action === "save" ? "POST" : "DELETE",
+        });
+
+        if (!res) {
+            return false;
+        }
+
+        if (!res.ok) {
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
+
+export const noteIsSaved = async (noteID: number): Promise<boolean> => {
+    try {
+        const res = await api(`/notes/${noteID}/save`);
+
+        if (!res) {
+            return false;
+        }
+
+        if (!res.ok) {
+            return false;
+        }
+
+        const data = await res.json();
+        return data.state ?? false;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
