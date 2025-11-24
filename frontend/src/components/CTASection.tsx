@@ -25,7 +25,7 @@ const CTA = () => {
                         />
 
                         <SubmitButton
-                            aria_label="login"
+                            aria_label="explore public content"
                             bgColor="grey"
                             text={"Explore Public Content"}
                             handleSubmit={() => {
