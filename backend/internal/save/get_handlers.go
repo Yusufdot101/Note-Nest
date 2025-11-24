@@ -37,3 +37,23 @@ func (h *saveHandler) noteIsSaved(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *saveHandler) savedNotes(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	if !ok {
+		custom_errors.ServerErrorResponse(w, errors.New("userID missing from context"))
+		return
+	}
+
+	notes, err := h.svc.savedNotes(userID)
+	if err != nil {
+		custom_errors.ServerErrorResponse(w, err)
+		return
+	}
+
+	err = utilities.WriteJSON(w, utilities.Message{"notes": notes}, http.StatusOK)
+	if err != nil {
+		custom_errors.ServerErrorResponse(w, err)
+		return
+	}
+}

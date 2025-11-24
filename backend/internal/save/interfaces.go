@@ -1,5 +1,7 @@
 package save
 
+import "github.com/Yusufdot101/note-nest/internal/note"
+
 type save struct {
 	userID, noteID int
 }
@@ -7,6 +9,7 @@ type save struct {
 type repo interface {
 	insert(s *save) error
 	isSaved(userID, noteID int) (bool, error)
+	getSavedNotes(userID int) ([]*note.Note, error)
 }
 
 type saveService struct {

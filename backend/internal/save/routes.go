@@ -17,4 +17,5 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 
 	router.Handler(http.MethodPost, "/notes/:id/save", middleware.RequireAccess(h.saveNote))
 	router.Handler(http.MethodGet, "/notes/:id/save", middleware.RequireAccess(h.noteIsSaved))
+	router.Handler(http.MethodGet, "/saved/notes", middleware.RequireAccess(h.savedNotes))
 }

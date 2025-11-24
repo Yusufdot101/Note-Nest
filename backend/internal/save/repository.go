@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/note"
 )
 
 var ErrNoteAlreadySaved = errors.New("note already saved")
@@ -103,4 +104,60 @@ func (r *repository) isSaved(userID, noteID int) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (r *repository) getSavedNotes(userID int) ([]*note.Note, error) {
+	query := `
+		SELECT 
+			n.id, n.project_id, n.created_at, n.title, n.content, n.color, n.visibility, n.likes_count, 
+			n.comments_count, n.saves_count, n.shares_count
+		FROM notes n
+		INNER JOIN saves s
+		ON n.id = s.note_id
+		INNER JOIN projects p
+		ON n.project_id = p.id
+		WHERE s.user_id = $1
+			AND ( n.visibility = 'public' OR p.user_id = $1 )
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := r.DB.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Println(err)
+		}
+	}()
+
+	var notes []*note.Note
+	for rows.Next() {
+		var note note.Note
+		err := rows.Scan(
+			&note.ID,
+			&note.ProjectID,
+			&note.CreatedAt,
+			&note.Title,
+			&note.Content,
+			&note.Color,
+			&note.Visibility,
+			&note.LikesCount,
+			&note.CommentsCount,
+			&note.SavesCount,
+			&note.SharesCount,
+		)
+		if err != nil {
+			return nil, err
+		}
+		notes = append(notes, &note)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return notes, nil
 }
