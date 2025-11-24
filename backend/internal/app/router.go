@@ -11,6 +11,7 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/note"
 	"github.com/Yusufdot101/note-nest/internal/project"
+	"github.com/Yusufdot101/note-nest/internal/save"
 	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/julienschmidt/httprouter"
 )
@@ -25,6 +26,7 @@ func ConfigureRouter(router *httprouter.Router, DB *sql.DB) http.Handler {
 	note.RegisterRoutes(router, DB)
 	like.RegisterRoutes(router, DB)
 	comment.RegisterRoutes(router, DB)
+	save.RegisterRoutes(router, DB)
 
 	return middleware.EnableCORS(router)
 }

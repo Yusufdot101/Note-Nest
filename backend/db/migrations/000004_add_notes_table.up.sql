@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS notes (
     content TEXT NOT NULL,
     likes_count SMALLINT NOT NULL DEFAULT 0,
     comments_count SMALLINT NOT NULL DEFAULT 0,
+    saves_count SMALLINT NOT NULL DEFAULT 0,
+    shares_count SMALLINT NOT NULL DEFAULT 0,
     color TEXT NOT NULL DEFAULT '#ffffff' CHECK (color ~ '^#[0-9a-fA-F]{6}$'),
     visibility TEXT NOT NULL DEFAULT 'private' CHECK (visibility IN ('private', 'public'))
 );
