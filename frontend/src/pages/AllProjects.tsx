@@ -64,9 +64,7 @@ const AllProjects = () => {
                 handleValueChange={(value) => setSearchValue(value)}
                 handleSearch={handleSearch}
             />
-            <div
-                className={`py-[12px] items-center text-text grid gap-[16px] ${projects.length > 1 ? " grid-cols-[repeat(auto-fit,minmax(400px,1fr))] max-[619px]:grid-cols-[repeat(auto-fit,minmax(284px,1fr))]" : "grid-cols-[repeat(auto-fit,minmax(284px,700px))]"}`}
-            >
+            <div className="py-[12px] items-center text-text grid gap-[16px]  grid-cols-[repeat(auto-fit,minmax(400px,1fr))] max-[619px]:grid-cols-[repeat(auto-fit,minmax(284px,1fr))]">
                 {projects.map((project) => {
                     return (
                         <ProjectCard
