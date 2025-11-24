@@ -28,6 +28,11 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
             text: "Notes",
         },
         {
+            hidden: !isLoggedIn,
+            url: "/saved/notes",
+            text: "Saved Notes",
+        },
+        {
             reload: true,
             url: "/projects",
             text: "Projects",

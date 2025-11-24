@@ -13,6 +13,7 @@ import NoteCreation from "./pages/NoteCreation";
 import NotePage from "./pages/Note";
 import EditNote from "./pages/EditNote";
 import Notes from "./pages/Notes";
+import SavedNotes from "./pages/SavedNotes";
 
 const router = createBrowserRouter([
     {
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
                 element: <EditNote />,
             },
             { path: "/notes", element: <Notes /> },
+            { path: "/saved/notes", element: <SavedNotes /> },
         ],
     },
 ]);

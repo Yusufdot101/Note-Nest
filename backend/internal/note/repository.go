@@ -117,7 +117,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 
 	baseQuery := `
 		SELECT
-			n.id, n.project_id, n.created_at, updated_at, n.title, n.content, n.color,
+			n.id, n.project_id, n.created_at, n.updated_at, n.title, n.content, n.color,
 			n.visibility, n.likes_count, n.comments_count, n.saves_count, n.shares_count
 		FROM notes n
 		JOIN projects p ON n.project_id = p.id

@@ -313,3 +313,24 @@ export const noteIsSaved = async (noteID: number): Promise<boolean> => {
         return false;
     }
 };
+
+export const fetchSavedNotes = async (): Promise<Note[]> => {
+    try {
+        const res = await api(`/saved/notes`);
+
+        if (!res) {
+            return [];
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            console.error(errors);
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return data.notes;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return [];
+    }
+};
