@@ -28,7 +28,13 @@ func (svc *commentService) getComments(userID, noteID int) ([]*comment, error) {
 	return svc.repo.get(userID, noteID)
 }
 
-func (svc *commentService) updateComment(userID, commentID int, content string) error {
+func (svc *commentService) updateComment(v *validator.Validator, userID, commentID int, content string) error {
+	c := &comment{
+		Content: content,
+	}
+	if validateComment(v, c); !v.IsValid() {
+		return validator.ErrFailedValidation
+	}
 	return svc.repo.update(userID, commentID, content)
 }
 
