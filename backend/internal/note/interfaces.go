@@ -33,6 +33,44 @@ type Repo interface {
 	updateNoteColor(userID, noteID int, color string) error
 }
 
+type mockRepo struct {
+	updateNoteTitleContentCalled bool
+	updateNoteColorCalled        bool
+}
+
+func (mr *mockRepo) insert(n *Note) error {
+	return nil
+}
+
+func (mr *mockRepo) get(noteID int) (*Note, error) {
+	n := &Note{
+		ID: noteID,
+	}
+	return n, nil
+}
+
+func (mr *mockRepo) getMany(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, error) {
+	return nil, nil
+}
+
+func (mr *mockRepo) delete(noteID, projectID int) error {
+	return nil
+}
+
+func (mr *mockRepo) updateNoteTitleContent(userID, noteID int, title, content *string) error {
+	mr.updateNoteTitleContentCalled = true
+	return nil
+}
+
+func (mr *mockRepo) updateNoteVisibility(userID, noteID int, visibility string) error {
+	return nil
+}
+
+func (mr *mockRepo) updateNoteColor(userID, noteID int, color string) error {
+	mr.updateNoteColorCalled = true
+	return nil
+}
+
 type NoteService struct {
 	Repo       Repo
 	ProjectSvc *project.ProjectService
