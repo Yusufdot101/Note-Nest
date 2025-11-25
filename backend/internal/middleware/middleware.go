@@ -54,7 +54,7 @@ func RequireAccess(next http.HandlerFunc) http.Handler {
 			panic("user missing from context")
 		}
 
-		if u.IsAnynomousUser() {
+		if u.IsAnonymousUser() {
 			customerrors.RequireAuthenticationErrorResponse(w)
 			return
 		}

@@ -33,7 +33,7 @@ var AnonymousUser = &User{
 	ID: -1,
 }
 
-func (u *User) IsAnynomousUser() bool {
+func (u *User) IsAnonymousUser() bool {
 	return u == AnonymousUser
 }
 
