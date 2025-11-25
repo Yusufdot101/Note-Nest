@@ -19,7 +19,7 @@ func TestUpdateNoteTitleContentHandler(t *testing.T) {
 		wantUpdateCalled bool
 	}{
 		{
-			name: "vaild inputs",
+			name: "valid inputs",
 			payload: `{
 				"title": "updated title",
 				"content": "updated content"
@@ -36,7 +36,7 @@ func TestUpdateNoteTitleContentHandler(t *testing.T) {
 			wantUpdateCalled: true,
 		},
 		{
-			name: "invalid: emty title",
+			name: "invalid: empty title",
 			payload: `{
 				"title": ""
 			}`,
@@ -76,7 +76,7 @@ func TestUpdateNoteTitleContentHandler(t *testing.T) {
 			}
 
 			if repo.updateNoteTitleContentCalled != test.wantUpdateCalled {
-				t.Fatalf("expected repo.updateNoteTitleContentCalled = %v, got repo.updateCalled = %v", test.wantUpdateCalled, repo.updateNoteTitleContentCalled)
+				t.Fatalf("expected repo.updateNoteTitleContentCalled = %v, got repo.updateNoteTitleContentCalled = %v", test.wantUpdateCalled, repo.updateNoteTitleContentCalled)
 			}
 		})
 	}
@@ -90,7 +90,7 @@ func TestUpdateNoteColorHandler(t *testing.T) {
 		wantUpdateCalled bool
 	}{
 		{
-			name: "vaild inputs",
+			name: "valid inputs",
 			payload: `{
 				"color": "#ffffff"
 			}`,
