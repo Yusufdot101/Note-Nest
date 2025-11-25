@@ -7,16 +7,17 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/token"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 )
 
 func (h *authHandler) newAccessToken(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
-		customerrors.ServerErrorResponse(w, errors.New("invalid userID format in the context"))
+		customerrors.ServerErrorResponse(w, errors.New("invalid user format in the context"))
 		return
 	}
-	token, err := h.svc.tokenSvc.NewToken(token.JWT, token.ACCESS, userID)
+	token, err := h.svc.tokenSvc.NewToken(token.JWT, token.ACCESS, u.ID)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

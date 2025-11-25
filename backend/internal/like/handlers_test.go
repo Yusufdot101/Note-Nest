@@ -17,7 +17,7 @@ func TestAddLikeHandler(t *testing.T) {
 	wantStatusCode := http.StatusCreated
 
 	req := httptest.NewRequest(http.MethodPost, "/notes/:id/like", nil)
-	ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
+	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
 	params := httprouter.Params{httprouter.Param{Key: "id", Value: noteID}}
 	ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 	req = req.WithContext(ctx)
@@ -48,7 +48,7 @@ func TestRemoveLikeHandler(t *testing.T) {
 	wantStatusCode := http.StatusOK
 
 	req := httptest.NewRequest(http.MethodPost, "/notes/:id/like", nil)
-	ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
+	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
 	params := httprouter.Params{httprouter.Param{Key: "id", Value: noteID}}
 	ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 	req = req.WithContext(ctx)
@@ -79,7 +79,7 @@ func TestNoteIsLikedHandler(t *testing.T) {
 	wantStatusCode := http.StatusOK
 
 	req := httptest.NewRequest(http.MethodPost, "/notes/:id/like", nil)
-	ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
+	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
 	params := httprouter.Params{httprouter.Param{Key: "id", Value: noteID}}
 	ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 	req = req.WithContext(ctx)

@@ -19,7 +19,7 @@ func TestDeleteCommentHandler(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodDelete, "/comments/1", nil)
 
-		ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
+		ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
 		params := httprouter.Params{httprouter.Param{Key: "id", Value: "1"}}
 		ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 		req = req.WithContext(ctx)

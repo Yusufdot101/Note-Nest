@@ -7,14 +7,15 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (h *likeHandler) addLike(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
-		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
+		customerrors.ServerErrorResponse(w, errors.New("user missing from context"))
 		return
 	}
 
@@ -25,7 +26,7 @@ func (h *likeHandler) addLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.svc.addLike(userID, noteID)
+	err = h.svc.addLike(u.ID, noteID)
 	if err != nil {
 		switch {
 		case errors.Is(err, customerrors.ErrNoRecord):
@@ -46,9 +47,9 @@ func (h *likeHandler) addLike(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *likeHandler) removeLike(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
-		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
+		customerrors.ServerErrorResponse(w, errors.New("user missing from context"))
 		return
 	}
 
@@ -59,7 +60,7 @@ func (h *likeHandler) removeLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.svc.removeLike(userID, noteID)
+	err = h.svc.removeLike(u.ID, noteID)
 	if err != nil {
 		switch {
 		case errors.Is(err, customerrors.ErrNoRecord):
@@ -78,9 +79,9 @@ func (h *likeHandler) removeLike(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *likeHandler) noteIsLiked(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
-		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
+		customerrors.ServerErrorResponse(w, errors.New("user missing from context"))
 		return
 	}
 
@@ -91,7 +92,7 @@ func (h *likeHandler) noteIsLiked(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isLiked, err := h.svc.noteIsLiked(userID, noteID)
+	isLiked, err := h.svc.noteIsLiked(u.ID, noteID)
 	if err != nil {
 		switch {
 		case errors.Is(err, customerrors.ErrNoRecord):

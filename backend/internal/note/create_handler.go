@@ -7,13 +7,14 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (h *NoteHandler) newNote(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
 		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
@@ -40,7 +41,7 @@ func (h *NoteHandler) newNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.NewValidator()
-	err = h.svc.newNote(v, userID, projectID, input.Title, input.Content, input.Visibility, input.Color)
+	err = h.svc.newNote(v, u.ID, projectID, input.Title, input.Content, input.Visibility, input.Color)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):

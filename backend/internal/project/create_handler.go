@@ -6,6 +6,7 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
@@ -23,14 +24,14 @@ func (h *ProjectHandler) NewProject(w http.ResponseWriter, r *http.Request) {
 		customerrors.BadRequestErrorResponse(w, err)
 		return
 	}
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
 		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
 	}
 
 	v := validator.NewValidator()
-	err = h.svc.newProject(v, userID, input.Title, input.Description, input.Visibility, input.Color)
+	err = h.svc.newProject(v, u.ID, input.Title, input.Description, input.Visibility, input.Color)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):

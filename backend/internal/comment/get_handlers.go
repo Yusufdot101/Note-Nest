@@ -7,12 +7,13 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (h *commentHandler) getComments(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
 		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
@@ -25,7 +26,7 @@ func (h *commentHandler) getComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comments, err := h.svc.getComments(userID, noteID)
+	comments, err := h.svc.getComments(u.ID, noteID)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

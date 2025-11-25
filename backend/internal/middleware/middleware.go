@@ -11,6 +11,7 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/token"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -42,14 +43,37 @@ func EnableCORS(next http.Handler) http.Handler {
 type ContextKey string
 
 const (
-	CtxUserIDKey   ContextKey = "userID"
+	CtxUserKey     ContextKey = "userID"
 	CtxTokenString ContextKey = "tokenString"
 )
 
 func RequireAccess(next http.HandlerFunc) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		u, ok := r.Context().Value(CtxUserKey).(*user.User)
+		if !ok {
+			panic("user missing from context")
+		}
+
+		if u.IsAnynomousUser() {
+			customerrors.RequireAuthenticationErrorResponse(w)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	}
+	return Authenticate(fn)
+}
+
+func Authenticate(next http.HandlerFunc) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
 		jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			ctx := context.WithValue(r.Context(), CtxUserKey, user.AnonymousUser)
+			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		}
+
 		headParts := strings.Split(authHeader, " ")
 		if len(headParts) != 2 || headParts[0] != "Bearer" {
 			customerrors.RequireAuthenticationErrorResponse(w)
@@ -80,10 +104,14 @@ func RequireAccess(next http.HandlerFunc) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), CtxUserIDKey, subInt)
+		u := &user.User{
+			ID: subInt,
+		}
+		ctx := context.WithValue(r.Context(), CtxUserKey, u)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
-	return http.HandlerFunc(fn)
+
+	return fn
 }
 
 func RequireRefresh(DB *sql.DB, next http.HandlerFunc) http.Handler {
@@ -114,7 +142,10 @@ func RequireRefresh(DB *sql.DB, next http.HandlerFunc) http.Handler {
 			return
 		}
 		// Here we *know* the user, since the refresh token row includes user_id
-		ctx := context.WithValue(r.Context(), CtxUserIDKey, tk.UserID)
+		u := &user.User{
+			ID: tk.UserID,
+		}
+		ctx := context.WithValue(r.Context(), CtxUserKey, u)
 		ctx = context.WithValue(ctx, CtxTokenString, tk.TokenString)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}

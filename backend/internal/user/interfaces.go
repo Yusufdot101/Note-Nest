@@ -29,6 +29,14 @@ type User struct {
 	Password                 password
 }
 
+var AnonymousUser = &User{
+	ID: -1,
+}
+
+func (u *User) IsAnynomousUser() bool {
+	return u == AnonymousUser
+}
+
 type password struct {
 	hash []byte
 }

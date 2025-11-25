@@ -96,7 +96,7 @@ func TestUpdateProjectHandler(t *testing.T) {
 				t.Fatalf("unexpected error = %v", err)
 			}
 
-			ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, test.userID)
+			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, test.userID)
 			params := httprouter.Params{httprouter.Param{Key: "id", Value: "123"}}
 			ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 

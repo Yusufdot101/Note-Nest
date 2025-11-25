@@ -7,13 +7,14 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (h *NoteHandler) updateNoteTitleContent(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
 		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
@@ -38,7 +39,7 @@ func (h *NoteHandler) updateNoteTitleContent(w http.ResponseWriter, r *http.Requ
 	}
 
 	v := validator.NewValidator()
-	err = h.svc.updateNoteTitleContent(v, userID, noteID, input.Title, input.Content)
+	err = h.svc.updateNoteTitleContent(v, u.ID, noteID, input.Title, input.Content)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
@@ -60,7 +61,7 @@ func (h *NoteHandler) updateNoteTitleContent(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *NoteHandler) updateNoteVisibility(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
 		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
@@ -84,7 +85,7 @@ func (h *NoteHandler) updateNoteVisibility(w http.ResponseWriter, r *http.Reques
 	}
 
 	v := validator.NewValidator()
-	err = h.svc.updateNoteVisibility(v, userID, noteID, input.Visibility)
+	err = h.svc.updateNoteVisibility(v, u.ID, noteID, input.Visibility)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
@@ -106,7 +107,7 @@ func (h *NoteHandler) updateNoteVisibility(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *NoteHandler) updateNoteColor(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
 		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
@@ -130,7 +131,7 @@ func (h *NoteHandler) updateNoteColor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.NewValidator()
-	err = h.svc.updateNoteColor(v, userID, noteID, input.Color)
+	err = h.svc.updateNoteColor(v, u.ID, noteID, input.Color)
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):

@@ -72,7 +72,7 @@ func TestNewProjectHandler(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error = %v", err)
 			}
-			ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, test.userID)
+			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, test.userID)
 			req = req.WithContext(ctx)
 
 			repo := &MockRepo{}

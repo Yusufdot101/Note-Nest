@@ -13,9 +13,10 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
     const ref = useRef<HTMLDivElement>(null);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const userID = useAuthStore((state) => state.userID);
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await logout();
         navigate("/");
+        navigate(0);
     };
 
     const navigationLinks = [
@@ -44,6 +45,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
             text: "My Projects",
         },
         {
+            hidden: !isLoggedIn,
             url: "/projects/new",
             text: "New Project",
         },

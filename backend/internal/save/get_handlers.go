@@ -7,12 +7,13 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (h *saveHandler) noteIsSaved(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
 		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
@@ -25,7 +26,7 @@ func (h *saveHandler) noteIsSaved(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isSaved, err := h.svc.noteIsSaved(userID, noteID)
+	isSaved, err := h.svc.noteIsSaved(u.ID, noteID)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return
@@ -39,13 +40,13 @@ func (h *saveHandler) noteIsSaved(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *saveHandler) savedNotes(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.CtxUserIDKey).(int)
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
 	if !ok {
 		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
 		return
 	}
 
-	notes, err := h.svc.savedNotes(userID)
+	notes, err := h.svc.savedNotes(u.ID)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

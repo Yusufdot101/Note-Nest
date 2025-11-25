@@ -18,7 +18,7 @@ func TestNewAccessToken(t *testing.T) {
 	userID := 1
 	rr := httptest.NewRecorder()
 	req, err := http.NewRequest(http.MethodPut, "/auth/refreshtoken", nil)
-	ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
+	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
 	req = req.WithContext(ctx)
 	if err != nil {
 		t.Fatalf("unexpected error = %v", err)
