@@ -17,7 +17,7 @@ func TestDeleteCommentHandler(t *testing.T) {
 
 	t.Run("test delete comment", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, "/comments/1", nil)
+		req := httptest.NewRequest(http.MethodDelete, "/comments/1", nil)
 
 		ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
 		params := httprouter.Params{httprouter.Param{Key: "id", Value: "1"}}
@@ -38,7 +38,7 @@ func TestDeleteCommentHandler(t *testing.T) {
 		}
 
 		if repo.deleteCalled != wantDeleteCalled {
-			t.Fatalf("expected repo.getCalled = %v, got repo.getCalled = %v", wantDeleteCalled, repo.deleteCalled)
+			t.Fatalf("expected repo.deleteCalled = %v, got repo.deleteCalled = %v", wantDeleteCalled, repo.deleteCalled)
 		}
 	})
 }

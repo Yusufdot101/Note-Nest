@@ -26,7 +26,7 @@ func TestUpdateCommentHandler(t *testing.T) {
 			wantUpdateCalled: true,
 		},
 		{
-			name:             "invalid: missing name",
+			name:             "invalid: missing content",
 			newContent:       "",
 			wantStatusCode:   http.StatusBadRequest,
 			wantUpdateCalled: false,
@@ -41,7 +41,7 @@ func TestUpdateCommentHandler(t *testing.T) {
 			}`, test.newContent)
 
 			recorder := httptest.NewRecorder()
-			req := httptest.NewRequest(http.MethodGet, "/notes/1/comments", strings.NewReader(payload))
+			req := httptest.NewRequest(http.MethodPatch, "/notes/1/comments", strings.NewReader(payload))
 
 			ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
 			params := httprouter.Params{httprouter.Param{Key: "id", Value: "1"}}
@@ -62,7 +62,7 @@ func TestUpdateCommentHandler(t *testing.T) {
 			}
 
 			if repo.updateCalled != test.wantUpdateCalled {
-				t.Fatalf("expected repo.getCalled = %v, got repo.getCalled = %v", test.wantUpdateCalled, repo.updateCalled)
+				t.Fatalf("expected repo.updateCalled = %v, got repo.updateCalled = %v", test.wantUpdateCalled, repo.updateCalled)
 			}
 		})
 	}
