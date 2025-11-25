@@ -19,7 +19,7 @@ func (svc *commentService) newComment(v *validator.Validator, userID, noteID int
 	if err != nil {
 		return err
 	}
-	// since GetNote didn't returned an error(customerrors.ErrNoRecord), it means the note is either public or belongs to the current user, so the user can comment on it
+	// since GetNote didn't return an error(customerrors.ErrNoRecord), it means the note is either public or belongs to the current user, so the user can comment on it
 	// insert comment
 	return svc.repo.insert(c, n.ProjectID)
 }
