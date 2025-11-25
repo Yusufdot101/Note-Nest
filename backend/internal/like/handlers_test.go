@@ -7,17 +7,20 @@ import (
 	"testing"
 
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/julienschmidt/httprouter"
 )
 
 func TestAddLikeHandler(t *testing.T) {
-	userID := 1
+	u := &user.User{
+		ID: 1,
+	}
 	noteID := "1"
 
 	wantStatusCode := http.StatusCreated
 
 	req := httptest.NewRequest(http.MethodPost, "/notes/:id/like", nil)
-	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
+	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 	params := httprouter.Params{httprouter.Param{Key: "id", Value: noteID}}
 	ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 	req = req.WithContext(ctx)
@@ -42,13 +45,15 @@ func TestAddLikeHandler(t *testing.T) {
 }
 
 func TestRemoveLikeHandler(t *testing.T) {
-	userID := 1
+	u := &user.User{
+		ID: 1,
+	}
 	noteID := "1"
 
 	wantStatusCode := http.StatusOK
 
 	req := httptest.NewRequest(http.MethodPost, "/notes/:id/like", nil)
-	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
+	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 	params := httprouter.Params{httprouter.Param{Key: "id", Value: noteID}}
 	ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 	req = req.WithContext(ctx)
@@ -73,13 +78,15 @@ func TestRemoveLikeHandler(t *testing.T) {
 }
 
 func TestNoteIsLikedHandler(t *testing.T) {
-	userID := 1
+	u := &user.User{
+		ID: 1,
+	}
 	noteID := "1"
 
 	wantStatusCode := http.StatusOK
 
 	req := httptest.NewRequest(http.MethodPost, "/notes/:id/like", nil)
-	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
+	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 	params := httprouter.Params{httprouter.Param{Key: "id", Value: noteID}}
 	ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 	req = req.WithContext(ctx)

@@ -16,7 +16,7 @@ import (
 )
 
 func TestNewAccessToken(t *testing.T) {
-	u := user.User{
+	u := &user.User{
 		ID: 1,
 	}
 	rr := httptest.NewRecorder()

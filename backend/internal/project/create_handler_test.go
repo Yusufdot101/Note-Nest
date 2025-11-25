@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 )
 
 func TestNewProjectHandler(t *testing.T) {
 	tests := []struct {
 		title            string
-		userID           any
+		userID           int
 		payload          string
 		wantStatusCode   int
 		wantInsertCalled bool
@@ -42,17 +43,6 @@ func TestNewProjectHandler(t *testing.T) {
 			wantStatusCode: http.StatusBadRequest,
 		},
 		{
-			title:  "userID missing from context",
-			userID: nil,
-			payload: `{
-				"title": "project title",
-				"description": "project description",
-				"visibility": "private",
-				"color": "#ffffff"
-			}`,
-			wantStatusCode: http.StatusInternalServerError,
-		},
-		{
 			title:  "unknown field",
 			userID: 1,
 			payload: `{
@@ -72,7 +62,12 @@ func TestNewProjectHandler(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error = %v", err)
 			}
-			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, test.userID)
+
+			u := &user.User{
+				ID: test.userID,
+			}
+
+			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 			req = req.WithContext(ctx)
 
 			repo := &MockRepo{}

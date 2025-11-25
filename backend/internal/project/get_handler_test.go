@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -33,7 +34,11 @@ func TestGetProjects(t *testing.T) {
 				t.Fatalf("unexpected error = %v", err)
 			}
 
-			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, test.userID)
+			u := &user.User{
+				ID: test.userID,
+			}
+
+			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 			req = req.WithContext(ctx)
 
 			repo := &MockRepo{}
@@ -85,7 +90,11 @@ func TestGetOneProject(t *testing.T) {
 				t.Fatalf("unexpected error = %v", err)
 			}
 
-			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, test.userID)
+			u := &user.User{
+				ID: test.userID,
+			}
+
+			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 			params := httprouter.Params{httprouter.Param{Key: "id", Value: "123"}}
 			ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -32,7 +33,10 @@ func TestUpdateCommentHandler(t *testing.T) {
 			wantUpdateCalled: false,
 		},
 	}
-	userID := 1
+
+	u := &user.User{
+		ID: 1,
+	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -43,7 +47,7 @@ func TestUpdateCommentHandler(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodPatch, "/notes/1/comments", strings.NewReader(payload))
 
-			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
+			ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 			params := httprouter.Params{httprouter.Param{Key: "id", Value: "1"}}
 			ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 			req = req.WithContext(ctx)

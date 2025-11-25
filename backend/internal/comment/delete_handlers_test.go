@@ -7,11 +7,14 @@ import (
 	"testing"
 
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/julienschmidt/httprouter"
 )
 
 func TestDeleteCommentHandler(t *testing.T) {
-	userID := 1
+	u := &user.User{
+		ID: 1,
+	}
 	wantStatusCode := http.StatusOK
 	wantDeleteCalled := true
 
@@ -19,7 +22,7 @@ func TestDeleteCommentHandler(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodDelete, "/comments/1", nil)
 
-		ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
+		ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 		params := httprouter.Params{httprouter.Param{Key: "id", Value: "1"}}
 		ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
 		req = req.WithContext(ctx)
