@@ -6,7 +6,7 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/auth"
 	"github.com/Yusufdot101/note-nest/internal/comment"
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/like"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/note"
@@ -16,9 +16,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func ConfigureRouter(router *httprouter.Router, DB *sql.DB) http.Handler {
-	router.NotFound = http.HandlerFunc(custom_errors.NotFoundErrorResponse)
-	router.MethodNotAllowed = http.HandlerFunc(custom_errors.MethodNotAllowedErrorResponse)
+func configureRouter(router *httprouter.Router, DB *sql.DB) http.Handler {
+	router.NotFound = http.HandlerFunc(customerrors.NotFoundErrorResponse)
+	router.MethodNotAllowed = http.HandlerFunc(customerrors.MethodNotAllowedErrorResponse)
 
 	auth.RegisterRoutes(router, DB)
 	user.RegisterRoutes(router, DB)

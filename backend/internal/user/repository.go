@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 )
 
 var ErrDuplicateEmail = errors.New("duplicate email")
@@ -69,7 +69,7 @@ func (r *Repository) GetUserByEmail(email string) (*User, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, custom_errors.ErrNoRecord
+			return nil, customerrors.ErrNoRecord
 		default:
 			return nil, err
 		}

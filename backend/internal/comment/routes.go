@@ -10,6 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// RegisterRoutes registers the comments api routes
 func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 	h := newHandler(&commentService{
 		repo: &repository{

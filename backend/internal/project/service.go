@@ -3,7 +3,7 @@ package project
 import (
 	"strings"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
@@ -44,7 +44,7 @@ func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {
 
 	// only allow the owner to see private projects
 	if project.UserID != userID && project.Visibility != "public" {
-		return nil, custom_errors.ErrNoRecord
+		return nil, customerrors.ErrNoRecord
 	}
 
 	return project, nil
@@ -57,7 +57,7 @@ func (ps *ProjectService) deleteProject(userID, projectID int) error {
 	}
 	// can only delete your projects
 	if project.UserID != userID {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	return ps.Repo.delete(project.ID)

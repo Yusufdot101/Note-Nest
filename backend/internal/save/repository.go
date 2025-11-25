@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/note"
 )
 
@@ -63,7 +63,7 @@ func (r *repository) insert(s *save) error {
 	}
 
 	if rowsAffected == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	updateNotesQuery := `
@@ -199,7 +199,7 @@ func (r *repository) delete(userID, noteID int) error {
 	}
 
 	if rowsAffected == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	updateNotesQuery := `

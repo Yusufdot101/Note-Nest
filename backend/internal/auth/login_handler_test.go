@@ -44,7 +44,7 @@ func TestLoginHandler(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			userRepo := &mockUserRepo{}
 			tokenRepo := &mockTokenRepo{}
-			h := NewHandler(&authService{
+			h := newHandler(&authService{
 				userSvc: &user.UserService{
 					Repo: userRepo,
 				},
@@ -65,7 +65,7 @@ func TestLoginHandler(t *testing.T) {
 			}
 			req.Header.Set("Content-Type", "application/json")
 			rr := httptest.NewRecorder()
-			h.LoginUser(rr, req)
+			h.loginUser(rr, req)
 
 			if status := rr.Result().StatusCode; status != test.wantStatusCode {
 				t.Errorf("expected status code = %d, got status code = %d", test.wantStatusCode, status)

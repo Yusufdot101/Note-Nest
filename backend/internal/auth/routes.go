@@ -10,8 +10,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// RegisterRoutes registers the auth api routes
 func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
-	h := NewHandler(&authService{
+	h := newHandler(&authService{
 		userSvc: &user.UserService{
 			Repo: &user.Repository{
 				DB: DB,
@@ -24,8 +25,8 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 		},
 	})
 
-	router.Handler(http.MethodPost, "/auth/signup", http.HandlerFunc(h.SignupUser))
-	router.Handler(http.MethodPut, "/auth/login", http.HandlerFunc(h.LoginUser))
-	router.Handler(http.MethodPut, "/auth/refreshtoken", middleware.RequireRefresh(DB, h.NewAccessToken))
-	router.Handler(http.MethodPut, "/auth/logout", middleware.RequireRefresh(DB, h.LogoutUser))
+	router.Handler(http.MethodPost, "/auth/signup", http.HandlerFunc(h.signupUser))
+	router.Handler(http.MethodPut, "/auth/login", http.HandlerFunc(h.loginUser))
+	router.Handler(http.MethodPut, "/auth/refreshtoken", middleware.RequireRefresh(DB, h.newAccessToken))
+	router.Handler(http.MethodPut, "/auth/logout", middleware.RequireRefresh(DB, h.logoutUser))
 }

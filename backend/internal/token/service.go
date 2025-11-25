@@ -92,7 +92,7 @@ func ValidateJWT(tokenString string, jwtSecret []byte) (*jwt.Token, error) {
 	})
 
 	if err != nil || !token.Valid {
-		// custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+		// customerrors.InvalidAuthenticationTokenErrorResponse(w)
 		return nil, errors.New("invalid token")
 	}
 

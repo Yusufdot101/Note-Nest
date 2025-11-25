@@ -1,3 +1,6 @@
+/*
+Package app provides configuration and setting up of the api server
+*/
 package app
 
 import (
@@ -12,7 +15,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-const PORT = ":8080"
+// PORT is the api addr
+const PORT = ":8080" // 8080 is the default addr
 
 type config struct {
 	Port    string
@@ -25,11 +29,13 @@ type config struct {
 	}
 }
 
+// Application is the api application sturct that has the config and the Database
 type Application struct {
 	Config config
 	DB     *sql.DB
 }
 
+// NewApplication returns a new Application strcut with configured options read from .env files
 func NewApplication() (*Application, error) {
 	requiredEnvVars := []string{
 		"DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", "DB_NAME", "SSL_MODE",
@@ -51,14 +57,17 @@ func NewApplication() (*Application, error) {
 		os.Getenv("DB_NAME"),
 		os.Getenv("SSL_MODE"),
 	)
-	maxOpen, err := parseInt(os.Getenv("MAX_OPEN_CONNECTIONS"))
+
+	maxOpen, err := strconv.Atoi(os.Getenv("MAX_OPEN_CONNECTIONS"))
 	if err != nil {
 		return nil, err
 	}
-	maxIdle, err := parseInt(os.Getenv("MAX_IDLE_CONNECTIONS"))
+
+	maxIdle, err := strconv.Atoi(os.Getenv("MAX_IDLE_CONNECTIONS"))
 	if err != nil {
 		return nil, err
 	}
+
 	cfg := &config{
 		Port: PORT,
 		DB: struct {
@@ -80,7 +89,7 @@ func NewApplication() (*Application, error) {
 	}
 
 	router := httprouter.New()
-	handler := ConfigureRouter(router, DB)
+	handler := configureRouter(router, DB)
 	cfg.Handler = handler
 
 	app := &Application{
@@ -96,8 +105,10 @@ func openDB(cfg *config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
 	// test the connection
 	err = DB.PingContext(ctx)
 	if err != nil {
@@ -115,12 +126,4 @@ func openDB(cfg *config) (*sql.DB, error) {
 
 	DB.SetConnMaxIdleTime(duration)
 	return DB, nil
-}
-
-func parseInt(value string) (int, error) {
-	i, err := strconv.Atoi(value)
-	if err != nil {
-		return -1, err
-	}
-	return i, nil
 }

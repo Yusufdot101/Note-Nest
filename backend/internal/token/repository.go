@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 )
 
 type Repository struct {
@@ -49,7 +49,7 @@ func (r *Repository) GetByTokenString(tokenString string) (*Token, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, custom_errors.ErrNoRecord
+			return nil, customerrors.ErrNoRecord
 		default:
 			return nil, err
 		}
@@ -78,7 +78,7 @@ func (r *Repository) DeleteByTokenString(tokenString string) error {
 	}
 
 	if rowsAffected == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	return nil

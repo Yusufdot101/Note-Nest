@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 )
 
 var ErrNoteAlreadyLike = errors.New("note already liked")
@@ -54,7 +54,7 @@ func (r *repo) insert(l *like) error {
 		case err.Error() == `pq: duplicate key value violates unique constraint "likes_pkey"`:
 			return ErrNoteAlreadyLike
 		case err.Error() == `pq: insert or update on table "likes" violates foreign key constraint "likes_note_id_fkey"`:
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		}
 		return err
 	}
@@ -65,7 +65,7 @@ func (r *repo) insert(l *like) error {
 	}
 
 	if rowsAffected == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	updateNoteQuery := `
@@ -138,7 +138,7 @@ func (r *repo) delete(userID, noteID int) error {
 	}
 
 	if rowsAffected == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	updateNoteQuery := `

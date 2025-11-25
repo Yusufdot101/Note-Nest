@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 )
 
 type repository struct {
@@ -149,7 +149,7 @@ func (r *repository) update(userID, commentID int, newContent string) error {
 	err = tx.QueryRowContext(ctx, fetchQuery, values...).Scan(&content)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		}
 		return err
 	}
@@ -207,7 +207,7 @@ func (r *repository) delete(userID, commentID int) error {
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		}
 		return err
 	}
@@ -228,7 +228,7 @@ func (r *repository) delete(userID, commentID int) error {
 	}
 
 	if rowsAffected == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	updateNotesQuery := `

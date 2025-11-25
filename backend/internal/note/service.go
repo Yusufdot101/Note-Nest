@@ -3,7 +3,7 @@ package note
 import (
 	"strings"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
@@ -33,7 +33,7 @@ func (ns *NoteService) newNote(
 
 	// cannot create in other's projects
 	if p.UserID != userID {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 	if p.Visibility == "private" && n.Visibility == "public" {
 		v.AddError("entry", "cannot be more public than the project")
@@ -68,7 +68,7 @@ func (ns *NoteService) GetNote(userID, noteID int) (*Note, error) {
 	// do checks:
 	// cannot see other's private projects/notes
 	if project.UserID != userID && (project.Visibility == "private" || note.Visibility == "private") {
-		return nil, custom_errors.ErrNoRecord
+		return nil, customerrors.ErrNoRecord
 	}
 
 	// fetch and return notes
@@ -94,7 +94,7 @@ func (ns *NoteService) deleteNote(userID, noteID int) error {
 	// do checks:
 	// cannot delete other user's notes
 	if project.UserID != userID {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	// delete the note
@@ -156,7 +156,7 @@ func (ns *NoteService) updateNoteVisibility(
 
 	// cannot update other's notes
 	if p.UserID != userID {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	return ns.Repo.updateNoteVisibility(userID, noteID, cleanedVisibility)

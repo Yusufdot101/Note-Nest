@@ -6,13 +6,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
-func (h *authHandler) SignupUser(w http.ResponseWriter, r *http.Request) {
+func (h *authHandler) signupUser(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name     string `json:"name"`
 		Email    string `json:"email"`
@@ -20,7 +20,7 @@ func (h *authHandler) SignupUser(w http.ResponseWriter, r *http.Request) {
 	}
 	err := utilities.ReadJSON(w, r, &input)
 	if err != nil {
-		custom_errors.BadRequestErrorResponse(w, err)
+		customerrors.BadRequestErrorResponse(w, err)
 		return
 	}
 
@@ -29,29 +29,29 @@ func (h *authHandler) SignupUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, validator.ErrFailedValidation):
-			custom_errors.FailedValidationErrorResponse(w, v.Errors)
+			customerrors.FailedValidationErrorResponse(w, v.Errors)
 		case errors.Is(err, user.ErrDuplicateEmail):
 			v.AddError("email", "a user with this email already exists")
-			custom_errors.FailedValidationErrorResponse(w, v.Errors)
+			customerrors.FailedValidationErrorResponse(w, v.Errors)
 		default:
-			custom_errors.ServerErrorResponse(w, err)
+			customerrors.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	ttl, err := time.ParseDuration(os.Getenv("REFRESH_TOKEN_EXPIRATION_TIME"))
 	if err != nil {
-		custom_errors.ServerErrorResponse(w, errors.New("invalid refresh token expiration time"))
+		customerrors.ServerErrorResponse(w, errors.New("invalid refresh token expiration time"))
 		return
 	}
 	err = utilities.SetTokenCookie(w, "REFRESH", refreshToken, "/auth", ttl)
 	if err != nil {
-		custom_errors.ServerErrorResponse(w, err)
+		customerrors.ServerErrorResponse(w, err)
 		return
 	}
 
 	err = utilities.WriteJSON(w, utilities.Message{"access_token": accessToken}, http.StatusCreated)
 	if err != nil {
-		custom_errors.ServerErrorResponse(w, err)
+		customerrors.ServerErrorResponse(w, err)
 	}
 }

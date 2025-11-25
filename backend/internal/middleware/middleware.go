@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -52,31 +52,31 @@ func RequireAccess(next http.HandlerFunc) http.Handler {
 		authHeader := r.Header.Get("Authorization")
 		headParts := strings.Split(authHeader, " ")
 		if len(headParts) != 2 || headParts[0] != "Bearer" {
-			custom_errors.RequireAuthenticationErrorResponse(w)
+			customerrors.RequireAuthenticationErrorResponse(w)
 			return
 		}
 		tokenString := headParts[1]
 		token, err := token.ValidateJWT(tokenString, jwtSecret)
 		if err != nil {
-			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			customerrors.InvalidAuthenticationTokenErrorResponse(w)
 			return
 		}
 
 		claims := token.Claims.(jwt.MapClaims)
 		issuer, ok := claims["iss"].(string)
 		if !ok || issuer != os.Getenv("JWT_ISSUER") {
-			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			customerrors.InvalidAuthenticationTokenErrorResponse(w)
 			return
 		}
 
 		subStr, ok := claims["sub"].(string)
 		if !ok || subStr == "" {
-			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			customerrors.InvalidAuthenticationTokenErrorResponse(w)
 			return
 		}
 		subInt, err := strconv.Atoi(subStr)
 		if err != nil {
-			custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			customerrors.InvalidAuthenticationTokenErrorResponse(w)
 			return
 		}
 
@@ -90,12 +90,12 @@ func RequireRefresh(DB *sql.DB, next http.HandlerFunc) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("REFRESH")
 		if err != nil {
-			custom_errors.RequireAuthenticationErrorResponse(w)
+			customerrors.RequireAuthenticationErrorResponse(w)
 			return
 		}
 		tokenString := cookie.Value
 		if tokenString == "" {
-			custom_errors.RequireAuthenticationErrorResponse(w)
+			customerrors.RequireAuthenticationErrorResponse(w)
 			return
 		}
 		svc := &token.TokenService{
@@ -106,10 +106,10 @@ func RequireRefresh(DB *sql.DB, next http.HandlerFunc) http.Handler {
 		tk, err := svc.Repo.GetByTokenString(tokenString)
 		if err != nil {
 			switch {
-			case errors.Is(err, custom_errors.ErrNoRecord):
-				custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+			case errors.Is(err, customerrors.ErrNoRecord):
+				customerrors.InvalidAuthenticationTokenErrorResponse(w)
 			default:
-				custom_errors.ServerErrorResponse(w, err)
+				customerrors.ServerErrorResponse(w, err)
 			}
 			return
 		}

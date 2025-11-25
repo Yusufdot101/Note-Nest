@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
 )
 
@@ -67,7 +67,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 		} else {
 			// can only access public projects of others
 			if visibility != "public" && visibility != "" {
-				return nil, custom_errors.ErrNoRecord
+				return nil, customerrors.ErrNoRecord
 			}
 			conds = append(conds, "visibility = 'public'")
 		}
@@ -84,7 +84,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 				args = append(args, currentUserID)
 				idx++
 			default:
-				return nil, custom_errors.ErrNoRecord
+				return nil, customerrors.ErrNoRecord
 			}
 		} else {
 			conds = append(conds, fmt.Sprintf("( visibility = 'public' OR user_id = $%d )", idx))
@@ -183,7 +183,7 @@ func (r *Repository) getOne(ID int) (*Project, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, custom_errors.ErrNoRecord
+			return nil, customerrors.ErrNoRecord
 		default:
 			return nil, err
 		}
@@ -212,7 +212,7 @@ func (r *Repository) delete(projectID int) error {
 	}
 
 	if rowsAffected == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	return nil
@@ -254,7 +254,7 @@ func (r *Repository) update(userID, projectID int, title, description, visibilit
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		default:
 			return err
 		}
@@ -262,7 +262,7 @@ func (r *Repository) update(userID, projectID int, title, description, visibilit
 
 	// user cannot update another's project
 	if p.UserID != userID {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	if title != nil {

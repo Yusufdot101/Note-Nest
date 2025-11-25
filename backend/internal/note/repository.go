@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/project"
 )
@@ -58,7 +58,7 @@ func (r *Repository) insert(n *Note) error {
 	if err != nil {
 		switch err.Error() {
 		case `pq: insert or update on table "notes" violates foreign key constraint "notes_project_id_fkey"`:
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		default:
 			return err
 		}
@@ -102,7 +102,7 @@ func (r *Repository) get(noteID int) (*Note, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, custom_errors.ErrNoRecord
+			return nil, customerrors.ErrNoRecord
 		default:
 			return nil, err
 		}
@@ -134,14 +134,14 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, custom_errors.ErrNoRecord
+				return nil, customerrors.ErrNoRecord
 			}
 			return nil, err
 		}
 
 		// userId must match actual project owner
 		if owner != queryUserID {
-			return nil, custom_errors.ErrNoRecord
+			return nil, customerrors.ErrNoRecord
 		}
 
 		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
@@ -150,7 +150,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		if visibility != "" {
 			if queryUserID != currentUserID {
 				if visibility != "public" {
-					return nil, custom_errors.ErrNoRecord
+					return nil, customerrors.ErrNoRecord
 				}
 				conds = append(conds, "n.visibility = 'public'")
 			} else {
@@ -176,7 +176,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		idx++
 		if visibility != "" {
 			if queryUserID != currentUserID && visibility == "private" {
-				return nil, custom_errors.ErrNoRecord
+				return nil, customerrors.ErrNoRecord
 			}
 			conds = append(conds, "n.visibility = 'public'")
 		} else {
@@ -195,7 +195,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, custom_errors.ErrNoRecord
+				return nil, customerrors.ErrNoRecord
 			}
 			return nil, err
 		}
@@ -206,7 +206,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		if visibility != "" {
 			if owner != currentUserID {
 				if visibility != "public" {
-					return nil, custom_errors.ErrNoRecord
+					return nil, customerrors.ErrNoRecord
 				} else {
 					conds = append(conds, "n.visibility = 'public'")
 				}
@@ -330,7 +330,7 @@ func (r *Repository) delete(noteID, projectID int) error {
 	}
 
 	if affectedRows == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	res, err = r.DB.ExecContext(ctx, updateQuery, projectID)
@@ -344,7 +344,7 @@ func (r *Repository) delete(noteID, projectID int) error {
 	}
 
 	if affectedRows == 0 {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	return nil
@@ -384,7 +384,7 @@ func (r *Repository) updateNoteTitleContent(userID, noteID int, title, content *
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		default:
 			return err
 		}
@@ -404,7 +404,7 @@ func (r *Repository) updateNoteTitleContent(userID, noteID int, title, content *
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		default:
 			return err
 		}
@@ -412,11 +412,11 @@ func (r *Repository) updateNoteTitleContent(userID, noteID int, title, content *
 
 	// do checks
 	if p.UserID != userID {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	if time.Since(*n.CreatedAt) > r.UpdateTimeout {
-		return custom_errors.ErrUpdateTimeout
+		return customerrors.ErrUpdateTimeout
 	}
 
 	// update fields
@@ -486,7 +486,7 @@ func (r *Repository) updateNoteVisibility(userID, noteID int, visibility string)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		default:
 			return err
 		}
@@ -549,7 +549,7 @@ func (r *Repository) updateNoteColor(userID, noteID int, color string) error {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		default:
 			return err
 		}
@@ -569,7 +569,7 @@ func (r *Repository) updateNoteColor(userID, noteID int, color string) error {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return custom_errors.ErrNoRecord
+			return customerrors.ErrNoRecord
 		default:
 			return err
 		}
@@ -577,7 +577,7 @@ func (r *Repository) updateNoteColor(userID, noteID int, color string) error {
 
 	// do checks
 	if p.UserID != userID {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	// save note

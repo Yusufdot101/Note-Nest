@@ -3,7 +3,7 @@ package project
 import (
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
@@ -67,7 +67,7 @@ func (mr *MockRepo) update(userID, projectID int, name, description, visibility,
 	}
 
 	if gotPproject.UserID != userID {
-		return custom_errors.ErrNoRecord
+		return customerrors.ErrNoRecord
 	}
 
 	mr.updateCalled = true

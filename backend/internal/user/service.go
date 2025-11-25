@@ -3,7 +3,7 @@ package user
 import (
 	"strings"
 
-	"github.com/Yusufdot101/note-nest/internal/custom_errors"
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -51,7 +51,7 @@ func (us *UserService) VerifyAndGetUser(v *validator.Validator, email, password 
 		return nil, err
 	}
 	if !matches {
-		return nil, custom_errors.ErrInvalidCredentials
+		return nil, customerrors.ErrInvalidCredentials
 	}
 
 	return u, nil

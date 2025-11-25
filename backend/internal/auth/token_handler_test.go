@@ -24,13 +24,13 @@ func TestNewAccessToken(t *testing.T) {
 		t.Fatalf("unexpected error = %v", err)
 	}
 	repo := &mockTokenRepo{}
-	h := NewHandler(&authService{
+	h := newHandler(&authService{
 		tokenSvc: &token.TokenService{
 			Repo: repo,
 		},
 	})
 
-	h.NewAccessToken(rr, req)
+	h.newAccessToken(rr, req)
 
 	if statusCode := rr.Result().StatusCode; statusCode != http.StatusOK {
 		t.Errorf("expected status code = %d, got status code = %d", http.StatusOK, statusCode)
@@ -55,7 +55,7 @@ func TestNewAccessToken(t *testing.T) {
 	claims := token.Claims.(jwt.MapClaims)
 	issuer, ok := claims["iss"].(string)
 	if !ok || issuer != os.Getenv("JWT_ISSUER") {
-		// custom_errors.InvalidAuthenticationTokenErrorResponse(w)
+		// customerrors.InvalidAuthenticationTokenErrorResponse(w)
 		t.Error("invalid issuer")
 	}
 

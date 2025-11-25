@@ -21,13 +21,13 @@ func TestLogoutUserHandler(t *testing.T) {
 	}
 
 	repo := &mockTokenRepo{}
-	h := NewHandler(&authService{
+	h := newHandler(&authService{
 		tokenSvc: &token.TokenService{
 			Repo: repo,
 		},
 	})
 
-	h.LogoutUser(rr, req)
+	h.logoutUser(rr, req)
 
 	if statusCode := rr.Result().StatusCode; statusCode != http.StatusOK {
 		t.Errorf("expected status code = %d, got status code = %d", http.StatusOK, statusCode)

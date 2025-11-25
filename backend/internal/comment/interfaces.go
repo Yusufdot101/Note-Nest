@@ -1,3 +1,6 @@
+/*
+Package comment provides logic and handlers for fetching and saving comments
+*/
 package comment
 
 import (

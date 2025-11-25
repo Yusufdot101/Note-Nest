@@ -1,3 +1,6 @@
+/*
+package auth provides authentication logic and handlers like logingin and signingup
+*/
 package auth
 
 import (
@@ -14,7 +17,7 @@ type authHandler struct {
 	svc *authService
 }
 
-func NewHandler(svc *authService) *authHandler {
+func newHandler(svc *authService) *authHandler {
 	return &authHandler{
 		svc: svc,
 	}
