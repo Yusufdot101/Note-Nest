@@ -16,7 +16,7 @@ func TestNoteIsSavedHandler(t *testing.T) {
 
 	wantStatusCode := http.StatusOK
 
-	req := httptest.NewRequest(http.MethodPost, "/notes/:id/like", nil)
+	req := httptest.NewRequest(http.MethodGet, "/notes/:id/save", nil)
 	ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
 	params := httprouter.Params{httprouter.Param{Key: "id", Value: noteID}}
 	ctx = context.WithValue(ctx, httprouter.ParamsKey, params)

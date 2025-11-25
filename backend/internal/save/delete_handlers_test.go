@@ -16,7 +16,7 @@ func TestUnsaveNoteHandler(t *testing.T) {
 
 	wantStatusCode := http.StatusOK
 
-	req := httptest.NewRequest(http.MethodPost, "/notes/:id/like", nil)
+	req := httptest.NewRequest(http.MethodPost, "/notes/:id/save", nil)
 	ctx := context.WithValue(req.Context(), middleware.CtxUserIDKey, userID)
 	params := httprouter.Params{httprouter.Param{Key: "id", Value: noteID}}
 	ctx = context.WithValue(ctx, httprouter.ParamsKey, params)
@@ -37,6 +37,6 @@ func TestUnsaveNoteHandler(t *testing.T) {
 	}
 
 	if !repo.deleteCalled {
-		t.Fatalf("expected repo.deletCalled to be called")
+		t.Fatalf("expected repo.delete to be called")
 	}
 }
