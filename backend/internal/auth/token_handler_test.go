@@ -11,14 +11,17 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/token"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 func TestNewAccessToken(t *testing.T) {
-	userID := 1
+	u := user.User{
+		ID: 1,
+	}
 	rr := httptest.NewRecorder()
 	req, err := http.NewRequest(http.MethodPut, "/auth/refreshtoken", nil)
-	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, userID)
+	ctx := context.WithValue(req.Context(), middleware.CtxUserKey, u)
 	req = req.WithContext(ctx)
 	if err != nil {
 		t.Fatalf("unexpected error = %v", err)
@@ -68,7 +71,7 @@ func TestNewAccessToken(t *testing.T) {
 		t.Error("invalid subject format")
 	}
 
-	if subInt != userID {
-		t.Errorf("expected subject = %d, got subject = %d", userID, subInt)
+	if subInt != u.ID {
+		t.Errorf("expected subject = %d, got subject = %d", u.ID, subInt)
 	}
 }
