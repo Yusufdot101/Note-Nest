@@ -38,7 +38,7 @@ func (h *saveHandler) saveNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"message": "note saved"}, http.StatusOK)
+	err = utilities.WriteJSON(w, utilities.Message{"message": "note saved"}, http.StatusCreated)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

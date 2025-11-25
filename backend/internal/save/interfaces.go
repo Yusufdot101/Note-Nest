@@ -13,6 +13,33 @@ type repo interface {
 	delete(userID, noteID int) error
 }
 
+type mockRepo struct {
+	insertCalled        bool
+	isSavedCalled       bool
+	getSavedNotesCalled bool
+	deleteCalled        bool
+}
+
+func (mr *mockRepo) insert(s *save) error {
+	mr.insertCalled = true
+	return nil
+}
+
+func (mr *mockRepo) isSaved(userID, noteID int) (bool, error) {
+	mr.isSavedCalled = true
+	return true, nil
+}
+
+func (mr *mockRepo) getSavedNotes(userID int) ([]*note.Note, error) {
+	mr.getSavedNotesCalled = true
+	return nil, nil
+}
+
+func (mr *mockRepo) delete(userID, noteID int) error {
+	mr.deleteCalled = true
+	return nil
+}
+
 type saveService struct {
 	repo repo
 }
