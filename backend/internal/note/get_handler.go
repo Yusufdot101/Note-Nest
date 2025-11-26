@@ -128,7 +128,7 @@ func (h *NoteHandler) getNoteOwner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"username": username}, http.StatusCreated)
+	err = utilities.WriteJSON(w, utilities.Message{"username": username}, http.StatusOK)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return
