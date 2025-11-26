@@ -33,6 +33,9 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 	router.Handler(http.MethodPatch, "/notes/:id/visibility", middleware.RequireAccess(h.updateNoteVisibility))
 	router.Handler(http.MethodPatch, "/notes/:id/color", middleware.RequireAccess(h.updateNoteColor))
 
+	// owner name
+	router.Handler(http.MethodGet, "/notes/:id/username", middleware.Authenticate(h.getNoteOwner))
+
 	// all projects and filtering/pagination
 	router.Handler(http.MethodGet, "/notes", middleware.Authenticate(h.getNotes))
 }

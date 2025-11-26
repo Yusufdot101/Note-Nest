@@ -97,6 +97,26 @@ export const fetchNote = async (noteID: number): Promise<Note | undefined> => {
     }
 };
 
+export const fetchNoteOwner = async (noteID: number): Promise<string> => {
+    try {
+        const res = await api(`/notes/${noteID}/username`);
+        if (!res) {
+            return "";
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            console.error(errors);
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return data.username;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return "";
+    }
+};
+
 export const deleteNote = async (noteID: number): Promise<boolean> => {
     try {
         const res = await api(`/notes/${noteID}`, {

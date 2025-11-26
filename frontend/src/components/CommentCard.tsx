@@ -62,7 +62,7 @@ const CommentCard = ({
                             className="text-[16px] max-[629px]:text-[12px] font-bold w-full line-clamp-1"
                         >
                             {/* Hardcoded for now */}
-                            {"Yusuf Mohamed"}
+                            {comment.Username}
                         </span>
                         <span
                             style={{ color: color }}

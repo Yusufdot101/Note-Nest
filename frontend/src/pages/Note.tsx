@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { Note } from "../components/NoteCard";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     fetchNote,
+    fetchNoteOwner,
     likeUnlinkeNote,
     noteIsLiked,
     noteIsSaved,
@@ -23,6 +24,8 @@ import Menu from "../components/Menu";
 
 const NotePage = () => {
     const [note, setNote] = useState<Note>();
+    const [commentsCount, setCommentsCount] = useState(0);
+    const [noteOwner, setNoteOwner] = useState("");
     const [project, setProject] = useState<Project>();
     const [showDialoge, setShowDialoge] = useState(false);
 
@@ -90,6 +93,14 @@ const NotePage = () => {
             const note = await fetchNote(+noteid);
             if (!note) return;
             setNote(note);
+            setCommentsCount(note.CommentsCount);
+        };
+
+        const setupNoteOwner = async () => {
+            if (!noteid) return;
+            const noteOwner = await fetchNoteOwner(+noteid);
+            if (!noteOwner) return;
+            setNoteOwner(noteOwner);
         };
 
         const setupProject = async () => {
@@ -100,6 +111,7 @@ const NotePage = () => {
         };
 
         setupNote();
+        setupNoteOwner();
         setupProject();
     }, [noteid, projectid]);
 
@@ -109,6 +121,8 @@ const NotePage = () => {
         e.stopPropagation();
         setShowDialoge((prev) => !prev);
     };
+
+    const commentsRef = useRef<HTMLDivElement | null>(null);
 
     return (
         <div className="text-[20px] max-[619px]:text-[16px] text-text flex flex-col gap-[8px]">
@@ -164,8 +178,7 @@ const NotePage = () => {
                 style={{ border: `1px solid ${note?.Color}` }}
                 className="bg-primary p-[12px] rounded-[8px]"
             >
-                {/*TODO: show username*/}
-                <p>By: </p>
+                <p>By: {noteOwner}</p>
                 <p>Created: {new Date(note?.CreatedAt || "").toDateString()}</p>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-x-[20px]">
@@ -175,7 +188,16 @@ const NotePage = () => {
                             liked={liked}
                         />
 
-                        <CommentButton count={note?.CommentsCount ?? 0} />
+                        <CommentButton
+                            handleClick={() => {
+                                if (!commentsRef.current) return;
+                                commentsRef.current.scrollIntoView({
+                                    behavior: "smooth",
+                                });
+                                commentsRef.current.focus();
+                            }}
+                            count={commentsCount}
+                        />
                     </div>
 
                     <div className="flex gap-x-[20px]">
@@ -206,7 +228,16 @@ const NotePage = () => {
                             liked={liked}
                         />
 
-                        <CommentButton count={note?.CommentsCount ?? 0} />
+                        <CommentButton
+                            handleClick={() => {
+                                if (!commentsRef.current) return;
+                                commentsRef.current.scrollIntoView({
+                                    behavior: "smooth",
+                                });
+                                commentsRef.current.focus();
+                            }}
+                            count={commentsCount}
+                        />
                     </div>
 
                     <div className="flex gap-x-[20px]">
@@ -225,7 +256,15 @@ const NotePage = () => {
                 style={{ border: `1px solid ${note?.Color}` }}
                 className="bg-primary p-[12px] rounded-[8px] flex flex-col gap-y-[8px]"
             >
-                {noteid && <Comments noteID={+noteid} />}
+                {noteid && (
+                    <Comments
+                        commentsRef={commentsRef}
+                        handleCommentsCountChange={(newCount) =>
+                            setCommentsCount(newCount)
+                        }
+                        noteID={+noteid}
+                    />
+                )}
             </div>
 
             {showDialoge && note ? (

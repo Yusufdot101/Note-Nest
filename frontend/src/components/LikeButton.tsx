@@ -6,20 +6,22 @@ interface LikeButtonProps {
 
 const LikeButton = ({ onToggle, liked, count }: LikeButtonProps) => {
     return (
-        <div className="flex items-center gap-x-[4px]">
+        <div
+            onClick={onToggle}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onToggle();
+                }
+            }}
+            role="button"
+            aria-label="like note"
+            tabIndex={0}
+            className="flex items-center gap-x-[4px] cursor-pointer"
+        >
             <svg
-                onClick={onToggle}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                        onToggle();
-                    }
-                }}
-                role="button"
-                aria-label="like note"
-                tabIndex={0}
                 width="28"
                 height="28"
-                className="cursor-pointer"
                 viewBox="0 0 24 24"
                 fill={`${liked ? "white" : "none"}`}
                 xmlns="http://www.w3.org/2000/svg"

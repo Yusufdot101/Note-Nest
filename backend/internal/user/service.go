@@ -19,7 +19,7 @@ func (us *UserService) NewUser(v *validator.Validator, name, email, password str
 		return nil, validator.ErrFailedValidation
 	}
 	u := &User{
-		Name:  trimmedEmail,
+		Name:  trimmedName,
 		Email: trimmedEmail,
 	}
 	err := u.Password.Set(trimmedPassword)

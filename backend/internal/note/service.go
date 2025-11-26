@@ -171,3 +171,7 @@ func (ns *NoteService) updateNoteColor(
 	}
 	return ns.Repo.updateNoteColor(userID, noteID, cleanedColor)
 }
+
+func (ns *NoteService) getNoteOwner(userID, noteID int) (string, error) {
+	return ns.Repo.getOwner(userID, noteID)
+}

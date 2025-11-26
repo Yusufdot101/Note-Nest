@@ -15,6 +15,7 @@ type comment struct {
 	Edited     bool
 	CreatedAt  time.Time
 	UserID     int
+	Username   string
 	NoteID     int
 	Content    string
 	LikesCount int

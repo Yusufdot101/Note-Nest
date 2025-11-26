@@ -14,9 +14,15 @@ import { useAuthStore } from "../store/useAuthStore";
 
 interface CommentsProps {
     noteID: number;
+    handleCommentsCountChange: (newCount: number) => void;
+    commentsRef: React.Ref<HTMLDivElement | null>;
 }
 
-const Comments = ({ noteID }: CommentsProps) => {
+const Comments = ({
+    noteID,
+    handleCommentsCountChange,
+    commentsRef,
+}: CommentsProps) => {
     const [comment, setComment] = useState("");
     const [clickedComment, setClickedComment] = useState<Comment>();
     const [currentEditingID, setCurrentEditingID] = useState<
@@ -32,7 +38,8 @@ const Comments = ({ noteID }: CommentsProps) => {
         const comments = await fetchComments(noteID);
         if (!comments) return;
         setComments(comments);
-    }, [noteID]);
+        handleCommentsCountChange(comments.length);
+    }, [noteID, handleCommentsCountChange]);
 
     useEffect(() => {
         setupComments();
@@ -62,7 +69,11 @@ const Comments = ({ noteID }: CommentsProps) => {
     };
 
     return (
-        <div className="flex flex-col gap-[12px]">
+        <div
+            ref={commentsRef}
+            tabIndex={-1}
+            className="flex flex-col gap-[12px]"
+        >
             <p className="font-bold text-[32px] text-center max-[619px]:text-[20px]">
                 Comments
             </p>

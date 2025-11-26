@@ -63,8 +63,10 @@ func (r *repository) insert(c *comment, projectID int) error {
 
 func (r *repository) get(userID, noteID int) ([]*comment, error) {
 	query := `
-		SELECT c.id, c.created_at, c.is_edited, c.user_id, c.note_id, c.content, c.likes_count 
+		SELECT c.id, c.created_at, c.is_edited, c.user_id, u.name, c.note_id, c.content, c.likes_count 
 		FROM comments c
+		INNER JOIN users u
+		ON c.user_id = u.id
 		INNER JOIN notes n
 		ON c.note_id = n.id
 		INNER JOIN projects p
@@ -95,6 +97,7 @@ func (r *repository) get(userID, noteID int) ([]*comment, error) {
 			&c.CreatedAt,
 			&c.Edited,
 			&c.UserID,
+			&c.Username,
 			&c.NoteID,
 			&c.Content,
 			&c.LikesCount,

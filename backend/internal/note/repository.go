@@ -605,3 +605,32 @@ func (r *Repository) updateNoteColor(userID, noteID int, color string) error {
 
 	return nil
 }
+
+func (r *Repository) getOwner(userID, noteID int) (string, error) {
+	query := `
+		SELECT u.name
+		FROM users u 
+		INNER JOIN projects p
+		ON p.user_id = u.id
+		INNER JOIN notes n
+		ON n.project_id = p.id
+		WHERE n.id = $1
+			AND ( n.visibility = 'public' OR p.user_id = $2 )
+	`
+
+	var name string
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := r.DB.QueryRowContext(ctx, query, noteID, userID).Scan(
+		&name,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", customerrors.ErrNoRecord
+		}
+		return "", err
+	}
+
+	return name, nil
+}

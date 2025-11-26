@@ -31,6 +31,7 @@ type Repo interface {
 	updateNoteTitleContent(userID, noteID int, title, content *string) error
 	updateNoteVisibility(userID, noteID int, visibility string) error
 	updateNoteColor(userID, noteID int, color string) error
+	getOwner(userID, noteID int) (string, error)
 }
 
 type mockRepo struct {
@@ -69,6 +70,10 @@ func (mr *mockRepo) updateNoteVisibility(userID, noteID int, visibility string) 
 func (mr *mockRepo) updateNoteColor(userID, noteID int, color string) error {
 	mr.updateNoteColorCalled = true
 	return nil
+}
+
+func (mr *mockRepo) getOwner(userID, noteID int) (string, error) {
+	return "", nil
 }
 
 type NoteService struct {

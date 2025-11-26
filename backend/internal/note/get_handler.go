@@ -102,3 +102,35 @@ func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *NoteHandler) getNoteOwner(w http.ResponseWriter, r *http.Request) {
+	u, ok := r.Context().Value(middleware.CtxUserKey).(*user.User)
+	if !ok {
+		customerrors.ServerErrorResponse(w, errors.New("userID missing from context"))
+		return
+	}
+
+	params := httprouter.ParamsFromContext(r.Context())
+	noteID, err := strconv.Atoi(params.ByName("id"))
+	if err != nil {
+		customerrors.BadRequestErrorResponse(w, err)
+		return
+	}
+
+	username, err := h.svc.getNoteOwner(u.ID, noteID)
+	if err != nil {
+		switch {
+		case errors.Is(err, customerrors.ErrNoRecord):
+			customerrors.NotFoundErrorResponse(w, r)
+		default:
+			customerrors.ServerErrorResponse(w, err)
+		}
+		return
+	}
+
+	err = utilities.WriteJSON(w, utilities.Message{"username": username}, http.StatusCreated)
+	if err != nil {
+		customerrors.ServerErrorResponse(w, err)
+		return
+	}
+}

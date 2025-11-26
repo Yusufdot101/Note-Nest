@@ -8,6 +8,7 @@ export interface Comment {
     NoteID: number;
     Content: string;
     LikesCount: number;
+    Username: string;
 }
 
 export const newComment = async (
@@ -45,6 +46,7 @@ export const fetchComments = async (
 
         const data = await res.json();
         const comments = data.comments;
+        if (!Array.isArray(comments)) return undefined;
 
         return comments;
     } catch (error) {

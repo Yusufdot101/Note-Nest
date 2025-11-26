@@ -4,13 +4,19 @@ type Props = {
 
 const ShareButton = ({ count }: Props) => {
     return (
-        <div className="flex items-center gap-x-[4px]">
+        <div
+            onClick={() => {}}
+            onKeyDown={() => {}}
+            role="button"
+            aria-label="share note"
+            tabIndex={0}
+            className="flex items-center gap-x-[4px] cursor-pointer"
+        >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
                 fill="white"
-                className="cursor-pointer"
                 viewBox="0 0 24 24"
             >
                 <path
