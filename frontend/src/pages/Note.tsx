@@ -138,12 +138,13 @@ const NotePage = () => {
 
         try {
             document.execCommand("copy");
+            return true;
         } catch (err) {
             console.error("fallback failed", err);
             return false;
+        } finally {
+            document.body.removeChild(textarea);
         }
-
-        document.body.removeChild(textarea);
     }
 
     async function copyToClipboard(text: string): Promise<boolean> {
@@ -163,8 +164,8 @@ const NotePage = () => {
         return fallbackCopy(text);
     }
 
-    const handleShare = () => {
-        const success = copyToClipboard(window.location.toString());
+    const handleShare = async () => {
+        const success = await copyToClipboard(window.location.toString());
         if (!success) {
             alert("an error occurred and could not copy to clipboard");
             return;
