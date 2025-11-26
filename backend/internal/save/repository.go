@@ -110,7 +110,7 @@ func (r *repository) getSavedNotes(userID int) ([]*note.Note, error) {
 	query := `
 		SELECT 
 			n.id, n.project_id, n.created_at, n.updated_at, n.title, n.content, n.color, n.visibility, n.likes_count, 
-			n.comments_count, n.saves_count, n.shares_count
+			n.comments_count, n.saves_count
 		FROM notes n
 		INNER JOIN saves s
 		ON n.id = s.note_id
@@ -148,7 +148,6 @@ func (r *repository) getSavedNotes(userID int) ([]*note.Note, error) {
 			&note.LikesCount,
 			&note.CommentsCount,
 			&note.SavesCount,
-			&note.SharesCount,
 		)
 		if err != nil {
 			return nil, err

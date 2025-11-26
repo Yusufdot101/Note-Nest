@@ -1,12 +1,16 @@
-type Props = {
-    count: number;
-};
-
-const ShareButton = ({ count }: Props) => {
+interface props {
+    handleClick: () => void;
+}
+const ShareButton = ({ handleClick }: props) => {
     return (
         <div
-            onClick={() => {}}
-            onKeyDown={() => {}}
+            onClick={handleClick}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleClick();
+                }
+            }}
             role="button"
             aria-label="share note"
             tabIndex={0}
@@ -26,7 +30,6 @@ const ShareButton = ({ count }: Props) => {
                     clipRule="evenodd"
                 ></path>
             </svg>
-            <span>{count}</span>
         </div>
     );
 };

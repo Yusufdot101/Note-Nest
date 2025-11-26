@@ -20,7 +20,6 @@ type Note struct {
 	LikesCount    uint16
 	CommentsCount uint16
 	SavesCount    uint16
-	SharesCount   uint16
 }
 
 type Repo interface {

@@ -76,7 +76,7 @@ func (r *Repository) get(noteID int) (*Note, error) {
 	query := `
 		SELECT 
 			id, project_id, created_at, updated_at, title, content, color, visibility, likes_count, 
-			comments_count, saves_count, shares_count
+			comments_count, saves_count
 		FROM notes
 		WHERE id = $1
 	`
@@ -97,7 +97,6 @@ func (r *Repository) get(noteID int) (*Note, error) {
 		&note.LikesCount,
 		&note.CommentsCount,
 		&note.SavesCount,
-		&note.SharesCount,
 	)
 	if err != nil {
 		switch {
@@ -118,7 +117,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 	baseQuery := `
 		SELECT
 			n.id, n.project_id, n.created_at, n.updated_at, n.title, n.content, n.color,
-			n.visibility, n.likes_count, n.comments_count, n.saves_count, n.shares_count
+			n.visibility, n.likes_count, n.comments_count, n.saves_count
 		FROM notes n
 		JOIN projects p ON n.project_id = p.id
 	`
@@ -290,7 +289,6 @@ BUILD:
 			&note.LikesCount,
 			&note.CommentsCount,
 			&note.SavesCount,
-			&note.SharesCount,
 		)
 		if err != nil {
 			return nil, err

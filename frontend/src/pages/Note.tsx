@@ -124,6 +124,54 @@ const NotePage = () => {
 
     const commentsRef = useRef<HTMLDivElement | null>(null);
 
+    // in case the clipboard api doesnt work
+    function fallbackCopy(text: string): boolean {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+
+        textarea.focus();
+        textarea.select();
+
+        try {
+            document.execCommand("copy");
+        } catch (err) {
+            console.error("fallback failed", err);
+            return false;
+        }
+
+        document.body.removeChild(textarea);
+    }
+
+    async function copyToClipboard(text: string): Promise<boolean> {
+        if (
+            navigator.clipboard &&
+            typeof navigator.clipboard.writeText === "function"
+        ) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (e) {
+                console.error("clipboard API failed:", e);
+            }
+        }
+
+        // fallback always works
+        return fallbackCopy(text);
+    }
+
+    const handleShare = () => {
+        const success = copyToClipboard(window.location.toString());
+        if (!success) {
+            alert("an error occurred and could not copy to clipboard");
+            return;
+        }
+        alert("copied link to clipboard!");
+    };
+
     return (
         <div className="text-[20px] max-[619px]:text-[16px] text-text flex flex-col gap-[8px]">
             <div
@@ -206,8 +254,7 @@ const NotePage = () => {
                             count={note?.SavesCount ?? 0}
                             saved={saved}
                         />
-
-                        <ShareButton count={note?.SharesCount ?? 0} />
+                        <ShareButton handleClick={handleShare} />
                     </div>
                 </div>
             </div>
@@ -247,7 +294,7 @@ const NotePage = () => {
                             saved={saved}
                         />
 
-                        <ShareButton count={note?.SharesCount ?? 0} />
+                        <ShareButton handleClick={handleShare} />
                     </div>
                 </div>
             </div>

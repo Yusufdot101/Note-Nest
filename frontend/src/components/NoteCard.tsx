@@ -14,7 +14,6 @@ export interface Note {
     LikesCount: number;
     CommentsCount: number;
     SavesCount: number;
-    SharesCount: number;
 }
 
 interface NoteCardProps {
