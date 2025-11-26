@@ -16,12 +16,16 @@ const FeatureCard = ({ icon, title, description, color }: Props) => {
             tabIndex={0}
             className="border-[1px] border-white rounded-[8px] p-[12px] group flex flex-col gap-y-[12px]"
         >
-            <Icon
-                className={`w-8 h-8 ${color} mb-4 group-hover:scale-110 group-focus:scale-110 transition-transform`}
-            />
+            <div className="flex items-center gap-4">
+                <Icon
+                    className={`w-8 h-8 ${color} group-hover:scale-110 group-focus:scale-110 transition-transform`}
+                />
 
-            <div>
-                <h3 className="text-lg font-bold text-foreground">{title}</h3>
+                <div>
+                    <h3 className="text-lg font-bold text-foreground">
+                        {title}
+                    </h3>
+                </div>
             </div>
 
             <div>

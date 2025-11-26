@@ -14,7 +14,7 @@ const Home = () => {
     }, [isLoggedIn, navigate]);
 
     return (
-        <div className="flex flex-col items-center relative text-text bg-primary p-[12px] h-fit rounded-[8px] border-[1px] border-white">
+        <div className="flex flex-col gap-y-[64px] h-fit w-full min-w-[300px] border-[1px] border-solid border-[#ffffff] rounded-[8px] p-[24px]">
             <HeroSection />
             <FeaturesGrid />
             <HowItWorks />

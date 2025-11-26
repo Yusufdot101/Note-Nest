@@ -49,9 +49,9 @@ const App = () => {
         initAuth();
     }, []);
     return (
-        <>
+        <div>
             <RouterProvider router={router} />
-        </>
+        </div>
     );
 };
 

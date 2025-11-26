@@ -97,7 +97,7 @@ const ProjectPage = () => {
             <div>
                 <div
                     style={{ border: `1px solid ${color}` }}
-                    className="relative text-text cursor-pointer bg-primary p-[12px] flex flex-col gap-[12px] h-fit"
+                    className="relative text-text cursor-pointer bg-primary p-[12px] flex flex-col gap-[12px] h-fit rounded-[8px]"
                 >
                     <h1 className="text-text font-bold text-[32px] max-[629px]:text-[24px] text-center">
                         NOTES

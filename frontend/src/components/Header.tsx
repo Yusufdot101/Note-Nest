@@ -6,7 +6,7 @@ const Header = () => {
     const [menuIsOpen, setMenuIsOpen] = useState(false);
     const handleClose = () => setMenuIsOpen(false);
     return (
-        <header className="flex justify-between items-center">
+        <header className="flex justify-between items-center w-full min-w-[300px] border-[1px] border-solid border-[#ffffff] rounded-[8px] py-[12px] px-[24px]">
             <Link to={"/"}>
                 <div className="flex items-center gap-[12px] cursor-pointer">
                     <img

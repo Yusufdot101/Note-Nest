@@ -100,7 +100,7 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
                     />
                 </svg>
             </div>
-            <ul className="flex flex-col gap-[8px]">
+            <ul className="flex flex-col gap-[8px] text-[20px] max-[619px]:text-[16px]">
                 {navigationLinks.map((link) => (
                     <Link
                         reloadDocument={link.reload}
@@ -110,26 +110,26 @@ const SideMenu = ({ menuIsOpen, handleClose }: SideMenuProps) => {
                         tabIndex={menuIsOpen ? 0 : -1}
                         hidden={link.hidden}
                     >
-                        <li className="bg-[#747474] p-[8px] hover:text-accent duration-300">
+                        <li className="bg-[#747474] p-[8px] hover:text-accent duration-300 rounded-[8px]">
                             {link.text}
                         </li>
                     </Link>
                 ))}
                 {isLoggedIn ? (
                     <button
-                        className="cursor-pointer text-left"
+                        className="cursor-pointer text-left rounded-[8px]"
                         onClick={() => {
                             handleLogout();
                             handleClose();
                         }}
                     >
-                        <li className="bg-[#747474] p-[8px] hover:text-accent duration-300">
+                        <li className="bg-[#747474] p-[8px] hover:text-red-500 duration-300 rounded-[8px]">
                             Logout
                         </li>
                     </button>
                 ) : (
                     <Link to={"/login"} onClick={handleClose}>
-                        <li className="bg-[#747474] p-[8px] hover:text-accent duration-300">
+                        <li className="bg-[#747474] p-[8px] hover:text-accent duration-300 rounded-[8px]">
                             Login
                         </li>
                     </Link>

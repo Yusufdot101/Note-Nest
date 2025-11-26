@@ -24,32 +24,28 @@ const steps = [
 
 const HowItWorks = () => {
     return (
-        <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="text-center space-y-4 mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold text-foreground text-balance">
-                        How it works
-                    </h2>
-                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Getting started with Note Nest is simple and intuitive.
-                    </p>
-                </div>
+        <section
+            id="how-it-works"
+            className="w-full flex flex-col gap-y-[24px]"
+        >
+            <div className="text-center space-y-[12px]">
+                <h2 className="text-4xl md:text-5xl font-bold text-balance">
+                    How it works
+                </h2>
+                <p className="text-lg">
+                    Getting started with Note Nest is simple and intuitive.
+                </p>
+            </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {steps.map((step, index) => (
-                        <div key={index} className="relative">
-                            <StepsCard
-                                key={index}
-                                title={step.title}
-                                description={step.description}
-                                step={index + 1}
-                            />
-                            {index < steps.length - 1 && (
-                                <div className="hidden lg:block absolute -right-4 top-12 w-8 h-0.5 bg-border"></div>
-                            )}
-                        </div>
-                    ))}
-                </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-[12px]">
+                {steps.map((step, index) => (
+                    <StepsCard
+                        key={index}
+                        title={step.title}
+                        description={step.description}
+                        step={index + 1}
+                    />
+                ))}
             </div>
         </section>
     );
