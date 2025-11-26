@@ -54,7 +54,7 @@ const Login = () => {
     }, [password]);
 
     return (
-        <div className="w-full bg-primary flex flex-col items border-[1px] border-solid border-[#ffffff] rounded-[8px] py-[32px] min-[620px]:text-2xl px-[12px]">
+        <div className="w-full bg-primary flex flex-col border-[1px] border-solid border-[#ffffff] rounded-[8px] py-[32px] min-[620px]:text-2xl px-[12px]">
             <p className="text-accent text-[32px] font-semibold text-center">
                 LOGIN
             </p>

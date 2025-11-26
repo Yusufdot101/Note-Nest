@@ -59,7 +59,7 @@ const NewProject = () => {
     return (
         <div
             style={{ border: `1px solid ${projectColor}` }}
-            className="w-full bg-primary flex flex-col items border-[1px] border-solid border-[#ffffff] rounded-[8px] py-[32px] min-[620px]:text-2xl px-[12px]"
+            className="w-full bg-primary flex flex-col items rounded-[8px] py-[32px] min-[620px]:text-2xl px-[12px]"
         >
             <div className="flex h-[35px] items-center justify-center gap-[8px]">
                 <p className="text-accent text-[32px] max-[619px]:text-[24px] font-semibold text-center">
