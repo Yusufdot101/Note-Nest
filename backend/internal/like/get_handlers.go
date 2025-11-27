@@ -58,7 +58,7 @@ func (h *likeHandler) commentIsLiked(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isLiked, err := h.svc.resourceIsLiked(u.ID, "comment", commentID)
+	isLiked, err := h.svc.resourceIsLiked(u.ID, commentResource, commentID)
 	if err != nil {
 		switch {
 		case errors.Is(err, customerrors.ErrNoRecord):

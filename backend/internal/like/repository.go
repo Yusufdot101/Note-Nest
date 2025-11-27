@@ -26,7 +26,7 @@ func (r *repo) insert(l *like) error {
 	}
 
 	defer func() {
-		if err := tx.Rollback(); err != nil && errors.Is(err, sql.ErrTxDone) {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
 			log.Println("rollback error: ", err)
 		}
 	}()
@@ -174,7 +174,7 @@ func (r *repo) delete(l *like) error {
 			USING comments c
 			JOIN notes n ON c.note_id = n.id
 			JOIN projects p ON n.project_id = p.id
-			WHERE l.comment_id = n.id
+			WHERE l.comment_id = c.id
 				AND l.user_id = $1
 				AND l.comment_id = $2
 		`
@@ -270,9 +270,11 @@ func (r *repo) isLiked(l *like) (bool, error) {
 
 	switch l.resourceType {
 	case noteResource:
-		query += "AND note_id = $2"
+		query += " AND note_id = $2"
 	case commentResource:
-		query += "AND comment_id = $2"
+		query += " AND comment_id = $2"
+	default:
+		return false, customerrors.ErrNoRecord
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
