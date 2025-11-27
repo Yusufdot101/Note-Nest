@@ -80,3 +80,8 @@ func UpdateTimeoutErrorResponse(w http.ResponseWriter) {
 	msg := map[string]string{"message": "you can no longer update the content of this note"}
 	errorResponse(w, msg, http.StatusForbidden)
 }
+
+func RateLimitExceededErrorResponse(w http.ResponseWriter) {
+	msg := map[string]string{"message": "too many requests, please try again later"}
+	errorResponse(w, msg, http.StatusTooManyRequests)
+}

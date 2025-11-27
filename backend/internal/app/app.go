@@ -27,6 +27,11 @@ type config struct {
 		MaxIdleConnections    int
 		ConnectionMaxIdleTime string
 	}
+	Limiter struct {
+		Enabled bool
+		Burst   int
+		Rate    float64
+	}
 }
 
 // Application is the api application sturct that has the config and the Database
@@ -40,7 +45,7 @@ func NewApplication() (*Application, error) {
 	requiredEnvVars := []string{
 		"DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", "DB_NAME", "SSL_MODE",
 		"TRUSTED_ORIGINS", "MAX_OPEN_CONNECTIONS", "MAX_IDLE_CONNECTIONS",
-		"CONNECTION_MAX_IDLE_TIME",
+		"CONNECTION_MAX_IDLE_TIME", "RATE_LIMIT_BURST", "RATE_LIMIT_RATE",
 	}
 	for _, envVar := range requiredEnvVars {
 		if os.Getenv(envVar) == "" {
@@ -68,6 +73,18 @@ func NewApplication() (*Application, error) {
 		return nil, err
 	}
 
+	rateLimiterBurst, err := strconv.Atoi(os.Getenv("RATE_LIMIT_BURST"))
+	if err != nil {
+		return nil, err
+	}
+
+	rateLimiterRate, err := strconv.ParseFloat(os.Getenv("RATE_LIMIT_RATE"), 64)
+	if err != nil {
+		return nil, err
+	}
+
+	rateLimiterEnabled := os.Getenv("RATE_LIMIT_ENABLED") != "false" // default true
+
 	cfg := &config{
 		Port: PORT,
 		DB: struct {
@@ -81,6 +98,15 @@ func NewApplication() (*Application, error) {
 			MaxIdleConnections:    maxIdle,
 			ConnectionMaxIdleTime: os.Getenv("CONNECTION_MAX_IDLE_TIME"),
 		},
+		Limiter: struct {
+			Enabled bool
+			Burst   int
+			Rate    float64
+		}{
+			Enabled: rateLimiterEnabled,
+			Burst:   rateLimiterBurst,
+			Rate:    rateLimiterRate,
+		},
 	}
 
 	DB, err := openDB(cfg)
@@ -89,7 +115,7 @@ func NewApplication() (*Application, error) {
 	}
 
 	router := httprouter.New()
-	handler := configureRouter(router, DB)
+	handler := configureRouter(router, DB, cfg.Limiter.Enabled, cfg.Limiter.Burst, cfg.Limiter.Rate)
 	cfg.Handler = handler
 
 	app := &Application{

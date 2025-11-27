@@ -16,7 +16,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func configureRouter(router *httprouter.Router, DB *sql.DB) http.Handler {
+func configureRouter(router *httprouter.Router, DB *sql.DB, rateLimiterEnabled bool, rateLimiterBurst int, rateLimiterRate float64) http.Handler {
 	router.NotFound = http.HandlerFunc(customerrors.NotFoundErrorResponse)
 	router.MethodNotAllowed = http.HandlerFunc(customerrors.MethodNotAllowedErrorResponse)
 
@@ -28,9 +28,5 @@ func configureRouter(router *httprouter.Router, DB *sql.DB) http.Handler {
 	comment.RegisterRoutes(router, DB)
 	save.RegisterRoutes(router, DB)
 
-	router.HandlerFunc(http.MethodGet, "/test", func(w http.ResponseWriter, r *http.Request) {
-		panic("paniced here")
-	})
-
-	return middleware.EnableCORS(middleware.RecoverPanic(router))
+	return middleware.EnableCORS(middleware.RecoverPanic(middleware.RateLimit(router, rateLimiterEnabled, rateLimiterBurst, rateLimiterRate)))
 }
