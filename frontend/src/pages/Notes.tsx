@@ -4,6 +4,7 @@ import { fetchNotes } from "../utilities/note";
 import type { Note } from "../components/NoteCard";
 import NoteCard from "../components/NoteCard";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 
 const Notes = () => {
     const [searchValue, setSearchValue] = useState("");
@@ -31,6 +32,7 @@ const Notes = () => {
 
     const navigate = useNavigate();
 
+    const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
         const setupNotes = async () => {
             const notes = await fetchNotes(options);
@@ -39,7 +41,7 @@ const Notes = () => {
         };
 
         setupNotes();
-    }, [options]);
+    }, [options, accessToken]);
     return (
         <div className="flex flex-col relative text-text bg-primary p-[12px] h-fit rounded-[8px] border-[1px] border-white">
             <div className="flex flex-col gap-y-[12px]">

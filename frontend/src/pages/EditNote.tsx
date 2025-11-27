@@ -9,6 +9,7 @@ import {
     fetchNote,
     toggleVisibility,
 } from "../utilities/note";
+import { useAuthStore } from "../store/useAuthStore";
 
 const EditNote = () => {
     const [title, setTitle] = useState("");
@@ -27,7 +28,9 @@ const EditNote = () => {
         navigate(`/projects/${projectid}`);
     };
 
+    const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
+        if (!accessToken) return;
         const setupNote = async () => {
             if (!noteid) return;
             const note = await fetchNote(+noteid);
@@ -39,7 +42,7 @@ const EditNote = () => {
         };
 
         setupNote();
-    }, [noteid]);
+    }, [noteid, accessToken]);
 
     const handleSave = async () => {
         if (content === "" || title === "" || visibility === "") return;

@@ -5,6 +5,7 @@ import ProjectCard from "../components/ProjectCard";
 import { fetchProjects } from "../utilities/projects";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
+import { useAuthStore } from "../store/useAuthStore";
 
 const AllProjects = () => {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -33,13 +34,15 @@ const AllProjects = () => {
         );
     };
 
+    // accessToken is null at first so fetch resources doesnt work as expected, this makes it reload when accessToken changes from null
+    const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
         const setupProjects = async () => {
             const projects = await fetchProjects(options);
             setProjects(projects);
         };
         setupProjects();
-    }, [options]);
+    }, [options, accessToken]);
 
     const navigate = useNavigate();
 

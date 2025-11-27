@@ -3,12 +3,15 @@ import { fetchSavedNotes } from "../utilities/note";
 import type { Note } from "../components/NoteCard";
 import NoteCard from "../components/NoteCard";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 
 const SavedNotes = () => {
     const [notes, setNotes] = useState<Note[]>([]);
     const navigate = useNavigate();
 
+    const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
+        if (!accessToken) return;
         const setupNotes = async () => {
             const notes = await fetchSavedNotes();
             if (!notes) return;
@@ -16,7 +19,7 @@ const SavedNotes = () => {
         };
 
         setupNotes();
-    }, []);
+    }, [accessToken]);
     return (
         <div className="flex flex-col relative text-text bg-primary p-[12px] h-fit rounded-[8px] border-[1px] border-white">
             <div className="flex flex-col gap-y-[12px]">

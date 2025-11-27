@@ -13,6 +13,7 @@ import {
 } from "../utilities/project";
 import { useNavigate, useParams } from "react-router-dom";
 import ColorPicker from "../components/ColorPicker";
+import { useAuthStore } from "../store/useAuthStore";
 
 const EditProject = () => {
     const [projectTitle, setProjectTitle] = useState("");
@@ -22,7 +23,9 @@ const EditProject = () => {
 
     const { id } = useParams();
 
+    const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
+        if (!accessToken) return;
         const setupProject = async () => {
             if (id === "") return;
             const project = await fetchProject(+id!);
@@ -33,7 +36,7 @@ const EditProject = () => {
             setProjectColor(project.Color);
         };
         setupProject();
-    }, [id]);
+    }, [id, accessToken]);
 
     const [projectTitleError, setProjectTitleError] = useState("");
     const [projectDescriptionError, setProjectDescriptionError] = useState("");

@@ -43,7 +43,9 @@ const ProjectPage = () => {
 
     const navigate = useNavigate();
 
+    const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
+        if (!accessToken) return;
         const setupProject = async () => {
             if (id == "") return;
             const project = await fetchProject(+id!);
@@ -60,7 +62,7 @@ const ProjectPage = () => {
         };
         setupProject();
         setupNotes();
-    }, [options, id]);
+    }, [options, id, accessToken]);
 
     return (
         <div className="flex flex-col gap-[12px]">

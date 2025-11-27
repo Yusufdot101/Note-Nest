@@ -70,23 +70,7 @@ const NotePage = () => {
 
     const userid = useAuthStore((state) => state.userID);
 
-    useEffect(() => {
-        const setupLiked = async () => {
-            if (!noteid) return;
-            const liked = await noteIsLiked(+noteid);
-            setLike(liked);
-        };
-
-        const setupSaved = async () => {
-            if (!noteid) return;
-            const saved = await noteIsSaved(+noteid);
-            setSaved(saved);
-        };
-
-        setupLiked();
-        setupSaved();
-    }, [noteid]);
-
+    const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
         const setupNote = async () => {
             if (!noteid) return;
@@ -110,10 +94,25 @@ const NotePage = () => {
             setProject(project);
         };
 
+        const setupLiked = async () => {
+            if (!noteid) return;
+            const liked = await noteIsLiked(+noteid);
+            setLike(liked);
+        };
+
+        const setupSaved = async () => {
+            if (!noteid) return;
+            const saved = await noteIsSaved(+noteid);
+            setSaved(saved);
+        };
+
+        setupLiked();
+        setupSaved();
+
         setupNote();
         setupNoteOwner();
         setupProject();
-    }, [noteid, projectid]);
+    }, [noteid, projectid, accessToken]);
 
     const handleMenuClick = (
         e: React.MouseEvent<SVGElement> | React.KeyboardEvent<SVGElement>,
