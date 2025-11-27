@@ -72,8 +72,8 @@ const NotePage = () => {
 
     const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
+        if (!noteid || !projectid || !accessToken) return;
         const setupNote = async () => {
-            if (!noteid) return;
             const note = await fetchNote(+noteid);
             if (!note) return;
             setNote(note);
@@ -81,27 +81,23 @@ const NotePage = () => {
         };
 
         const setupNoteOwner = async () => {
-            if (!noteid) return;
             const noteOwner = await fetchNoteOwner(+noteid);
             if (!noteOwner) return;
             setNoteOwner(noteOwner);
         };
 
         const setupProject = async () => {
-            if (!projectid) return;
             const project = await fetchProject(+projectid);
             if (!project) return;
             setProject(project);
         };
 
         const setupLiked = async () => {
-            if (!noteid) return;
             const liked = await noteIsLiked(+noteid);
             setLike(liked);
         };
 
         const setupSaved = async () => {
-            if (!noteid) return;
             const saved = await noteIsSaved(+noteid);
             setSaved(saved);
         };

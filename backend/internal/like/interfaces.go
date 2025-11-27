@@ -1,15 +1,23 @@
 package like
 
+type resourceType string
+
+const (
+	noteResource    resourceType = "note"
+	commentResource resourceType = "comment"
+)
+
 type like struct {
-	ID     int
-	userID int
-	noteID int
+	ID           int
+	userID       int
+	resourceType resourceType
+	resourceID   int
 }
 
 type Repo interface {
 	insert(l *like) error
-	delete(userID, noteID int) error
-	isLiked(userID, noteID int) (bool, error)
+	delete(l *like) error
+	isLiked(l *like) (bool, error)
 }
 
 type mockRepo struct {
@@ -23,12 +31,12 @@ func (mr *mockRepo) insert(l *like) error {
 	return nil
 }
 
-func (mr *mockRepo) delete(userID, noteID int) error {
+func (mr *mockRepo) delete(l *like) error {
 	mr.deleteCalled = true
 	return nil
 }
 
-func (mr *mockRepo) isLiked(userID, noteID int) (bool, error) {
+func (mr *mockRepo) isLiked(l *like) (bool, error) {
 	mr.isLikedCalled = true
 	return true, nil
 }

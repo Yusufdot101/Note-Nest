@@ -1,17 +1,29 @@
 package like
 
-func (svc *likeService) addLike(userID, noteID int) error {
+func (svc *likeService) addLike(userID int, resourceType resourceType, resourceID int) error {
 	l := &like{
-		userID: userID,
-		noteID: noteID,
+		userID:       userID,
+		resourceType: resourceType,
+		resourceID:   resourceID,
 	}
 	return svc.repo.insert(l)
 }
 
-func (svc *likeService) removeLike(userID, noteID int) error {
-	return svc.repo.delete(userID, noteID)
+func (svc *likeService) removeLike(userID int, resourceType resourceType, resourceID int) error {
+	l := &like{
+		userID:       userID,
+		resourceType: resourceType,
+		resourceID:   resourceID,
+	}
+
+	return svc.repo.delete(l)
 }
 
-func (svc *likeService) noteIsLiked(userID, noteID int) (bool, error) {
-	return svc.repo.isLiked(userID, noteID)
+func (svc *likeService) resourceIsLiked(userID int, resourceType resourceType, resourceID int) (bool, error) {
+	l := &like{
+		userID:       userID,
+		resourceType: resourceType,
+		resourceID:   resourceID,
+	}
+	return svc.repo.isLiked(l)
 }

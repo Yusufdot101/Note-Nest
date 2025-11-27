@@ -14,6 +14,11 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 	})
 
 	router.Handler(http.MethodGet, "/notes/:id/like", middleware.RequireAccess(h.noteIsLiked))
-	router.Handler(http.MethodPost, "/notes/:id/like", middleware.RequireAccess(h.addLike))
-	router.Handler(http.MethodDelete, "/notes/:id/like", middleware.RequireAccess(h.removeLike))
+	router.Handler(http.MethodGet, "/comments/:id/like", middleware.RequireAccess(h.commentIsLiked))
+
+	router.Handler(http.MethodPost, "/notes/:id/like", middleware.RequireAccess(h.addNoteLike))
+	router.Handler(http.MethodPost, "/comments/:id/like", middleware.RequireAccess(h.addCommentLike))
+
+	router.Handler(http.MethodDelete, "/notes/:id/like", middleware.RequireAccess(h.removeNoteLike))
+	router.Handler(http.MethodDelete, "/comments/:id/like", middleware.RequireAccess(h.removeCommentLike))
 }
