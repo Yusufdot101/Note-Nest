@@ -28,5 +28,9 @@ func configureRouter(router *httprouter.Router, DB *sql.DB) http.Handler {
 	comment.RegisterRoutes(router, DB)
 	save.RegisterRoutes(router, DB)
 
-	return middleware.EnableCORS(router)
+	router.HandlerFunc(http.MethodGet, "/test", func(w http.ResponseWriter, r *http.Request) {
+		panic("paniced here")
+	})
+
+	return middleware.EnableCORS(middleware.RecoverPanic(router))
 }
