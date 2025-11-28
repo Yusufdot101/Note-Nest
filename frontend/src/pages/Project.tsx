@@ -69,8 +69,8 @@ const ProjectPage = () => {
             <div>
                 {project && (
                     <ProjectCard
-                        Color={color}
-                        SetColor={setColor}
+                        color={color}
+                        setColor={setColor}
                         project={project}
                         handleMenuClick={
                             project.UserID === userID
@@ -86,6 +86,7 @@ const ProjectPage = () => {
                                   }
                                 : undefined
                         }
+                        colorEditable={(userID ?? -1) === project.UserID}
                     />
                 )}
                 {showDialoge && project && (

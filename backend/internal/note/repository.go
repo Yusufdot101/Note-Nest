@@ -472,11 +472,11 @@ func (r *Repository) updateNoteVisibility(userID, noteID int, visibility string)
 	// fetch note
 	n := &Note{}
 	fetchNoteQuery := `
-		SELECT id
+		SELECT n.id
 		FROM notes n
 		INNER JOIN projects p
-		ON n.project_id = p.d
-		WHERE id = $1
+		ON n.project_id = p.id
+		WHERE n.id = $1
 			AND p.user_id = $2
 		FOR UPDATE
 	`

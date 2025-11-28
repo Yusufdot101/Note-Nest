@@ -142,6 +142,7 @@ export const deleteNote = async (noteID: number): Promise<boolean> => {
 export const toggleVisibility = async (
     noteID: number,
     newVisibility: string,
+    handleError: (errors: Record<string, string>) => void,
 ): Promise<boolean> => {
     try {
         const res = await api(`/notes/${noteID}/visibility`, {
@@ -159,7 +160,11 @@ export const toggleVisibility = async (
         const data = await res.json();
         if (!res.ok) {
             const errors = data.error;
-            console.error(errors);
+            if (errors) {
+                handleError(errors);
+                console.error(errors);
+                return false;
+            }
             throw new Error(`HTTP error! status: ${res.status}`);
         }
         return true;
@@ -211,6 +216,7 @@ export const editNote = async (
 export const editNoteColor = async (
     noteid: number,
     newColor: string,
+    handleError: (errors: Record<string, string>) => void,
 ): Promise<boolean> => {
     try {
         const res = await api(`/notes/${noteid}/color`, {
@@ -229,6 +235,7 @@ export const editNoteColor = async (
         if (!res.ok) {
             const errors = data.error;
             if (errors) {
+                handleError(errors);
                 console.error(errors);
                 return false;
             }

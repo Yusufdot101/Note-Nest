@@ -10,8 +10,12 @@ import {
     toggleVisibility,
 } from "../utilities/note";
 import { useAuthStore } from "../store/useAuthStore";
+import type { Project } from "../components/ProjectCard";
+import { fetchProject } from "../utilities/project";
 
 const EditNote = () => {
+    const [project, setProject] = useState<Project>();
+
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [color, setColor] = useState("#00FFFF");
@@ -30,9 +34,15 @@ const EditNote = () => {
 
     const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
-        if (!accessToken) return;
+        if (!accessToken || !projectid || !noteid) return;
+
+        const setupProject = async () => {
+            const project = await fetchProject(+projectid);
+            if (!project) return;
+            setProject(project);
+        };
+
         const setupNote = async () => {
-            if (!noteid) return;
             const note = await fetchNote(+noteid);
             if (!note) return;
             setTitle(note.Title);
@@ -41,8 +51,9 @@ const EditNote = () => {
             setVisibility(note.Visibility);
         };
 
+        setupProject();
         setupNote();
-    }, [noteid, accessToken]);
+    }, [noteid, projectid, accessToken]);
 
     const handleSave = async () => {
         if (content === "" || title === "" || visibility === "") return;
@@ -60,10 +71,10 @@ const EditNote = () => {
         let success = await editNote(+noteid, title, content, handleError);
         if (!success) return;
 
-        success = await editNoteColor(+noteid, color);
+        success = await editNoteColor(+noteid, color, handleError);
         if (!success) return;
 
-        success = await toggleVisibility(+noteid, visibility);
+        success = await toggleVisibility(+noteid, visibility, handleError);
         if (!success) return;
 
         navigate(`/projects/${projectid}`);
@@ -90,13 +101,22 @@ const EditNote = () => {
 
             <div className="text-text">
                 <label htmlFor="visibility" className="text-[20px]">
-                    Visibility
-                    <span className="text-[red]">*</span>
+                    <div className="flex gap-[8px] items-center">
+                        <div>
+                            Visibility
+                            <span className="text-[red]">*</span>
+                        </div>
+                        {project?.Visibility === "private" && (
+                            <span>[not editable, project is private]</span>
+                        )}
+                    </div>
                 </label>
                 <div className="flex items-center gap-[10px] text-[20px]">
                     <div className="flex items-center gap-[8px]">
                         <label htmlFor={"private"}>Private</label>
                         <input
+                            disabled={project?.Visibility === "private"}
+                            aria-disabled={project?.Visibility === "private"}
                             type="radio"
                             name="visibility"
                             id="private"
@@ -109,6 +129,8 @@ const EditNote = () => {
                     <div className="flex items-center gap-[8px]">
                         <label htmlFor={"public"}>Public</label>
                         <input
+                            disabled={project?.Visibility === "private"}
+                            aria-disabled={project?.Visibility === "private"}
                             type="radio"
                             name="visibility"
                             id="public"

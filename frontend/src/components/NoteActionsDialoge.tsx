@@ -82,7 +82,7 @@ const NoteActionsDialoge = ({
                         if (!success) return;
                         navigate(0);
                     }}
-                    className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-not-allowed"
+                    className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
                 >
                     Make Note{" "}
                     {note.Visibility === "private" ? "public" : "private"}

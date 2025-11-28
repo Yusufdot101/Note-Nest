@@ -1,5 +1,6 @@
 import React from "react";
 import ColorPicker from "./ColorPicker";
+import { editProjectColor } from "../utilities/project";
 
 export interface Project {
     ID: number;
@@ -16,8 +17,8 @@ export interface Project {
 }
 
 interface ProjectCardProps {
-    SetColor?: React.Dispatch<React.SetStateAction<string>>;
-    Color?: string;
+    color: string;
+    setColor: React.Dispatch<React.SetStateAction<string>>;
     project: Project;
     handleMenuClick?: (
         e: React.MouseEvent<SVGElement> | React.KeyboardEvent<SVGElement>,
@@ -29,13 +30,15 @@ interface ProjectCardProps {
             | React.KeyboardEvent<HTMLDivElement>,
         projectID: number,
     ) => void;
+    colorEditable?: boolean;
 }
 const ProjectCard = ({
+    color,
+    setColor,
     project,
     handleMenuClick,
     handleProjectClick,
-    Color,
-    SetColor,
+    colorEditable = false,
 }: ProjectCardProps) => {
     return (
         <div
@@ -50,7 +53,7 @@ const ProjectCard = ({
                     handleProjectClick(e, project.ID);
                 }
             }}
-            style={{ border: `1px solid ${Color ?? "#ffffff"}` }}
+            style={{ border: `1px solid ${color ?? "#ffffff"}` }}
             className="text-text cursor-pointer bg-primary p-[12px] rounded-[8px] flex flex-col justify-between gap-[12px] h-full"
             onClick={(e) =>
                 handleProjectClick
@@ -62,18 +65,19 @@ const ProjectCard = ({
                 <div className="flex items-center gap-[8px]">
                     <div className="h-[35px]">
                         <ColorPicker
-                            color={Color ?? "#ffffff"}
+                            color={color ?? "#ffffff"}
                             handleChange={
-                                SetColor
+                                colorEditable
                                     ? (value) => {
-                                          SetColor(value);
+                                          editProjectColor(project.ID, value);
+                                          setColor(value);
                                       }
                                     : undefined
                             }
                         />
                     </div>
                     <span
-                        style={{ color: Color }}
+                        style={{ color: color }}
                         className="text-[28px] max-[629px]:text-[20px] font-bold w-full line-clamp-1 underline"
                     >
                         {project.Title}

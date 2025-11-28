@@ -145,3 +145,68 @@ export const deleteProject = async (projectID: number): Promise<boolean> => {
         return false;
     }
 };
+
+export const editProjectColor = async (
+    projectID: number,
+    newColor: string,
+): Promise<boolean> => {
+    try {
+        const res = await api(`/projects/${projectID}/color`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                color: newColor,
+            }),
+        });
+        if (!res) {
+            return false;
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            if (errors) {
+                console.error(errors);
+                return false;
+            }
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
+
+export const toggleProjectVisibility = async (
+    projectID: number,
+    newVisibility: string,
+): Promise<boolean> => {
+    try {
+        const res = await api(`/projects/${projectID}/visibility`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                visibility: newVisibility,
+            }),
+        });
+        if (!res) {
+            return false;
+        }
+        const data = await res.json();
+        if (!res.ok) {
+            const errors = data.error;
+            console.error(errors);
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};

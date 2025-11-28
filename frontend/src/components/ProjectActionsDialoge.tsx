@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Project } from "./ProjectCard";
 import { useNavigate } from "react-router-dom";
-import { deleteProject } from "../utilities/project";
+import { deleteProject, toggleProjectVisibility } from "../utilities/project";
 
 const ProjectActionsDialoge = ({
     color,
@@ -37,6 +37,36 @@ const ProjectActionsDialoge = ({
                 {project.Title}
             </p>
             <ul className="flex flex-col gap-[8px]">
+                <li className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
+                    Add New Note
+                </li>
+
+                <li
+                    onClick={async () => {
+                        const newVisibility =
+                            project.Visibility === "private"
+                                ? "public"
+                                : "private";
+                        if (
+                            !confirm(
+                                `Are you sure you want to make this note ${newVisibility}? `,
+                            )
+                        ) {
+                            return;
+                        }
+                        const success = await toggleProjectVisibility(
+                            project.ID,
+                            newVisibility,
+                        );
+                        if (!success) return;
+                        navigate(0);
+                    }}
+                    className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
+                >
+                    Make Project{" "}
+                    {project.Visibility === "private" ? "public" : "private"}
+                </li>
+
                 <li
                     onClick={() => {
                         navigate(`/projects/${project.ID}/edit`);
@@ -45,9 +75,7 @@ const ProjectActionsDialoge = ({
                 >
                     Edit Project
                 </li>
-                <li className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
-                    Add New Note
-                </li>
+
                 <li
                     onClick={async () => {
                         const success = await deleteProject(project.ID);
