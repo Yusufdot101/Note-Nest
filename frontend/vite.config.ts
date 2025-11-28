@@ -10,4 +10,12 @@ export default defineConfig({
         globals: true,
         setupFiles: "./src/setupTests.ts",
     },
+    server: {
+        host: true, // binds to 0.0.0.0
+        port: 3000,
+        allowedHosts: [
+            "archlinux.local", // hostname
+            "localhost",
+        ],
+    },
 });

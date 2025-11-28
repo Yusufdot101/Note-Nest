@@ -49,7 +49,7 @@ const ProjectActionsDialoge = ({
                                 : "private";
                         if (
                             !confirm(
-                                `Are you sure you want to make this note ${newVisibility}? `,
+                                `Are you sure you want to make this project ${newVisibility}? ${newVisibility === "private" ? "All notes in this project will become private" : ""} `,
                             )
                         ) {
                             return;

@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NoteContent from "../components/NoteContent";
 import NoteTitle from "../components/NoteTitle";
 import SubmitButton from "../components/SubmitButton";
 import { useNavigate, useParams } from "react-router-dom";
 import { newNote } from "../utilities/note";
+import type { Project } from "../components/ProjectCard";
+import { fetchProject } from "../utilities/project";
+import { useAuthStore } from "../store/useAuthStore";
 
 const NoteCreation = () => {
+    const [project, setProject] = useState<Project>();
+
     const [title, setTitle] = useState("");
     const [color, setColor] = useState("#00FFFF");
     const [content, setContent] = useState("");
@@ -46,6 +51,18 @@ const NoteCreation = () => {
         navigate(`/projects/${projectid}`);
     };
 
+    const accessToken = useAuthStore((state) => state.accessToken);
+    useEffect(() => {
+        if (!projectid || !accessToken) return;
+        const setupProject = async () => {
+            const project = await fetchProject(+projectid);
+            if (!project) return;
+            setProject(project);
+        };
+
+        setupProject();
+    }, [accessToken, projectid]);
+
     return (
         <form
             onSubmit={(e) => {
@@ -67,13 +84,22 @@ const NoteCreation = () => {
 
             <div className="text-text">
                 <label htmlFor="visibility" className="text-[20px]">
-                    Visibility
-                    <span className="text-[red]">*</span>
+                    <div className="flex gap-[8px] items-center">
+                        <div>
+                            Visibility
+                            <span className="text-[red]">*</span>
+                        </div>
+                        {project?.Visibility === "private" && (
+                            <span>[not editable, the project is private]</span>
+                        )}
+                    </div>
                 </label>
                 <div className="flex items-center gap-[10px] text-[20px]">
                     <div className="flex items-center gap-[8px]">
                         <label htmlFor={"private"}>Private</label>
                         <input
+                            disabled={project?.Visibility === "private"}
+                            aria-disabled={project?.Visibility === "private"}
                             type="radio"
                             name="visibility"
                             id="private"
@@ -86,6 +112,8 @@ const NoteCreation = () => {
                     <div className="flex items-center gap-[8px]">
                         <label htmlFor={"public"}>Public</label>
                         <input
+                            disabled={project?.Visibility === "private"}
+                            aria-disabled={project?.Visibility === "private"}
                             type="radio"
                             name="visibility"
                             id="public"

@@ -418,8 +418,7 @@ func (r *Repository) updateProjectVisibility(userID, projectID int, visibility s
 		}
 	}
 
-	// save note
-	updateQuery := `
+	updateProjectQuery := `
 		UPDATE projects
 		SET visibility = $1,
 			updated_at = $2
@@ -432,7 +431,29 @@ func (r *Repository) updateProjectVisibility(userID, projectID int, visibility s
 		p.ID,
 	}
 
-	_, err = tx.ExecContext(ctx, updateQuery, values...)
+	_, err = tx.ExecContext(ctx, updateProjectQuery, values...)
+	if err != nil {
+		return err
+	}
+
+	if visibility == "private" {
+		// set the notes visibility to private if the project becomes private because a note cannot be more public than its project
+		updateNotesQuery := `
+			UPDATE notes n
+			SET visibility = 'private'
+			FROM projects p
+			WHERE  p.id = $1
+				AND n.project_id = p.id
+
+		`
+
+		_, err = tx.ExecContext(ctx, updateNotesQuery, projectID)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = tx.ExecContext(ctx, updateProjectQuery, values...)
 	if err != nil {
 		return err
 	}

@@ -107,7 +107,7 @@ const EditNote = () => {
                             <span className="text-[red]">*</span>
                         </div>
                         {project?.Visibility === "private" && (
-                            <span>[not editable, project is private]</span>
+                            <span>[not editable, the project is private]</span>
                         )}
                     </div>
                 </label>
