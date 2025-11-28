@@ -473,12 +473,15 @@ func (r *Repository) updateNoteVisibility(userID, noteID int, visibility string)
 	n := &Note{}
 	fetchNoteQuery := `
 		SELECT id
-		FROM notes
+		FROM notes n
+		INNER JOIN projects p
+		ON n.project_id = p.d
 		WHERE id = $1
+			AND p.user_id = $2
 		FOR UPDATE
 	`
 
-	err = tx.QueryRowContext(ctx, fetchNoteQuery, noteID).Scan(
+	err = tx.QueryRowContext(ctx, fetchNoteQuery, noteID, userID).Scan(
 		&n.ID,
 	)
 	if err != nil {

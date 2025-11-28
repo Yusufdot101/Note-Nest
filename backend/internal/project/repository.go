@@ -311,3 +311,135 @@ func (r *Repository) update(userID, projectID int, title, description, visibilit
 
 	return nil
 }
+
+func (r *Repository) updateProjectColor(userID, projectID int, color string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Println(err)
+		}
+	}()
+
+	// fetch project
+	fetchProjectQuery := `
+		SELECT user_id, color
+		FROM projects
+		WHERE id = $1
+		FOR UPDATE
+	`
+
+	p := &Project{}
+	err = tx.QueryRowContext(ctx, fetchProjectQuery, projectID).Scan(
+		&p.UserID,
+		&p.Color,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return customerrors.ErrNoRecord
+		default:
+			return err
+		}
+	}
+
+	// do checks; cant update others projects
+	if p.UserID != userID {
+		return customerrors.ErrNoRecord
+	}
+
+	// save note
+	updateQuery := `
+		UPDATE projects
+		SET color = $1,
+			updated_at = $2
+		WHERE id = $3
+	`
+
+	values := []any{
+		color,
+		time.Now(),
+		projectID,
+	}
+
+	_, err = tx.ExecContext(ctx, updateQuery, values...)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) updateProjectVisibility(userID, projectID int, visibility string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Println(err)
+		}
+	}()
+
+	// fetch note
+	p := &Project{}
+	fetchNoteQuery := `
+		SELECT id, visibility
+		FROM projects
+		WHERE id = $1
+			AND user_id = $2
+		FOR UPDATE
+	`
+
+	err = tx.QueryRowContext(ctx, fetchNoteQuery, projectID, userID).Scan(
+		&p.ID,
+		&p.Visibility,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return customerrors.ErrNoRecord
+		default:
+			return err
+		}
+	}
+
+	// save note
+	updateQuery := `
+		UPDATE projects
+		SET visibility = $1,
+			updated_at = $2
+		WHERE id = $3
+	`
+
+	values := []any{
+		visibility,
+		time.Now(),
+		p.ID,
+	}
+
+	_, err = tx.ExecContext(ctx, updateQuery, values...)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}

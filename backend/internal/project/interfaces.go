@@ -80,6 +80,8 @@ type Repo interface {
 	getOne(ID int) (*Project, error)
 	delete(projectID int) error
 	update(userID, projectID int, name, description, visibility, color *string) error
+	updateProjectVisibility(userID, projectID int, cleanedVisibility string) error
+	updateProjectColor(userID, projectID int, cleanedColor string) error
 }
 
 type ProjectService struct {

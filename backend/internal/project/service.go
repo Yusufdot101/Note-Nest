@@ -85,3 +85,24 @@ func (ps *ProjectService) updateProject(v *validator.Validator, userID, projectI
 
 	return ps.Repo.update(userID, projectID, title, description, visibility, color)
 }
+
+func (ns *ProjectService) updateProjectVisibility(
+	v *validator.Validator, userID, projectID int, visibility string,
+) error {
+	cleanedVisibility := strings.TrimSpace(visibility)
+	if validateVisibility(v, cleanedVisibility); !v.IsValid() {
+		return validator.ErrFailedValidation
+	}
+
+	return ns.Repo.updateProjectVisibility(userID, projectID, cleanedVisibility)
+}
+
+func (ns *ProjectService) updateProjectColor(
+	v *validator.Validator, userID, projectID int, color string,
+) error {
+	cleanedColor := strings.TrimSpace(color)
+	if validateColor(v, cleanedColor); !v.IsValid() {
+		return validator.ErrFailedValidation
+	}
+	return ns.Repo.updateProjectColor(userID, projectID, cleanedColor)
+}
