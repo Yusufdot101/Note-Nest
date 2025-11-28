@@ -37,7 +37,21 @@ const ProjectActionsDialoge = ({
                 {project.Title}
             </p>
             <ul className="flex flex-col gap-[8px]">
-                <li className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer">
+                <li
+                    onClick={() =>
+                        navigate(`/projects/${project.ID}/notes/new`)
+                    }
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            navigate(`/projects/${project.ID}/notes/new`);
+                        }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="add new note"
+                    className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
+                >
                     Add New Note
                 </li>
 

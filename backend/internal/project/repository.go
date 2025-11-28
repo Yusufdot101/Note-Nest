@@ -453,11 +453,6 @@ func (r *Repository) updateProjectVisibility(userID, projectID int, visibility s
 		}
 	}
 
-	_, err = tx.ExecContext(ctx, updateProjectQuery, values...)
-	if err != nil {
-		return err
-	}
-
 	if err := tx.Commit(); err != nil {
 		return err
 	}
