@@ -9,6 +9,7 @@ export interface Comment {
     Content: string;
     LikesCount: number;
     Username: string;
+    IsLiked: boolean;
 }
 
 export const newComment = async (
@@ -48,7 +49,17 @@ export const fetchComments = async (
         const comments = data.comments;
         if (!Array.isArray(comments)) return undefined;
 
-        return comments;
+        const commentsTwo = await Promise.all(
+            comments.map(async (comment: Comment) => {
+                const isLiked = await commentIsLiked(comment.ID);
+                return {
+                    ...comment,
+                    IsLiked: isLiked,
+                };
+            }),
+        );
+
+        return commentsTwo;
     } catch (error) {
         alert("an error occurred, please try again");
         console.error(error);
@@ -90,6 +101,52 @@ export const deleteComment = async (commentID: number): Promise<boolean> => {
         if (!res.ok) return false;
 
         return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
+
+export const likeUnlinkeComment = async (
+    commentID: number,
+    action: "like" | "unlike",
+): Promise<boolean> => {
+    try {
+        const res = await api(`/comments/${commentID}/like`, {
+            method: action === "like" ? "POST" : "DELETE",
+        });
+
+        if (!res) {
+            return false;
+        }
+
+        if (!res.ok) {
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        alert("an error occurred, please try again");
+        console.error(error);
+        return false;
+    }
+};
+
+const commentIsLiked = async (commentID: number): Promise<boolean> => {
+    try {
+        const res = await api(`/comments/${commentID}/like`);
+
+        if (!res) {
+            return false;
+        }
+
+        if (!res.ok) {
+            return false;
+        }
+
+        const data = await res.json();
+        return data.state ?? false;
     } catch (error) {
         alert("an error occurred, please try again");
         console.error(error);

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import ColorPicker from "./ColorPicker";
-import type { Comment } from "../utilities/comments";
+import { likeUnlinkeComment, type Comment } from "../utilities/comments";
 import { useAuthStore } from "../store/useAuthStore";
 import SubmitButton from "./SubmitButton";
+import LikeButton from "./LikeButton";
 
 interface CommentCardProps {
     comment: Comment;
@@ -24,11 +25,19 @@ const CommentCard = ({
 }: CommentCardProps) => {
     // TODO: enable liking comments and also add color comments
     const [color, setColor] = useState("white");
-    const [liked, setLike] = useState(false);
+    const [liked, setLike] = useState(comment.IsLiked);
 
     const [content, setContent] = useState(comment.Content);
 
     const handleLike = async () => {
+        const success = await likeUnlinkeComment(
+            comment.ID,
+            liked ? "unlike" : "like",
+        );
+        if (!success) return;
+        comment.LikesCount = liked
+            ? comment.LikesCount - 1
+            : comment.LikesCount + 1;
         setLike((prev) => !prev);
     };
 
@@ -138,41 +147,11 @@ const CommentCard = ({
             <div className="flex flex-col gap-[12px] font-bold">
                 <div className="flex flex-col gap-[4px]">
                     <div className="flex gap-[12px] font-semibold">
-                        <svg
-                            onClick={handleLike}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                    handleLike();
-                                }
-                            }}
-                            role="button"
-                            aria-label="like note"
-                            tabIndex={0}
-                            width="28"
-                            height="28"
-                            className="cursor-pointer"
-                            viewBox="0 0 24 24"
-                            fill={`${liked ? "white" : "none"}`}
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                            <g
-                                id="SVGRepo_tracerCarrier"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            ></g>
-                            <g id="SVGRepo_iconCarrier">
-                                {" "}
-                                <path
-                                    d="M8 10V20M8 10L4 9.99998V20L8 20M8 10L13.1956 3.93847C13.6886 3.3633 14.4642 3.11604 15.1992 3.29977L15.2467 3.31166C16.5885 3.64711 17.1929 5.21057 16.4258 6.36135L14 9.99998H18.5604C19.8225 9.99998 20.7691 11.1546 20.5216 12.3922L19.3216 18.3922C19.1346 19.3271 18.3138 20 17.3604 20L8 20"
-                                    stroke="#ffffff"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                ></path>{" "}
-                            </g>
-                        </svg>
-                        <span>{comment.LikesCount}</span>
+                        <LikeButton
+                            onToggle={handleLike}
+                            liked={liked}
+                            count={comment.LikesCount}
+                        />
                     </div>
                 </div>
             </div>
