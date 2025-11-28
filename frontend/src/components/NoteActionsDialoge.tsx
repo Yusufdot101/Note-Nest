@@ -3,15 +3,19 @@ import { useNavigate } from "react-router-dom";
 import type { Note } from "./NoteCard";
 import { deleteNote, toggleVisibility } from "../utilities/note";
 
+interface props {
+    color: string;
+    handleClose: () => void;
+    note: Note;
+    projectVisibility: string;
+}
+
 const NoteActionsDialoge = ({
     color,
     handleClose,
     note,
-}: {
-    color: string;
-    handleClose: () => void;
-    note: Note;
-}) => {
+    projectVisibility,
+}: props) => {
     const ref = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -58,6 +62,7 @@ const NoteActionsDialoge = ({
                     Edit Note
                 </li>
                 <li
+                    hidden={projectVisibility === "private"}
                     onClick={async () => {
                         const newVisibility =
                             note.Visibility === "private"
@@ -77,7 +82,7 @@ const NoteActionsDialoge = ({
                         if (!success) return;
                         navigate(0);
                     }}
-                    className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-pointer"
+                    className="bg-[#747474] p-[8px] hover:opacity-80 duration-300 cursor-not-allowed"
                 >
                     Make Note{" "}
                     {note.Visibility === "private" ? "public" : "private"}

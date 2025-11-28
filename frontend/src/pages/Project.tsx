@@ -75,7 +75,9 @@ const ProjectPage = () => {
                         handleMenuClick={
                             project.UserID === userID
                                 ? (
-                                      e: React.MouseEvent<SVGElement>,
+                                      e:
+                                          | React.MouseEvent<SVGElement>
+                                          | React.KeyboardEvent<SVGElement>,
                                       project: Project,
                                   ) => {
                                       e.stopPropagation();

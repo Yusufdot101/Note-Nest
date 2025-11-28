@@ -315,6 +315,7 @@ const NotePage = () => {
                     color={note.Color}
                     note={note}
                     handleClose={() => setShowDialoge(false)}
+                    projectVisibility={project?.Visibility ?? "private"}
                 />
             ) : undefined}
         </div>
