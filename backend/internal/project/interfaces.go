@@ -74,6 +74,14 @@ func (mr *MockRepo) update(userID, projectID int, name, description, visibility,
 	return nil
 }
 
+func (mr *MockRepo) updateProjectVisibility(userID, projectID int, cleanedVisibility string) error {
+	return nil
+}
+
+func (mr *MockRepo) updateProjectColor(userID, projectID int, cleanedColor string) error {
+	return nil
+}
+
 type Repo interface {
 	insert(p *Project) error
 	get(currentUserID, userID int, title, visibility string, filter filter.Filter) ([]*Project, error)
