@@ -26,6 +26,7 @@ const CommentCard = ({
     // TODO: enable liking comments and also add color comments
     const [color, setColor] = useState("white");
     const [liked, setLike] = useState(comment.IsLiked);
+    const [likesCount, setLikesCount] = useState(comment.LikesCount);
 
     const [content, setContent] = useState(comment.Content);
 
@@ -35,9 +36,7 @@ const CommentCard = ({
             liked ? "unlike" : "like",
         );
         if (!success) return;
-        comment.LikesCount = liked
-            ? comment.LikesCount - 1
-            : comment.LikesCount + 1;
+        setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
         setLike((prev) => !prev);
     };
 
@@ -150,7 +149,7 @@ const CommentCard = ({
                         <LikeButton
                             onToggle={handleLike}
                             liked={liked}
-                            count={comment.LikesCount}
+                            count={likesCount}
                         />
                     </div>
                 </div>
