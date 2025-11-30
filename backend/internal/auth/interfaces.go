@@ -4,6 +4,7 @@ package auth provides authentication logic and handlers like logingin and signin
 package auth
 
 import (
+	"github.com/Yusufdot101/note-nest/internal/mailer"
 	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/Yusufdot101/note-nest/internal/user"
 )
@@ -11,6 +12,7 @@ import (
 type authService struct {
 	userSvc  *user.UserService
 	tokenSvc *token.TokenService
+	mailer   *mailer.Mailer
 }
 
 type authHandler struct {

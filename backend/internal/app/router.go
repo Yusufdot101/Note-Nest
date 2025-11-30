@@ -8,6 +8,7 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/comment"
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/like"
+	"github.com/Yusufdot101/note-nest/internal/mailer"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/note"
 	"github.com/Yusufdot101/note-nest/internal/project"
@@ -16,11 +17,12 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func configureRouter(router *httprouter.Router, DB *sql.DB, rateLimiterEnabled bool, rateLimiterBurst int, rateLimiterRate float64) http.Handler {
+func configureRouter(router *httprouter.Router, cfg *config, DB *sql.DB) http.Handler {
 	router.NotFound = http.HandlerFunc(customerrors.NotFoundErrorResponse)
 	router.MethodNotAllowed = http.HandlerFunc(customerrors.MethodNotAllowedErrorResponse)
 
-	auth.RegisterRoutes(router, DB)
+	m := mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Sender, cfg.SMTP.Username, cfg.SMTP.Password)
+	auth.RegisterRoutes(router, DB, m)
 	user.RegisterRoutes(router, DB)
 	project.RegisterRoutes(router, DB)
 	note.RegisterRoutes(router, DB)
@@ -28,5 +30,5 @@ func configureRouter(router *httprouter.Router, DB *sql.DB, rateLimiterEnabled b
 	comment.RegisterRoutes(router, DB)
 	save.RegisterRoutes(router, DB)
 
-	return middleware.EnableCORS(middleware.RecoverPanic(middleware.RateLimit(router, rateLimiterEnabled, rateLimiterBurst, rateLimiterRate)))
+	return middleware.EnableCORS(middleware.RecoverPanic(middleware.RateLimit(router, cfg.Limiter.Enabled, cfg.Limiter.Burst, cfg.Limiter.Rate)))
 }

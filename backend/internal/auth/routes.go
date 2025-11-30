@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/Yusufdot101/note-nest/internal/mailer"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/Yusufdot101/note-nest/internal/user"
@@ -11,7 +12,7 @@ import (
 )
 
 // RegisterRoutes registers the auth api routes
-func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
+func RegisterRoutes(router *httprouter.Router, DB *sql.DB, mailer *mailer.Mailer) {
 	h := newHandler(&authService{
 		userSvc: &user.UserService{
 			Repo: &user.Repository{
@@ -23,6 +24,7 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 				DB: DB,
 			},
 		},
+		mailer: mailer,
 	})
 
 	router.Handler(http.MethodPost, "/auth/signup", http.HandlerFunc(h.signupUser))

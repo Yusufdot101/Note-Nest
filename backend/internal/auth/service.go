@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"log"
+
 	"github.com/Yusufdot101/note-nest/internal/token"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
@@ -24,6 +27,7 @@ func (as *authService) registerUser(v *validator.Validator, name, email, passwor
 		return "", "", err
 	}
 
+	as.sendEmail(u.Email, "user_welcome.tmpl.html", u)
 	return as.getTokens(u.ID)
 }
 
@@ -34,4 +38,13 @@ func (as *authService) loginUser(v *validator.Validator, email, password string)
 	}
 
 	return as.getTokens(u.ID)
+}
+
+func (as *authService) sendEmail(recipient, templateFile string, u *user.User) {
+	go func() {
+		err := as.mailer.Send(recipient, templateFile, u)
+		if err != nil {
+			log.Println("error")
+		}
+	}()
 }

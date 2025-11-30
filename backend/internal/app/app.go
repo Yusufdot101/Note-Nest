@@ -32,6 +32,13 @@ type config struct {
 		Burst   int
 		Rate    float64
 	}
+	SMTP struct {
+		Host     string
+		Port     int
+		Sender   string
+		Username string
+		Password string
+	}
 }
 
 // Application is the api application sturct that has the config and the Database
@@ -46,7 +53,14 @@ func NewApplication() (*Application, error) {
 		"DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", "DB_NAME", "SSL_MODE",
 		"TRUSTED_ORIGINS", "MAX_OPEN_CONNECTIONS", "MAX_IDLE_CONNECTIONS",
 		"CONNECTION_MAX_IDLE_TIME", "RATE_LIMIT_BURST", "RATE_LIMIT_RATE",
+		"SMTP_HOST", "SMTP_PORT", "SMTP_SENDER",
 	}
+
+	emailProvider := os.Getenv("EMAIL_PROVIDER")
+	if emailProvider == "mailtrap" {
+		requiredEnvVars = append(requiredEnvVars, "SMTP_USERNAME", "SMTP_PASSWORD")
+	}
+
 	for _, envVar := range requiredEnvVars {
 		if os.Getenv(envVar) == "" {
 			return nil, fmt.Errorf("required environment variable %s is not set", envVar)
@@ -85,6 +99,15 @@ func NewApplication() (*Application, error) {
 
 	rateLimiterEnabled := os.Getenv("RATE_LIMIT_ENABLED") != "false" // default true
 
+	host := os.Getenv("SMTP_HOST")
+	port, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
+	if err != nil {
+		return nil, err
+	}
+	sender := os.Getenv("SMTP_SENDER")
+	username := os.Getenv("SMTP_USERNAME")
+	password := os.Getenv("SMTP_PASSWORD")
+
 	cfg := &config{
 		Port: PORT,
 		DB: struct {
@@ -107,6 +130,19 @@ func NewApplication() (*Application, error) {
 			Burst:   rateLimiterBurst,
 			Rate:    rateLimiterRate,
 		},
+		SMTP: struct {
+			Host     string
+			Port     int
+			Sender   string
+			Username string
+			Password string
+		}{
+			Host:     host,
+			Port:     port,
+			Sender:   sender,
+			Username: username,
+			Password: password,
+		},
 	}
 
 	DB, err := openDB(cfg)
@@ -114,14 +150,13 @@ func NewApplication() (*Application, error) {
 		return nil, err
 	}
 
-	router := httprouter.New()
-	handler := configureRouter(router, DB, cfg.Limiter.Enabled, cfg.Limiter.Burst, cfg.Limiter.Rate)
-	cfg.Handler = handler
-
 	app := &Application{
-		Config: *cfg,
-		DB:     DB,
+		DB: DB,
 	}
+	router := httprouter.New()
+	handler := configureRouter(router, cfg, app.DB)
+	cfg.Handler = handler
+	app.Config = *cfg
 
 	return app, nil
 }

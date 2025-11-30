@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Yusufdot101/note-nest/internal/mailer"
 	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/Yusufdot101/note-nest/internal/user"
 )
@@ -54,6 +55,7 @@ func TestSignupHandler(t *testing.T) {
 				tokenSvc: &token.TokenService{
 					Repo: tokenRepo,
 				},
+				mailer: &mailer.Mailer{},
 			})
 
 			msg := fmt.Sprintf(`{
