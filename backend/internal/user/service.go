@@ -65,3 +65,12 @@ func (us *UserService) GetUserByEmail(v *validator.Validator, email string) (*Us
 
 	return us.Repo.GetUserByEmail(trimmedEmail)
 }
+
+func (us *UserService) UpdatePasswordUsingToken(v *validator.Validator, token, newPassword string) error {
+	trimmedPassword := strings.TrimSpace(newPassword)
+	if validatePassword(v, trimmedPassword); !v.IsValid() {
+		return validator.ErrFailedValidation
+	}
+
+	return us.Repo.UpdatePasswordUsingToken(token, trimmedPassword)
+}

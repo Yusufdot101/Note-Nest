@@ -32,4 +32,5 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB, mailer Mailer) {
 	router.Handler(http.MethodPut, "/auth/logout", middleware.RequireRefresh(DB, h.logoutUser))
 
 	router.HandlerFunc(http.MethodPost, "/auth/forgot-password", h.forgotPassword)
+	router.HandlerFunc(http.MethodPost, "/auth/reset-password", h.resetPassword)
 }

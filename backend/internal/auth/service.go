@@ -88,6 +88,10 @@ func (as *authService) forgotPassword(v *validator.Validator, email string) erro
 	return nil
 }
 
+func (as *authService) resetPassword(v *validator.Validator, token, newPassword string) error {
+	return as.userSvc.UpdatePasswordUsingToken(v, token, newPassword)
+}
+
 func (as *authService) sendEmail(recipient, templateFile string, data any) {
 	go func() {
 		err := as.mailer.Send(recipient, templateFile, data)

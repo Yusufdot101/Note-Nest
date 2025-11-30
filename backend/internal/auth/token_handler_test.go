@@ -58,7 +58,7 @@ func TestNewAccessToken(t *testing.T) {
 	claims := token.Claims.(jwt.MapClaims)
 	issuer, ok := claims["iss"].(string)
 	if !ok || issuer != os.Getenv("JWT_ISSUER") {
-		// customerrors.InvalidAuthenticationTokenErrorResponse(w)
+		// customerrors.InvalidTokenErrorResponse(w)
 		t.Error("invalid issuer")
 	}
 

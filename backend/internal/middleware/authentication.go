@@ -57,25 +57,25 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 		tokenString := headParts[1]
 		token, err := token.ValidateJWT(tokenString, jwtSecret)
 		if err != nil {
-			customerrors.InvalidAuthenticationTokenErrorResponse(w)
+			customerrors.InvalidTokenErrorResponse(w)
 			return
 		}
 
 		claims := token.Claims.(jwt.MapClaims)
 		issuer, ok := claims["iss"].(string)
 		if !ok || issuer != os.Getenv("JWT_ISSUER") {
-			customerrors.InvalidAuthenticationTokenErrorResponse(w)
+			customerrors.InvalidTokenErrorResponse(w)
 			return
 		}
 
 		subStr, ok := claims["sub"].(string)
 		if !ok || subStr == "" {
-			customerrors.InvalidAuthenticationTokenErrorResponse(w)
+			customerrors.InvalidTokenErrorResponse(w)
 			return
 		}
 		subInt, err := strconv.Atoi(subStr)
 		if err != nil {
-			customerrors.InvalidAuthenticationTokenErrorResponse(w)
+			customerrors.InvalidTokenErrorResponse(w)
 			return
 		}
 
@@ -110,7 +110,7 @@ func RequireRefresh(DB *sql.DB, next http.HandlerFunc) http.Handler {
 		if err != nil {
 			switch {
 			case errors.Is(err, customerrors.ErrNoRecord):
-				customerrors.InvalidAuthenticationTokenErrorResponse(w)
+				customerrors.InvalidTokenErrorResponse(w)
 			default:
 				customerrors.ServerErrorResponse(w, err)
 			}

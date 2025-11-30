@@ -55,6 +55,10 @@ func (mur *mockUserRepo) GetUserByEmail(email string) (*user.User, error) {
 	return mur.GotUser, nil
 }
 
+func (mur *mockUserRepo) UpdatePasswordUsingToken(token, newPassword string) error {
+	return nil
+}
+
 func TestMain(m *testing.M) {
 	// setup
 	utilities.LoadEnv("test.env")

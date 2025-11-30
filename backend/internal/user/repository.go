@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
@@ -75,4 +76,80 @@ func (r *Repository) GetUserByEmail(email string) (*User, error) {
 		}
 	}
 	return u, nil
+}
+
+func (r *Repository) UpdatePasswordUsingToken(tokenString, newPassword string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Println("rollback error: ", err)
+		}
+	}()
+
+	fetchQuery := `
+		SELECT u.id, u.password_hash, last_updated_at
+		FROM users u
+		INNER JOIN tokens t
+		ON t.user_id = u.id
+		WHERE t.token_string = $1 AND t.expires > Now()
+		FOR UPDATE
+	`
+	u := &User{}
+	err = tx.QueryRowContext(ctx, fetchQuery, tokenString).Scan(
+		&u.ID,
+		&u.Password.hash,
+		&u.LastUpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return customerrors.ErrNoRecord
+		}
+		return err
+	}
+
+	err = u.Password.Set(newPassword)
+	if err != nil {
+		return err
+	}
+
+	updateQuery := `
+		UPDATE users
+		set password_hash = $1,
+			last_updated_at = $2
+		WHERE id = $3
+	`
+	_, err = tx.ExecContext(ctx, updateQuery, u.Password.hash, time.Now(), u.ID)
+	if err != nil {
+		return err
+	}
+
+	deleteQurey := `
+		DELETE FROM tokens
+		WHERE token_string = $1
+	`
+	res, err := tx.ExecContext(ctx, deleteQurey, tokenString)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return customerrors.ErrNoRecord
+	}
+
+	if err := tx.Commit(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+		return err
+	}
+
+	return nil
 }

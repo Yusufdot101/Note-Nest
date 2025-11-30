@@ -69,8 +69,8 @@ func RequireAuthenticationErrorResponse(w http.ResponseWriter) {
 	errorResponse(w, msg, http.StatusUnauthorized)
 }
 
-// InvalidAuthenticationTokenErrorResponse is a response used when an invalid authorization token is provided
-func InvalidAuthenticationTokenErrorResponse(w http.ResponseWriter) {
+// InvalidTokenErrorResponse is a response used when an invalid authorization token is provided
+func InvalidTokenErrorResponse(w http.ResponseWriter) {
 	msg := map[string]string{"message": "invalid or expired token"}
 	errorResponse(w, msg, http.StatusUnauthorized)
 }

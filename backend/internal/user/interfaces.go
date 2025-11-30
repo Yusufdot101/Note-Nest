@@ -16,6 +16,7 @@ var EmailRX = regexp.MustCompile(
 type Repo interface {
 	InsertUser(u *User) error
 	GetUserByEmail(email string) (*User, error)
+	UpdatePasswordUsingToken(token, newPassword string) error
 }
 
 type UserService struct {
