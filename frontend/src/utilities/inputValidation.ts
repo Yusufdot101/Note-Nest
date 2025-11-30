@@ -35,7 +35,7 @@ export const getConfirmPasswordErrorMessages = (
     let message = "";
     message = getPasswordErrorMessages(confirmPassword);
     if (password !== confirmPassword) {
-        message += ` Passwords don't match`;
+        message += message ? " Passwords don't match" : "Passwords don't match";
     }
     return message;
 };

@@ -48,11 +48,14 @@ const ResetPassword = () => {
     };
 
     useEffect(() => {
-        setPasswordError(getPasswordErrorMessages(password));
+        setPasswordError(getPasswordErrorMessages(password.trim()));
     }, [password]);
     useEffect(() => {
         setConfirmPasswordError(
-            getConfirmPasswordErrorMessages(password, confirmPassword),
+            getConfirmPasswordErrorMessages(
+                password.trim(),
+                confirmPassword.trim(),
+            ),
         );
     }, [password, confirmPassword]);
 

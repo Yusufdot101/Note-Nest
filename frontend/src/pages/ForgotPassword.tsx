@@ -45,7 +45,7 @@ const ForgotPassword = () => {
     };
 
     useEffect(() => {
-        setEmailError(getEmailErrorMessages(email));
+        setEmailError(getEmailErrorMessages(email.trim()));
     }, [email]);
 
     return (
@@ -76,7 +76,7 @@ const ForgotPassword = () => {
                     </p>
                 </div>
                 <SubmitButton
-                    aria_label={"login"}
+                    aria_label={"send password reset link"}
                     handleSubmit={() => {}}
                     text={"Send Reset Link"}
                     type="submit"
@@ -84,8 +84,8 @@ const ForgotPassword = () => {
                 <div
                     className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showForgotPasswordErrors ? "hidden" : ""}`}
                 >
-                    {forgotPasswordError.map((error) => (
-                        <p key={error}>{error}</p>
+                    {forgotPasswordError.map((error, index) => (
+                        <p key={index}>{error}</p>
                     ))}
                 </div>
             </form>

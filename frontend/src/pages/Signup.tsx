@@ -52,10 +52,10 @@ const Signup = () => {
         setUsernameError(getUsernameErrorMessages(username));
     }, [username]);
     useEffect(() => {
-        setEmailError(getEmailErrorMessages(email));
+        setEmailError(getEmailErrorMessages(email.trim()));
     }, [email]);
     useEffect(() => {
-        setPasswordError(getPasswordErrorMessages(password));
+        setPasswordError(getPasswordErrorMessages(password.trim()));
     }, [password]);
 
     return (
