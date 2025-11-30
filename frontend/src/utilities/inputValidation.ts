@@ -28,6 +28,18 @@ export const getPasswordErrorMessages = (password: string): string => {
     return message;
 };
 
+export const getConfirmPasswordErrorMessages = (
+    password: string,
+    confirmPassword: string,
+): string => {
+    let message = "";
+    message = getPasswordErrorMessages(confirmPassword);
+    if (password !== confirmPassword) {
+        message += ` Passwords don't match`;
+    }
+    return message;
+};
+
 export const getProjectTitleErrorMessages = (projectTitle: string): string => {
     let message = "";
     const minLength = 1;

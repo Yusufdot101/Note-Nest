@@ -14,6 +14,8 @@ import NotePage from "./pages/Note";
 import EditNote from "./pages/EditNote";
 import Notes from "./pages/Notes";
 import SavedNotes from "./pages/SavedNotes";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const router = createBrowserRouter([
     {
@@ -22,6 +24,8 @@ const router = createBrowserRouter([
             { path: "/", element: <Home /> },
             { path: "/signup", element: <Signup /> },
             { path: "/login", element: <Login /> },
+            { path: "/forgot-password", element: <ForgotPassword /> },
+            { path: "/reset-password", element: <ResetPassword /> },
             { path: "/projects/new", element: <NewProject /> },
             { path: "/projects", element: <AllProjects /> },
             { path: "/projects/:id", element: <ProjectPage /> },
