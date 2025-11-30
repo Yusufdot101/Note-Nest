@@ -16,6 +16,15 @@ type Mailer struct {
 	sender string
 }
 
+type MockMailer struct {
+	SendCalled bool
+}
+
+func (mr *MockMailer) Send(recipient, templateFile string, data any) error {
+	mr.SendCalled = true
+	return nil
+}
+
 func New(host string, port int, sender, username, password string) *Mailer {
 	dialer := mail.NewDialer(host, port, username, password)
 	return &Mailer{
@@ -25,7 +34,7 @@ func New(host string, port int, sender, username, password string) *Mailer {
 }
 
 func (m Mailer) Send(recipient, templateFile string, data any) error {
-	tmpl, err := template.New("emali").ParseFS(templateFS, "templates/"+templateFile)
+	tmpl, err := template.New("email").ParseFS(templateFS, "templates/"+templateFile)
 	if err != nil {
 		return err
 	}

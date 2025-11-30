@@ -45,6 +45,7 @@ func TestSignupHandler(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		mockMailer := &mailer.MockMailer{}
 		t.Run(test.name, func(t *testing.T) {
 			userRepo := &mockUserRepo{}
 			tokenRepo := &mockTokenRepo{}
@@ -55,7 +56,7 @@ func TestSignupHandler(t *testing.T) {
 				tokenSvc: &token.TokenService{
 					Repo: tokenRepo,
 				},
-				mailer: &mailer.Mailer{},
+				mailer: mockMailer,
 			})
 
 			msg := fmt.Sprintf(`{

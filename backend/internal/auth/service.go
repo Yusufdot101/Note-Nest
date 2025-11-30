@@ -44,7 +44,7 @@ func (as *authService) sendEmail(recipient, templateFile string, u *user.User) {
 	go func() {
 		err := as.mailer.Send(recipient, templateFile, u)
 		if err != nil {
-			log.Println("error")
+			log.Printf("failed to send email to %s: %v", recipient, err)
 		}
 	}()
 }
