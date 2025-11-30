@@ -79,7 +79,7 @@ func (as *authService) forgotPassword(v *validator.Validator, email string) erro
 			ExpiryTime string
 		}{
 			Name:       u.Name,
-			ResetURL:   fmt.Sprintf("%s/password-reset?%s", baseURL, resetToken),
+			ResetURL:   fmt.Sprintf("%s/reset-password?token=%s", baseURL, resetToken),
 			ExpiryTime: formattedTime,
 		}
 		as.sendEmail(u.Email, "password_reset.tmpl.html", data)
