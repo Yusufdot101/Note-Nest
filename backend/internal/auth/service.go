@@ -66,13 +66,20 @@ func (as *authService) forgotPassword(v *validator.Validator, email string) erro
 			log.Println("token generation error: ", err)
 			return
 		}
+
+		baseURL := os.Getenv("FRONTEND_BASE_URL")
+		if baseURL == "" {
+			log.Println("FRONTEND_BASE_URL not set")
+			return
+		}
+
 		data := struct {
 			Name       string
 			ResetURL   string
 			ExpiryTime string
 		}{
 			Name:       u.Name,
-			ResetURL:   fmt.Sprintf("http://localhost:3000/password-reset?%s", resetToken),
+			ResetURL:   fmt.Sprintf("%s/password-reset?%s", baseURL, resetToken),
 			ExpiryTime: formattedTime,
 		}
 		as.sendEmail(u.Email, "password_reset.tmpl.html", data)

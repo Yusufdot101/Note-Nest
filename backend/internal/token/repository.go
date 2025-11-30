@@ -36,7 +36,7 @@ func (r *Repository) InsertToken(token *Token) error {
 func (r *Repository) GetByTokenStringAndUse(tokenString string, tokenUse TokenUse) (*Token, error) {
 	query := `
 		SELECT user_id, token_string FROM tokens
-		WHERE token_string = $1 AND type = $2
+		WHERE token_string = $1 AND use = $2
 			AND expires > NOW()
 	`
 
@@ -63,7 +63,7 @@ func (r *Repository) GetByTokenStringAndUse(tokenString string, tokenUse TokenUs
 func (r *Repository) DeleteByTokenStringAndUse(tokenString string, tokenUse TokenUse) error {
 	query := `
 		DELETE FROM tokens
-		WHERE token_string = $1 AND type = $2
+		WHERE token_string = $1 AND use = $2
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

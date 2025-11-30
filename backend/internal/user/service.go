@@ -58,9 +58,10 @@ func (us *UserService) VerifyAndGetUser(v *validator.Validator, email, password 
 }
 
 func (us *UserService) GetUserByEmail(v *validator.Validator, email string) (*User, error) {
-	if validateEmail(v, email); !v.IsValid() {
+	trimmedEmail := strings.TrimSpace(email)
+	if validateEmail(v, trimmedEmail); !v.IsValid() {
 		return nil, validator.ErrFailedValidation
 	}
 
-	return us.Repo.GetUserByEmail(email)
+	return us.Repo.GetUserByEmail(trimmedEmail)
 }

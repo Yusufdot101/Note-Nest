@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
@@ -27,6 +28,7 @@ func (h authHandler) forgotPassword(w http.ResponseWriter, r *http.Request) {
 			customerrors.FailedValidationErrorResponse(w, v.Errors)
 			return
 		}
+		log.Printf("forgotPassword error: %v\n", err)
 	}
 
 	err = utilities.WriteJSON(w, utilities.Message{"message": "If an account exists with that email, a reset link has been sent."}, http.StatusOK)
