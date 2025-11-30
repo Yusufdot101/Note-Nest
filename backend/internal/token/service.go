@@ -18,6 +18,8 @@ func (ts *TokenService) NewToken(tokenType TokenType, tokenUse TokenUse, userID 
 		ttl, err = time.ParseDuration(os.Getenv("REFRESH_TOKEN_EXPIRATION_TIME"))
 	case ACCESS:
 		ttl, err = time.ParseDuration(os.Getenv("ACCESS_TOKEN_EXPIRATION_TIME"))
+	case RESET:
+		ttl, err = time.ParseDuration(os.Getenv("RESET_PASSWORD_TOKEN_EXPIRATION_TIME"))
 	default:
 		err = errors.New("invalid tokenType")
 	}
@@ -31,7 +33,7 @@ func (ts *TokenService) NewToken(tokenType TokenType, tokenUse TokenUse, userID 
 		jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 		token, err = createJWT(jwtSecret, ttl, userID)
 	case RANDOMSTRING:
-		token, err = ts.generateRandomToken(ttl, userID)
+		token, err = ts.generateRandomToken(ttl, userID, tokenUse)
 	default:
 		err = errors.New("invalid token type")
 	}
@@ -43,8 +45,8 @@ func (ts *TokenService) NewToken(tokenType TokenType, tokenUse TokenUse, userID 
 	return token, nil
 }
 
-func (ts *TokenService) DeleteToken(tokenString string) error {
-	return ts.Repo.DeleteByTokenString(tokenString)
+func (ts *TokenService) DeleteToken(tokenString string, tokenType TokenUse) error {
+	return ts.Repo.DeleteByTokenStringAndUse(tokenString, tokenType)
 }
 
 func createJWT(jwtSecret []byte, ttl time.Duration, userID int) (string, error) {
@@ -72,11 +74,12 @@ func createJWT(jwtSecret []byte, ttl time.Duration, userID int) (string, error) 
 	return token.SignedString(jwtSecret)
 }
 
-func (ts *TokenService) generateRandomToken(ttl time.Duration, userID int) (string, error) {
+func (ts *TokenService) generateRandomToken(ttl time.Duration, userID int, tokenUse TokenUse) (string, error) {
 	token := &Token{
 		UserID:      userID,
 		Expires:     time.Now().Add(ttl),
 		TokenString: uuid.New().String(),
+		Use:         tokenUse,
 	}
 	err := ts.Repo.InsertToken(token)
 	return token.TokenString, err

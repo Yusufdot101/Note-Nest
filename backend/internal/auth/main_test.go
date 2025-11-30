@@ -10,8 +10,8 @@ import (
 )
 
 type mockTokenRepo struct {
-	InsertTokenCalled         bool
-	DeleteByTokenStringCalled bool
+	InsertTokenCalled               bool
+	DeleteByTokenStringAndUseCalled bool
 }
 
 func (mtr *mockTokenRepo) InsertToken(token *token.Token) error {
@@ -19,12 +19,12 @@ func (mtr *mockTokenRepo) InsertToken(token *token.Token) error {
 	return nil
 }
 
-func (mtr *mockTokenRepo) GetByTokenString(tokenString string) (*token.Token, error) {
+func (mtr *mockTokenRepo) GetByTokenStringAndUse(tokenString string, tokenUse token.TokenUse) (*token.Token, error) {
 	return nil, nil
 }
 
-func (mtr *mockTokenRepo) DeleteByTokenString(tokenString string) error {
-	mtr.DeleteByTokenStringCalled = true
+func (mtr *mockTokenRepo) DeleteByTokenStringAndUse(tokenString string, tokUse token.TokenUse) error {
+	mtr.DeleteByTokenStringAndUseCalled = true
 	return nil
 }
 

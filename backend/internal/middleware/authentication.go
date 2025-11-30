@@ -106,7 +106,7 @@ func RequireRefresh(DB *sql.DB, next http.HandlerFunc) http.Handler {
 				DB: DB,
 			},
 		}
-		tk, err := svc.Repo.GetByTokenString(tokenString)
+		tk, err := svc.Repo.GetByTokenStringAndUse(tokenString, token.REFRESH)
 		if err != nil {
 			switch {
 			case errors.Is(err, customerrors.ErrNoRecord):

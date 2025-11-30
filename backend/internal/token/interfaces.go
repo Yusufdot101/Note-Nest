@@ -13,6 +13,7 @@ const (
 
 	ACCESS  TokenUse = "access"
 	REFRESH TokenUse = "refresh"
+	RESET   TokenUse = "reset"
 )
 
 type Token struct {
@@ -20,12 +21,13 @@ type Token struct {
 	CreatedAt   time.Time
 	UserID      int
 	Expires     time.Time
+	Use         TokenUse
 }
 
 type Repo interface {
 	InsertToken(token *Token) error
-	GetByTokenString(tokenString string) (*Token, error)
-	DeleteByTokenString(tokenString string) error
+	GetByTokenStringAndUse(tokenString string, tokenUse TokenUse) (*Token, error)
+	DeleteByTokenStringAndUse(tokenString string, tokenUse TokenUse) error
 }
 
 type TokenService struct {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
+	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
 )
 
@@ -15,7 +16,7 @@ func (h *authHandler) logoutUser(w http.ResponseWriter, r *http.Request) {
 		customerrors.ServerErrorResponse(w, errors.New("tokenString missing from the context"))
 		return
 	}
-	err := h.svc.tokenSvc.DeleteToken(tokenString)
+	err := h.svc.tokenSvc.DeleteToken(tokenString, token.REFRESH)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

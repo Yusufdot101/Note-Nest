@@ -1,0 +1,2 @@
+ALTER TABLE tokens
+ADD COLUMN use TEXT NOT NULL DEFAULT 'refresh';

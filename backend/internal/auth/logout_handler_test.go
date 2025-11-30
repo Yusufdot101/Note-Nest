@@ -33,7 +33,7 @@ func TestLogoutUserHandler(t *testing.T) {
 		t.Errorf("expected status code = %d, got status code = %d", http.StatusOK, statusCode)
 	}
 
-	if !repo.DeleteByTokenStringCalled {
+	if !repo.DeleteByTokenStringAndUseCalled {
 		t.Error("expected repo.DeleteByTokenString to be called")
 	}
 }

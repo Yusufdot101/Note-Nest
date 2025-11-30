@@ -15,11 +15,12 @@ type Repository struct {
 
 func (r *Repository) InsertToken(token *Token) error {
 	query := `
-		INSERT INTO refresh_tokens
-		(user_id, token_string, expires)
-		VALUES ($1, $2, $3)
+		INSERT INTO tokens
+		(use, user_id, token_string, expires)
+		VALUES ($1, $2, $3, $4)
 	`
 	values := []any{
+		token.Use,
 		token.UserID,
 		token.TokenString,
 		token.Expires,
@@ -32,17 +33,18 @@ func (r *Repository) InsertToken(token *Token) error {
 	return err
 }
 
-func (r *Repository) GetByTokenString(tokenString string) (*Token, error) {
+func (r *Repository) GetByTokenStringAndUse(tokenString string, tokenUse TokenUse) (*Token, error) {
 	query := `
-		SELECT user_id, token_string FROM refresh_tokens
-		WHERE token_string = $1 AND expires > NOW()
+		SELECT user_id, token_string FROM tokens
+		WHERE token_string = $1 AND type = $2
+			AND expires > NOW()
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	token := &Token{}
-	err := r.DB.QueryRowContext(ctx, query, tokenString).Scan(
+	err := r.DB.QueryRowContext(ctx, query, tokenString, tokenUse).Scan(
 		&token.UserID,
 		&token.TokenString,
 	)
@@ -58,16 +60,16 @@ func (r *Repository) GetByTokenString(tokenString string) (*Token, error) {
 	return token, nil
 }
 
-func (r *Repository) DeleteByTokenString(tokenString string) error {
+func (r *Repository) DeleteByTokenStringAndUse(tokenString string, tokenUse TokenUse) error {
 	query := `
-		DELETE FROM refresh_tokens
-		WHERE token_string = $1
+		DELETE FROM tokens
+		WHERE token_string = $1 AND type = $2
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := r.DB.ExecContext(ctx, query, tokenString)
+	result, err := r.DB.ExecContext(ctx, query, tokenString, tokenUse)
 	if err != nil {
 		return err
 	}

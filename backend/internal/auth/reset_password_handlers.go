@@ -1,0 +1,36 @@
+package auth
+
+import (
+	"errors"
+	"net/http"
+
+	"github.com/Yusufdot101/note-nest/internal/customerrors"
+	"github.com/Yusufdot101/note-nest/internal/utilities"
+	"github.com/Yusufdot101/note-nest/internal/validator"
+)
+
+func (h authHandler) forgotPassword(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Email string `json:"email"`
+	}
+
+	err := utilities.ReadJSON(w, r, &input)
+	if err != nil {
+		customerrors.BadRequestErrorResponse(w, err)
+		return
+	}
+
+	v := validator.NewValidator()
+	err = h.svc.forgotPassword(v, input.Email)
+	if err != nil {
+		if errors.Is(err, validator.ErrFailedValidation) {
+			customerrors.FailedValidationErrorResponse(w, v.Errors)
+			return
+		}
+	}
+
+	err = utilities.WriteJSON(w, utilities.Message{"message": "If an account exists with that email, a reset link has been sent."}, http.StatusOK)
+	if err != nil {
+		customerrors.ServerErrorResponse(w, err)
+	}
+}
