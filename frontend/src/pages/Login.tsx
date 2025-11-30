@@ -47,10 +47,10 @@ const Login = () => {
     };
 
     useEffect(() => {
-        setEmailError(getEmailErrorMessages(email));
+        setEmailError(getEmailErrorMessages(email.trim()));
     }, [email]);
     useEffect(() => {
-        setPasswordError(getPasswordErrorMessages(password));
+        setPasswordError(getPasswordErrorMessages(password.trim()));
     }, [password]);
 
     return (
@@ -90,9 +90,9 @@ const Login = () => {
                         maxLength={72}
                         inputValue={password}
                         inputId={"password"}
-                        handleChange={(value) =>
-                            setPassword(value.replaceAll(" ", ""))
-                        }
+                        handleChange={(value) => {
+                            setPassword(value.trimStart());
+                        }}
                     />
                     <p
                         aria-label={"password error"}
@@ -103,9 +103,8 @@ const Login = () => {
                     </p>
                 </div>
                 <p>
-                    Don't have an account?{" "}
-                    <Link to={"/signup"} className="text-accent">
-                        Register here
+                    <Link to={"/forgot-password"} className="text-accent">
+                        Forgot Password?
                     </Link>
                 </p>
                 <SubmitButton
@@ -114,6 +113,12 @@ const Login = () => {
                     text={"Login"}
                     type="submit"
                 />
+                <p>
+                    Don't have an account?{" "}
+                    <Link to={"/signup"} className="text-accent">
+                        Register here
+                    </Link>
+                </p>
                 <div
                     className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showLoginErrors ? "hidden" : ""}`}
                 >

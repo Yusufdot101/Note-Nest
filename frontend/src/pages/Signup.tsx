@@ -52,10 +52,10 @@ const Signup = () => {
         setUsernameError(getUsernameErrorMessages(username));
     }, [username]);
     useEffect(() => {
-        setEmailError(getEmailErrorMessages(email));
+        setEmailError(getEmailErrorMessages(email.trim()));
     }, [email]);
     useEffect(() => {
-        setPasswordError(getPasswordErrorMessages(password));
+        setPasswordError(getPasswordErrorMessages(password.trim()));
     }, [password]);
 
     return (
@@ -114,9 +114,7 @@ const Signup = () => {
                         maxLength={72}
                         inputValue={password}
                         inputId={"password"}
-                        handleChange={(value) =>
-                            setPassword(value.replaceAll(" ", ""))
-                        }
+                        handleChange={(value) => setPassword(value.trimStart())}
                     />
                     <p
                         aria-label={"password error"}
@@ -126,18 +124,18 @@ const Signup = () => {
                         {passwordError}
                     </p>
                 </div>
-                <p>
-                    Already have an account?{" "}
-                    <Link to={"/login"} className="text-accent">
-                        Login here
-                    </Link>
-                </p>
                 <SubmitButton
                     aria_label={"sign up"}
                     handleSubmit={() => {}}
                     text={"Sign Up"}
                     type="submit"
                 />
+                <p>
+                    Already have an account?{" "}
+                    <Link to={"/login"} className="text-accent">
+                        Login here
+                    </Link>
+                </p>
                 <div
                     className={`w-full text-center py-[12px] rounded-[8px] bg-red-500 mx-auto ${!showSignupErrors ? "hidden" : ""}`}
                 >
