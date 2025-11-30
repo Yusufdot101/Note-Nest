@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
+	"github.com/Yusufdot101/note-nest/internal/token"
 )
 
 var ErrDuplicateEmail = errors.New("duplicate email")
@@ -96,12 +97,14 @@ func (r *Repository) UpdatePasswordUsingToken(tokenString, newPassword string) e
 		SELECT u.id, u.password_hash, last_updated_at
 		FROM users u
 		INNER JOIN tokens t
-		ON t.user_id = u.id
-		WHERE t.token_string = $1 AND t.expires > Now()
+			ON t.user_id = u.id
+		WHERE t.token_string = $1 
+			AND t.expires > Now()
+			AND t.use = $2
 		FOR UPDATE
 	`
 	u := &User{}
-	err = tx.QueryRowContext(ctx, fetchQuery, tokenString).Scan(
+	err = tx.QueryRowContext(ctx, fetchQuery, tokenString, token.RESET).Scan(
 		&u.ID,
 		&u.Password.hash,
 		&u.LastUpdatedAt,
