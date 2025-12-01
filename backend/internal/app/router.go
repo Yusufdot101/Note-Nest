@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Yusufdot101/note-nest/internal/auth"
+	"github.com/Yusufdot101/note-nest/internal/auth/oidc"
 	"github.com/Yusufdot101/note-nest/internal/comment"
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/like"
@@ -29,6 +30,7 @@ func configureRouter(router *httprouter.Router, cfg *config, DB *sql.DB) http.Ha
 	like.RegisterRoutes(router, DB)
 	comment.RegisterRoutes(router, DB)
 	save.RegisterRoutes(router, DB)
+	oidc.RegisterRoutes(router)
 
 	return middleware.EnableCORS(middleware.RecoverPanic(middleware.RateLimit(router, cfg.Limiter.Enabled, cfg.Limiter.Burst, cfg.Limiter.Rate)))
 }

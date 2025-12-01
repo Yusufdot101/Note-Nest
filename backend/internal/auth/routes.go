@@ -33,4 +33,7 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB, mailer Mailer) {
 
 	router.HandlerFunc(http.MethodPost, "/auth/forgot-password", h.forgotPassword)
 	router.HandlerFunc(http.MethodPost, "/auth/reset-password", h.resetPassword)
+
+	router.HandlerFunc(http.MethodPost, "/auth/openid", h.forgotPassword)
+	router.HandlerFunc(http.MethodPost, "/auth/openid/callback", h.forgotPassword)
 }
