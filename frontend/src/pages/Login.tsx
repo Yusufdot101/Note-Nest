@@ -1,3 +1,4 @@
+import google from "../assets/google.svg";
 import { useEffect, useState } from "react";
 import {
     getEmailErrorMessages,
@@ -7,6 +8,9 @@ import Input from "../components/Input";
 import SubmitButton from "../components/SubmitButton";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../utilities/auth/login";
+import Icon from "../components/Icon";
+
+const continueWithOptions = [{ name: "google", imgSrc: google, href: "#" }];
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -54,7 +58,7 @@ const Login = () => {
     }, [password]);
 
     return (
-        <div className="w-full bg-primary flex flex-col border-[1px] border-solid border-[#ffffff] rounded-[8px] py-[32px] min-[620px]:text-2xl px-[12px]">
+        <div className="w-full bg-primary flex flex-col gap-[24px] border-[1px] border-solid border-[#ffffff] rounded-[8px] py-[32px] min-[620px]:text-2xl px-[12px]">
             <p className="text-accent text-[32px] font-semibold text-center">
                 LOGIN
             </p>
@@ -127,6 +131,28 @@ const Login = () => {
                     ))}
                 </div>
             </form>
+
+            <div className="relative">
+                <hr className="text-accent border-[1px] opacity-75" />
+                <p className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-primary px-[12px] w-fit text-nowrap">
+                    or continue with
+                </p>
+            </div>
+
+            <div className="flex flex-col gap-[12px]">
+                <div className="flex gap-[8px] flex-wrap h-fit">
+                    {continueWithOptions.map((option) => (
+                        <Icon
+                            key={option.href}
+                            src={option.imgSrc}
+                            href={option.href}
+                            alt={`continue with ${option.name}`}
+                            background="white"
+                            minWidth="100px"
+                        />
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };
