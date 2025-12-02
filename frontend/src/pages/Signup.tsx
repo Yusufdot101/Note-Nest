@@ -11,7 +11,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../utilities/auth/signup";
 import Icon from "../components/Icon";
 
-const continueWithOptions = [{ name: "google", imgSrc: google, href: "#" }];
+const continueWithOptions = [
+    {
+        name: "google",
+        imgSrc: google,
+        href: "http://127.0.0.1:8080/auth/start/google",
+    },
+];
 
 const Signup = () => {
     const [username, setUsername] = useState("");

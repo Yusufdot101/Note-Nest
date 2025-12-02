@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
+	"github.com/Yusufdot101/note-nest/internal/user"
 )
 
 type repository struct {
@@ -54,7 +55,12 @@ func (r *repository) insert(ui *userInfo) error {
 
 	_, err = tx.ExecContext(ctx, insertProvidersQuery, ui.ProviderName, ui.UserID, ui.Sub)
 	if err != nil {
-		return err
+		switch {
+		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
+			return user.ErrDuplicateEmail
+		default:
+			return err
+		}
 	}
 
 	if err := tx.Commit(); err != nil {

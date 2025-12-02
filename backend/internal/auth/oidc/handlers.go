@@ -1,6 +1,7 @@
 package oidc
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"os"
@@ -46,19 +47,32 @@ func (h *oidcHandler) googleBegin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *oidcHandler) googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, _ := r.Cookie("state")
-	if r.URL.Query().Get("state") != cookie.Value {
+	state, err := r.Cookie("state")
+	if err != nil || r.URL.Query().Get("state") != state.Value {
 		customerrors.BadRequestErrorResponse(w, errors.New("state mismatch"))
 		return
 	}
 
-	user, err := googleCallback(ctx, r.URL.Query().Get("code"), GoogleConfig, GoogleProvider)
+	nonce, err := r.Cookie("nonce")
+	if err != nil || r.URL.Query().Get("state") != state.Value {
+		customerrors.BadRequestErrorResponse(w, errors.New("missing nonce"))
+		return
+	}
+
+	if GoogleConfig == nil || GoogleProvider == nil {
+		customerrors.ServerErrorResponse(w, errors.New("google oidc not configured"))
+		return
+	}
+
+	ctx := context.Background()
+
+	user, err := googleCallback(ctx, r.URL.Query().Get("code"), GoogleConfig, GoogleProvider, nonce.Value)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return
 	}
 
-	refreshToken, accessToken, err := h.svc.findOrInsertUser(user)
+	refreshToken, _, err := h.svc.findOrInsertUser(user)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return
@@ -75,8 +89,5 @@ func (h *oidcHandler) googleCallbackHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"access_token": accessToken}, http.StatusCreated)
-	if err != nil {
-		customerrors.ServerErrorResponse(w, err)
-	}
+	http.Redirect(w, r, "http://127.0.0.1:3000/notes", http.StatusFound)
 }

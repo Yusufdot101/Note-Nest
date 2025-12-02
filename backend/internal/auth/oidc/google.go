@@ -27,7 +27,7 @@ func googleConfig(clientID, clientSecret, redirectURL string) (*oauth2.Config, *
 	return cfg, provider, nil
 }
 
-func googleCallback(ctx context.Context, code string, config *oauth2.Config, provider *oidc.Provider) (*userInfo, error) {
+func googleCallback(ctx context.Context, code string, config *oauth2.Config, provider *oidc.Provider, expectedNonce string) (*userInfo, error) {
 	token, err := config.Exchange(ctx, code)
 	if err != nil {
 		return nil, err
@@ -42,6 +42,10 @@ func googleCallback(ctx context.Context, code string, config *oauth2.Config, pro
 	idToken, err := verifier.Verify(ctx, rawIDToken)
 	if err != nil {
 		return nil, err
+	}
+
+	if idToken.Nonce != expectedNonce {
+		return nil, errors.New("invalid nonce in id_token")
 	}
 
 	var claims struct {

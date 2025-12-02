@@ -1,15 +1,11 @@
 package oidc
 
 import (
-	"context"
-
 	"github.com/Yusufdot101/note-nest/internal/token"
 	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
 )
-
-var ctx = context.Background()
 
 var GithubClientID, GithubClientSecret, GithubRedirectURL string
 
