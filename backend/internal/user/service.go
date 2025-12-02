@@ -74,3 +74,7 @@ func (us *UserService) UpdatePasswordUsingToken(v *validator.Validator, token, n
 
 	return us.Repo.UpdatePasswordUsingToken(token, trimmedPassword)
 }
+
+func (us *UserService) GetUserByProvider(providerName, userSub string) (*User, error) {
+	return us.Repo.GetUserByProvider(providerName, userSub)
+}

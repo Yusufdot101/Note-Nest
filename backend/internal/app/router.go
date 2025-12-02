@@ -30,7 +30,7 @@ func configureRouter(router *httprouter.Router, cfg *config, DB *sql.DB) http.Ha
 	like.RegisterRoutes(router, DB)
 	comment.RegisterRoutes(router, DB)
 	save.RegisterRoutes(router, DB)
-	oidc.RegisterRoutes(router)
+	oidc.RegisterRoutes(router, DB)
 
 	return middleware.EnableCORS(middleware.RecoverPanic(middleware.RateLimit(router, cfg.Limiter.Enabled, cfg.Limiter.Burst, cfg.Limiter.Rate)))
 }

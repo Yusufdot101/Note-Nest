@@ -2,25 +2,19 @@ package oidc
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
+	"github.com/Yusufdot101/note-nest/internal/token"
+	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/coreos/go-oidc/v3/oidc"
 )
 
 func (h *oidcHandler) googleBegin(w http.ResponseWriter, r *http.Request) {
-	state, err := randString(16)
-	if err != nil {
-		http.Error(w, "server error", http.StatusInternalServerError)
-		return
-	}
-
-	nonce, err := randString(16)
-	if err != nil {
-		http.Error(w, "server error", http.StatusInternalServerError)
-		return
-	}
+	state := token.GenerateRandomTokenString()
+	nonce := token.GenerateRandomTokenString()
 
 	c := &http.Cookie{
 		Name:     "state",
@@ -40,6 +34,7 @@ func (h *oidcHandler) googleBegin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, c)
 
+	var err error
 	GoogleConfig, GoogleProvider, err = googleConfig(GoogleClientID, GoogleClientSecret, GoogleRedirectURL)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
@@ -63,5 +58,25 @@ func (h *oidcHandler) googleCallbackHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	fmt.Fprintf(w, "Google user info:\nID: %s\nName: %s\nEmail: %s", user.ID, user.Name, user.Email)
+	refreshToken, accessToken, err := h.svc.findOrInsertUser(user)
+	if err != nil {
+		customerrors.ServerErrorResponse(w, err)
+		return
+	}
+
+	ttl, err := time.ParseDuration(os.Getenv("REFRESH_TOKEN_EXPIRATION_TIME"))
+	if err != nil {
+		customerrors.ServerErrorResponse(w, errors.New("invalid refresh token expiration time"))
+		return
+	}
+	err = utilities.SetTokenCookie(w, "REFRESH", refreshToken, "/auth", ttl)
+	if err != nil {
+		customerrors.ServerErrorResponse(w, err)
+		return
+	}
+
+	err = utilities.WriteJSON(w, utilities.Message{"access_token": accessToken}, http.StatusCreated)
+	if err != nil {
+		customerrors.ServerErrorResponse(w, err)
+	}
 }

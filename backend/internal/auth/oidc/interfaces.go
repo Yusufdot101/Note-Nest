@@ -2,10 +2,9 @@ package oidc
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/base64"
-	"io"
 
+	"github.com/Yusufdot101/note-nest/internal/token"
+	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
 )
@@ -20,16 +19,22 @@ var (
 	GoogleProvider                                        *oidc.Provider
 )
 
-type UserInfo struct {
-	ID    string
-	Name  string
-	Email string
+type userInfo struct {
+	ProviderName string
+	UserID       int
+	Sub          string
+	Name         string
+	Email        string
 }
 
-type repo interface{}
+type repo interface {
+	insert(ui *userInfo) error
+}
 
 type oidcService struct {
-	repo repo
+	repo     repo
+	userSvc  *user.UserService
+	tokenSvc *token.TokenService
 }
 
 type oidcHandler struct {
@@ -40,13 +45,4 @@ func newHandler(svc *oidcService) *oidcHandler {
 	return &oidcHandler{
 		svc: svc,
 	}
-}
-
-func randString(nByte int) (string, error) {
-	b := make([]byte, nByte)
-	if _, err := io.ReadFull(rand.Reader, b); err != nil {
-		return "", err
-	}
-
-	return base64.RawURLEncoding.EncodeToString(b), nil
 }

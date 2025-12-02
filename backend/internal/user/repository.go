@@ -156,3 +156,34 @@ func (r *Repository) UpdatePasswordUsingToken(tokenString, newPassword string) e
 
 	return nil
 }
+
+func (r *Repository) GetUserByProvider(providerName, userSub string) (*User, error) {
+	query := `
+		SELECT u.id, u.created_at, u.last_updated_at, u.name, u.email
+		FROM users u
+		INNER JOIN providers p
+		ON u.id = p.user_id
+		WHERE p.provider_name = $1 AND p.sub = $2
+	`
+	// to prevent waiting indefinitely
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	u := &User{}
+	err := r.DB.QueryRowContext(ctx, query, providerName, userSub).Scan(
+		&u.ID,
+		&u.CreatedAt,
+		&u.LastUpdatedAt,
+		&u.Name,
+		&u.Email,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, customerrors.ErrNoRecord
+		default:
+			return nil, err
+		}
+	}
+	return u, nil
+}

@@ -13,7 +13,7 @@ func TestGetTokens(t *testing.T) {
 		},
 	}
 	userID := 1
-	refreshToken, accesstoken, err := svc.getTokens(userID)
+	refreshToken, accesstoken, err := svc.tokenSvc.GetAccessAndRefreshTokens(userID)
 	if err != nil {
 		t.Fatalf("unexpected error = %v", err)
 	}

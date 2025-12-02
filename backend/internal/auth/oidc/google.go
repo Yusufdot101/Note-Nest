@@ -27,7 +27,7 @@ func googleConfig(clientID, clientSecret, redirectURL string) (*oauth2.Config, *
 	return cfg, provider, nil
 }
 
-func googleCallback(ctx context.Context, code string, config *oauth2.Config, provider *oidc.Provider) (*UserInfo, error) {
+func googleCallback(ctx context.Context, code string, config *oauth2.Config, provider *oidc.Provider) (*userInfo, error) {
 	token, err := config.Exchange(ctx, code)
 	if err != nil {
 		return nil, err
@@ -54,9 +54,10 @@ func googleCallback(ctx context.Context, code string, config *oauth2.Config, pro
 		return nil, err
 	}
 
-	return &UserInfo{
-		ID:    claims.Sub,
-		Name:  claims.Name,
-		Email: claims.Email,
+	return &userInfo{
+		ProviderName: "google",
+		Sub:          claims.Sub,
+		Name:         claims.Name,
+		Email:        claims.Email,
 	}, nil
 }

@@ -11,26 +11,13 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
 
-func (as *authService) getTokens(userID int) (string, string, error) {
-	refreshToken, err := as.tokenSvc.NewToken(token.RANDOMSTRING, token.REFRESH, userID)
-	if err != nil {
-		return "", "", err
-	}
-	accessToken, err := as.tokenSvc.NewToken(token.JWT, token.ACCESS, userID)
-	if err != nil {
-		return "", "", err
-	}
-
-	return refreshToken, accessToken, nil
-}
-
 func (as *authService) registerUser(v *validator.Validator, name, email, password string) (string, string, error) {
 	u, err := as.userSvc.NewUser(v, name, email, password)
 	if err != nil {
 		return "", "", err
 	}
 
-	refresh, access, err := as.getTokens(u.ID)
+	refresh, access, err := as.tokenSvc.GetAccessAndRefreshTokens(u.ID)
 	if err != nil {
 		return "", "", err
 	}
@@ -44,7 +31,7 @@ func (as *authService) loginUser(v *validator.Validator, email, password string)
 		return "", "", err
 	}
 
-	return as.getTokens(u.ID)
+	return as.tokenSvc.GetAccessAndRefreshTokens(u.ID)
 }
 
 func (as *authService) forgotPassword(v *validator.Validator, email string) error {
