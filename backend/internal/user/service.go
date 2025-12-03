@@ -46,6 +46,12 @@ func (us *UserService) VerifyAndGetUser(v *validator.Validator, email, password 
 	if err != nil {
 		return nil, err
 	}
+
+	// if the user signed up using openid, no password matching and checking needed
+	if u.Password.hash == nil {
+		return nil, customerrors.ErrInvalidCredentials
+	}
+
 	matches, err := u.Password.Matches(trimmedPassword)
 	if err != nil {
 		return nil, err
