@@ -71,13 +71,15 @@ func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
 	input.Page = utilities.ReadInt(qs, "page", 1, v)
 	input.PageSize = utilities.ReadInt(qs, "page_size", 100, v)
 	input.Sort = utilities.ReadStr(qs, "sort", "created_at")
+	input.Order = utilities.ReadStr(qs, "order", "descending")
 	input.SafeSortList = []string{
-		"id", "-id",
-		"name", "-name",
-		"user_id", "-user_id",
-		"visibility", "-visibility",
-		"created_at", "-created_at",
-		"likes_count", "-likes_count",
+		"id",
+		"title",
+		"user_id",
+		"visibility",
+		"created_at",
+		"likes_count",
+		"comments_count",
 	}
 
 	if filter.ValidateFilter(v, &input.Filter); !v.IsValid() {
