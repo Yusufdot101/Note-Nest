@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ColorPicker from "./ColorPicker";
 import { editProjectColor } from "../utilities/project";
 
@@ -18,7 +18,7 @@ export interface Project {
 
 interface ProjectCardProps {
     color: string;
-    setColor: React.Dispatch<React.SetStateAction<string>>;
+    setColor?: React.Dispatch<React.SetStateAction<string>>;
     project: Project;
     handleMenuClick?: (
         e: React.MouseEvent<SVGElement> | React.KeyboardEvent<SVGElement>,
@@ -33,13 +33,13 @@ interface ProjectCardProps {
     colorEditable?: boolean;
 }
 const ProjectCard = ({
-    color,
-    setColor,
     project,
     handleMenuClick,
     handleProjectClick,
     colorEditable = false,
 }: ProjectCardProps) => {
+    const [color, setColor] = useState(project.Color ?? "#ffffff");
+
     return (
         <div
             tabIndex={0}

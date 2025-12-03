@@ -70,7 +70,7 @@ func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
 	input.projectID = utilities.ReadInt(qs, "project_id", -1, v)
 	input.Page = utilities.ReadInt(qs, "page", 1, v)
 	input.PageSize = utilities.ReadInt(qs, "page_size", 100, v)
-	input.Sort = utilities.ReadStr(qs, "sort", "created_at")
+	input.Sort = utilities.ReadStr(qs, "sort", "likes_count")
 	input.Order = utilities.ReadStr(qs, "order", "descending")
 	input.SafeSortList = []string{
 		"id",

@@ -9,40 +9,32 @@ import { useAuthStore } from "../store/useAuthStore";
 
 const AllProjects = () => {
     const [projects, setProjects] = useState<Project[]>([]);
-    const [searchValue, setSearchValue] = useState("");
 
     const params = new URLSearchParams(window.location.search);
     const user = params.get("user");
     const [options, setOptions] = useState<Map<string, number | string>>(
-        new Map<string, number | string>([["user_id", user ?? -1]]),
+        new Map<string, number | string>([
+            ["user_id", user ?? -1],
+            ["title", ""],
+        ]),
     );
 
-    const handleSearch = async () => {
-        if (!searchValue.trim()) {
-            const newOptions = new Map(options);
-            newOptions.delete("title");
-            setOptions(newOptions);
-            return;
-        }
+    const userid = useAuthStore((state) => state.userID);
 
-        setOptions(
-            (prev) =>
-                new Map<string, string | number>([
-                    ...prev,
-                    ["title", searchValue],
-                ]),
-        );
+    const setupProjects = async () => {
+        const projects = await fetchProjects(options);
+        setProjects(projects);
+    };
+
+    const handleSearch = async () => {
+        setupProjects();
     };
 
     // accessToken is null at first so fetch resources doesnt work as expected, this makes it reload when accessToken changes from null
     const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
-        const setupProjects = async () => {
-            const projects = await fetchProjects(options);
-            setProjects(projects);
-        };
         setupProjects();
-    }, [options, accessToken]);
+    }, [accessToken]);
 
     const navigate = useNavigate();
 
@@ -62,9 +54,17 @@ const AllProjects = () => {
                 PROJECTS
             </h1>
             <SearchBar
-                placeholder="Search projects"
-                searchValue={searchValue}
-                handleValueChange={(value) => setSearchValue(value)}
+                handleOptionsChange={(key: string, value: string | number) => {
+                    setOptions((prev) => {
+                        const newOptions = new Map<string, string | number>([
+                            ...prev,
+                            [key, value],
+                        ]);
+                        return newOptions;
+                    });
+                }}
+                options={options}
+                searchPlaceholder="Search notes"
                 handleSearch={handleSearch}
             />
             <div className="py-[12px] items-center text-text grid gap-[16px]  grid-cols-[repeat(auto-fit,minmax(400px,1fr))] max-[619px]:grid-cols-[repeat(auto-fit,minmax(284px,1fr))]">
@@ -72,9 +72,10 @@ const AllProjects = () => {
                     return (
                         <ProjectCard
                             key={project.ID}
-                            Color={project.Color}
+                            color={project.Color ?? "#ffffff"}
                             project={project}
                             handleProjectClick={handleProjectClick}
+                            colorEditable={userid === project.UserID}
                         />
                     );
                 })}

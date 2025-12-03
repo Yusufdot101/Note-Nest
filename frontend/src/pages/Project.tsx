@@ -19,26 +19,21 @@ const ProjectPage = () => {
 
     const { id } = useParams();
     const userID = useAuthStore((state) => state.userID);
-    const [searchValue, setSearchValue] = useState("");
     const [options, setOptions] = useState<Map<string, number | string>>(
-        new Map<string, number | string>(id ? [["project_id", id]] : []),
+        new Map<string, number | string>(
+            id ? [["project_id", id]] : [["title", ""]],
+        ),
     );
 
-    const handleSearch = async () => {
-        if (!searchValue.trim()) {
-            const newOptions = new Map(options);
-            newOptions.delete("title");
-            setOptions(newOptions);
-            return;
-        }
+    const setupNotes = async () => {
+        if (!id) return;
+        const notes = await fetchNotes(options);
+        if (!notes) return;
+        setNotes(notes);
+    };
 
-        setOptions(
-            (prev) =>
-                new Map<string, string | number>([
-                    ...prev,
-                    ["title", searchValue],
-                ]),
-        );
+    const handleSearch = async () => {
+        setupNotes();
     };
 
     const navigate = useNavigate();
@@ -53,16 +48,9 @@ const ProjectPage = () => {
             setProject(project);
             setColor(project.Color);
         };
-
-        const setupNotes = async () => {
-            if (!id) return;
-            const notes = await fetchNotes(options);
-            if (!notes) return;
-            setNotes(notes);
-        };
         setupProject();
         setupNotes();
-    }, [options, id, accessToken]);
+    }, [id, accessToken]);
 
     return (
         <div className="flex flex-col gap-[12px]">
@@ -109,9 +97,20 @@ const ProjectPage = () => {
                     </h1>
 
                     <SearchBar
-                        placeholder="Search notes"
-                        searchValue={searchValue}
-                        handleValueChange={(value) => setSearchValue(value)}
+                        handleOptionsChange={(
+                            key: string,
+                            value: string | number,
+                        ) => {
+                            setOptions((prev) => {
+                                const newOptions = new Map<
+                                    string,
+                                    string | number
+                                >([...prev, [key, value]]);
+                                return newOptions;
+                            });
+                        }}
+                        options={options}
+                        searchPlaceholder="Search notes"
                         handleSearch={handleSearch}
                     />
 
