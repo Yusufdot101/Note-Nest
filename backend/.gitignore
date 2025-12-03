@@ -5,3 +5,5 @@ vendor/
 
 # keep .env.test
 !test.env
+
+tmp/

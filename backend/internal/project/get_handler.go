@@ -36,13 +36,17 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 	input.userID = utilities.ReadInt(qs, "user_id", -1, v)
 	input.Page = utilities.ReadInt(qs, "page", 1, v)
 	input.PageSize = utilities.ReadInt(qs, "page_size", 100, v)
-	input.Sort = utilities.ReadStr(qs, "sort", "created_at")
+	input.Sort = utilities.ReadStr(qs, "sort", "likes_count")
+	input.Order = utilities.ReadStr(qs, "order", "descending")
 	input.SafeSortList = []string{
-		"id", "-id",
-		"name", "-name",
-		"user_id", "-user_id",
-		"visibility", "-visibility",
-		"created_at", "-created_at",
+		"id",
+		"title",
+		"user_id",
+		"visibility",
+		"created_at",
+		"likes_count",
+		"entries_count",
+		"comments_count",
 	}
 
 	if filter.ValidateFilter(v, &input.Filter); !v.IsValid() {

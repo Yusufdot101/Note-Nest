@@ -2,7 +2,6 @@ package filter
 
 import (
 	"slices"
-	"strings"
 
 	"github.com/Yusufdot101/note-nest/internal/validator"
 )
@@ -30,13 +29,13 @@ func (f *Filter) Offset() int {
 
 func (f *Filter) SortColumn() string {
 	if slices.Contains(f.SafeSortList, f.Sort) {
-		return strings.Trim(f.Sort, "-")
+		return f.Sort
 	}
 	panic("invalid sort column")
 }
 
 func (f *Filter) SortDirection() string {
-	if strings.HasPrefix(f.Sort, "-") {
+	if f.Order == "descending" {
 		return "DESC"
 	}
 	return "ASC"
