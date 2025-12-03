@@ -17,8 +17,6 @@ export interface Project {
 }
 
 interface ProjectCardProps {
-    color: string;
-    setColor?: React.Dispatch<React.SetStateAction<string>>;
     project: Project;
     handleMenuClick?: (
         e: React.MouseEvent<SVGElement> | React.KeyboardEvent<SVGElement>,

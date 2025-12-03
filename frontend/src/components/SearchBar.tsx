@@ -50,7 +50,7 @@ const SearchBar = ({
                     inputId="title"
                     inputName="title"
                     placeholder={searchPlaceholder}
-                    inputValue={options.get("title") as string}
+                    inputValue={options.get("title")?.toString() ?? ""}
                     handleChange={(value) => {
                         handleOptionsChange("title", value);
                     }}

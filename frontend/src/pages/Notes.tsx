@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
 import { fetchNotes } from "../utilities/note";
 import type { Note } from "../components/NoteCard";
@@ -12,22 +12,25 @@ const Notes = () => {
         new Map<string, number | string>([["title", ""]]),
     );
 
-    const setupNotes = async () => {
-        const notes = await fetchNotes(options);
-        if (!notes) return;
-        setNotes(notes);
-    };
+    const setupNotes = useCallback(
+        async (currentOptions: Map<string, string | number>) => {
+            const notes = await fetchNotes(currentOptions);
+            if (!notes) return;
+            setNotes(notes);
+        },
+        [],
+    );
 
     const handleSearch = async () => {
-        setupNotes();
+        setupNotes(options);
     };
 
     const navigate = useNavigate();
 
     const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
-        setupNotes();
-    }, [accessToken]);
+        setupNotes(options);
+    }, [accessToken, setupNotes, options]);
 
     return (
         <div className="flex flex-col relative text-text bg-primary p-[12px] h-fit rounded-[8px] border-[1px] border-white">

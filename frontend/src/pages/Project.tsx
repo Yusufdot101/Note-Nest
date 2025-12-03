@@ -1,5 +1,5 @@
 import newResource from "../assets/newResource.svg";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import type { Project } from "../components/ProjectCard";
 import { fetchProject } from "../utilities/project";
 import ProjectCard from "../components/ProjectCard";
@@ -25,15 +25,18 @@ const ProjectPage = () => {
         ),
     );
 
-    const setupNotes = async () => {
-        if (!id) return;
-        const notes = await fetchNotes(options);
-        if (!notes) return;
-        setNotes(notes);
-    };
+    const setupNotes = useCallback(
+        async (currentOptions: Map<string, string | number>) => {
+            if (!id) return;
+            const notes = await fetchNotes(currentOptions);
+            if (!notes) return;
+            setNotes(notes);
+        },
+        [id],
+    );
 
     const handleSearch = async () => {
-        setupNotes();
+        setupNotes(options);
     };
 
     const navigate = useNavigate();
@@ -49,16 +52,14 @@ const ProjectPage = () => {
             setColor(project.Color);
         };
         setupProject();
-        setupNotes();
-    }, [id, accessToken]);
+        setupNotes(options);
+    }, [id, accessToken, setupNotes, options]);
 
     return (
         <div className="flex flex-col gap-[12px]">
             <div>
                 {project && (
                     <ProjectCard
-                        color={color}
-                        setColor={setColor}
                         project={project}
                         handleMenuClick={
                             project.UserID === userID

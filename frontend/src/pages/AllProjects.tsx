@@ -1,5 +1,5 @@
 import newResource from "../assets/newResource.svg";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Project } from "../components/ProjectCard";
 import ProjectCard from "../components/ProjectCard";
 import { fetchProjects } from "../utilities/projects";
@@ -21,20 +21,23 @@ const AllProjects = () => {
 
     const userid = useAuthStore((state) => state.userID);
 
-    const setupProjects = async () => {
-        const projects = await fetchProjects(options);
-        setProjects(projects);
-    };
+    const setupProjects = useCallback(
+        async (currentOptions: Map<string, string | number>) => {
+            const projects = await fetchProjects(currentOptions);
+            setProjects(projects);
+        },
+        [],
+    );
 
     const handleSearch = async () => {
-        setupProjects();
+        setupProjects(options);
     };
 
     // accessToken is null at first so fetch resources doesnt work as expected, this makes it reload when accessToken changes from null
     const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
-        setupProjects();
-    }, [accessToken]);
+        setupProjects(options);
+    }, [accessToken, setupProjects, options]);
 
     const navigate = useNavigate();
 
@@ -64,7 +67,7 @@ const AllProjects = () => {
                     });
                 }}
                 options={options}
-                searchPlaceholder="Search notes"
+                searchPlaceholder="Search projects"
                 handleSearch={handleSearch}
             />
             <div className="py-[12px] items-center text-text grid gap-[16px]  grid-cols-[repeat(auto-fit,minmax(400px,1fr))] max-[619px]:grid-cols-[repeat(auto-fit,minmax(284px,1fr))]">
@@ -72,7 +75,6 @@ const AllProjects = () => {
                     return (
                         <ProjectCard
                             key={project.ID}
-                            color={project.Color ?? "#ffffff"}
                             project={project}
                             handleProjectClick={handleProjectClick}
                             colorEditable={userid === project.UserID}
