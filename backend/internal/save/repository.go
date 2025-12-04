@@ -191,7 +191,7 @@ func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, ti
 	}
 
 	// =====================================================================
-	// CASE 2: ONLY projectID is provided
+	// CASE 3: ONLY projectID is provided
 	// =====================================================================
 	if projectID != -1 {
 		var owner int

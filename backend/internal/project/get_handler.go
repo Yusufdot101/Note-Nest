@@ -65,7 +65,12 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"metadata": *metadata, "projects": projects}, http.StatusOK)
+	resp := utilities.Message{"projects": projects}
+	if metadata != nil {
+		resp["metadata"] = *metadata
+	}
+
+	err = utilities.WriteJSON(w, resp, http.StatusOK)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

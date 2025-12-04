@@ -98,7 +98,12 @@ func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"metadata": *metadata, "notes": notes}, http.StatusOK)
+	resp := utilities.Message{"notes": notes}
+	if metadata != nil {
+		resp["metadata"] = *metadata
+	}
+
+	err = utilities.WriteJSON(w, resp, http.StatusOK)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

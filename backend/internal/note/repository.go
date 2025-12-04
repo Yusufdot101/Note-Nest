@@ -187,7 +187,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 	}
 
 	// =====================================================================
-	// CASE 2: ONLY projectID is provided
+	// CASE 3: ONLY projectID is provided
 	// =====================================================================
 	if projectID != -1 {
 		var owner int
