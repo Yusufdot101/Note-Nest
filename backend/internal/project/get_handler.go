@@ -54,7 +54,7 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	projects, err := h.svc.getProjects(u.ID, input.userID, input.title, input.visibility, input.Filter)
+	projects, metadata, err := h.svc.getProjects(u.ID, input.userID, input.title, input.visibility, &input.Filter)
 	if err != nil {
 		switch {
 		case errors.Is(err, customerrors.ErrNoRecord):
@@ -65,7 +65,7 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"projects": projects}, http.StatusOK)
+	err = utilities.WriteJSON(w, utilities.Message{"metadata": *metadata, "projects": projects}, http.StatusOK)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

@@ -25,7 +25,7 @@ type Note struct {
 type Repo interface {
 	insert(n *Note) error
 	get(noteID int) (*Note, error)
-	getMany(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, error)
+	getMany(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*Note, *filter.Metadata, error)
 	delete(noteID, projectID int) error
 	updateNoteTitleContent(userID, noteID int, title, content *string) error
 	updateNoteVisibility(userID, noteID int, visibility string) error
@@ -49,8 +49,8 @@ func (mr *mockRepo) get(noteID int) (*Note, error) {
 	return n, nil
 }
 
-func (mr *mockRepo) getMany(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, error) {
-	return nil, nil
+func (mr *mockRepo) getMany(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, *filter.Metadata, error) {
+	return nil, nil, nil
 }
 
 func (mr *mockRepo) delete(noteID, projectID int) error {

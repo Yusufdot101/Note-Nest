@@ -75,7 +75,7 @@ func (ns *NoteService) GetNote(userID, noteID int) (*Note, error) {
 	return note, nil
 }
 
-func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, error) {
+func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, *filter.Metadata, error) {
 	return ns.Repo.getMany(currentUserID, queryUserID, projectID, title, visibility, filter)
 }
 

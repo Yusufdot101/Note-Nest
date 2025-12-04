@@ -32,8 +32,8 @@ func (ps *ProjectService) newProject(v *validator.Validator, userID int, title, 
 	return nil
 }
 
-func (ps *ProjectService) getProjects(currentUserID, userID int, title, visibility string, filter filter.Filter) ([]*Project, error) {
-	return ps.Repo.get(currentUserID, userID, title, visibility, filter)
+func (ps *ProjectService) getProjects(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error) {
+	return ps.Repo.get(currentUserID, userID, title, visibility, f)
 }
 
 func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {

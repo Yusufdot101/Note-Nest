@@ -87,7 +87,7 @@ func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notes, err := h.svc.getNotes(u.ID, input.userID, input.projectID, input.title, input.visibility, &input.Filter)
+	notes, metadata, err := h.svc.getNotes(u.ID, input.userID, input.projectID, input.title, input.visibility, &input.Filter)
 	if err != nil {
 		switch {
 		case errors.Is(err, customerrors.ErrNoRecord):
@@ -98,7 +98,7 @@ func (h *NoteHandler) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"notes": notes}, http.StatusOK)
+	err = utilities.WriteJSON(w, utilities.Message{"metadata": *metadata, "notes": notes}, http.StatusOK)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

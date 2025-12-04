@@ -1,6 +1,7 @@
 package filter
 
 import (
+	"math"
 	"slices"
 
 	"github.com/Yusufdot101/note-nest/internal/validator"
@@ -39,4 +40,21 @@ func (f *Filter) SortDirection() string {
 		return "DESC"
 	}
 	return "ASC"
+}
+
+type Metadata struct {
+	TotalResources int
+	PageSize       int
+	TotalPages     int
+	PageNumber     int
+}
+
+func GenerateMetadata(pageNumber, pageSize, totalResources int) *Metadata {
+	totalPages := int(math.Ceil(float64(totalResources) / float64(pageSize)))
+	return &Metadata{
+		TotalResources: totalResources,
+		PageSize:       pageSize,
+		TotalPages:     totalPages,
+		PageNumber:     pageNumber,
+	}
 }

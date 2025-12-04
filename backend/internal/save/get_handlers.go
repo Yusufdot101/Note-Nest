@@ -6,9 +6,11 @@ import (
 	"strconv"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/Yusufdot101/note-nest/internal/utilities"
+	"github.com/Yusufdot101/note-nest/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -46,13 +48,47 @@ func (h *saveHandler) savedNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notes, err := h.svc.savedNotes(u.ID)
+	var input struct {
+		title      string
+		projectID  int
+		userID     int
+		visibility string
+		filter.Filter
+	}
+
+	qs := r.URL.Query()
+	v := validator.NewValidator()
+
+	input.title = utilities.ReadStr(qs, "title", "")
+	input.visibility = utilities.ReadStr(qs, "visibility", "")
+	input.userID = utilities.ReadInt(qs, "user_id", -1, v)
+	input.projectID = utilities.ReadInt(qs, "project_id", -1, v)
+	input.Page = utilities.ReadInt(qs, "page", 1, v)
+	input.PageSize = utilities.ReadInt(qs, "page_size", 100, v)
+	input.Sort = utilities.ReadStr(qs, "sort", "likes_count")
+	input.Order = utilities.ReadStr(qs, "order", "descending")
+	input.SafeSortList = []string{
+		"id",
+		"title",
+		"user_id",
+		"visibility",
+		"created_at",
+		"likes_count",
+		"comments_count",
+	}
+
+	if filter.ValidateFilter(v, &input.Filter); !v.IsValid() {
+		customerrors.FailedValidationErrorResponse(w, v.Errors)
+		return
+	}
+
+	notes, metadata, err := h.svc.savedNotes(u.ID, input.userID, input.projectID, input.title, input.visibility, &input.Filter)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return
 	}
 
-	err = utilities.WriteJSON(w, utilities.Message{"notes": notes}, http.StatusOK)
+	err = utilities.WriteJSON(w, utilities.Message{"metadata": *metadata, "notes": notes}, http.StatusOK)
 	if err != nil {
 		customerrors.ServerErrorResponse(w, err)
 		return

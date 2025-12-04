@@ -1,6 +1,9 @@
 package save
 
-import "github.com/Yusufdot101/note-nest/internal/note"
+import (
+	"github.com/Yusufdot101/note-nest/internal/filter"
+	"github.com/Yusufdot101/note-nest/internal/note"
+)
 
 type save struct {
 	userID, noteID int
@@ -9,7 +12,7 @@ type save struct {
 type repo interface {
 	insert(s *save) error
 	isSaved(userID, noteID int) (bool, error)
-	getSavedNotes(userID int) ([]*note.Note, error)
+	getSavedNotes(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*note.Note, *filter.Metadata, error)
 	delete(userID, noteID int) error
 }
 
@@ -30,9 +33,9 @@ func (mr *mockRepo) isSaved(userID, noteID int) (bool, error) {
 	return true, nil
 }
 
-func (mr *mockRepo) getSavedNotes(userID int) ([]*note.Note, error) {
+func (mr *mockRepo) getSavedNotes(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*note.Note, *filter.Metadata, error) {
 	mr.getSavedNotesCalled = true
-	return nil, nil
+	return nil, &filter.Metadata{}, nil
 }
 
 func (mr *mockRepo) delete(userID, noteID int) error {

@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
+	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/note"
 )
 
@@ -106,26 +109,168 @@ func (r *repository) isSaved(userID, noteID int) (bool, error) {
 	return true, nil
 }
 
-func (r *repository) getSavedNotes(userID int) ([]*note.Note, error) {
-	query := `
-		SELECT 
-			n.id, n.project_id, n.created_at, n.updated_at, n.title, n.content, n.color, n.visibility, n.likes_count, 
-			n.comments_count, n.saves_count
-		FROM notes n
-		INNER JOIN saves s
-		ON n.id = s.note_id
-		INNER JOIN projects p
-		ON n.project_id = p.id
-		WHERE s.user_id = $1
-			AND ( n.visibility = 'public' OR p.user_id = $1 )
-	`
-
+func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*note.Note, *filter.Metadata, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	rows, err := r.DB.QueryContext(ctx, query, userID)
+	baseQuery := `
+		SELECT COUNT(*) OVER(),
+			n.id, n.project_id, n.created_at, n.updated_at, n.title, n.content, n.color,
+			n.visibility, n.likes_count, n.comments_count, n.saves_count
+		FROM notes n
+		JOIN saves s ON n.id = s.note_id
+		JOIN projects p ON n.project_id = p.id
+	`
+	conds := []string{
+		"s.user_id = $1",
+	}
+	args := []any{
+		currentUserID,
+	}
+	idx := 2
+
+	// =====================================================================
+	// CASE 1: BOTH projectID AND userID are provided
+	// =====================================================================
+	if queryUserID != -1 && projectID != -1 {
+		var owner int
+		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, nil, customerrors.ErrNoRecord
+			}
+			return nil, nil, err
+		}
+
+		// userId must match actual project owner
+		if owner != queryUserID {
+			return nil, nil, customerrors.ErrNoRecord
+		}
+
+		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
+		args = append(args, projectID)
+		idx++
+		if visibility != "" {
+			if queryUserID != currentUserID {
+				if visibility != "public" {
+					return nil, nil, customerrors.ErrNoRecord
+				}
+				conds = append(conds, "n.visibility = 'public'")
+			} else {
+				conds = append(conds, fmt.Sprintf("n.visibility = $%d", idx))
+				args = append(args, visibility)
+				idx++
+			}
+		} else {
+			conds = append(conds, fmt.Sprintf("( n.visibility = 'public' OR p.user_id = $%d )", idx))
+			args = append(args, currentUserID)
+			idx++
+		}
+
+		goto BUILD
+	}
+
+	// =====================================================================
+	// CASE 2: ONLY userID is provided
+	// =====================================================================
+	if queryUserID != -1 {
+		conds = append(conds, fmt.Sprintf("p.user_id = $%d", idx))
+		args = append(args, queryUserID)
+		idx++
+		if visibility != "" {
+			if queryUserID != currentUserID && visibility == "private" {
+				return nil, nil, customerrors.ErrNoRecord
+			}
+			conds = append(conds, "n.visibility = 'public'")
+		} else {
+			conds = append(conds, fmt.Sprintf("( n.visibility = 'public' OR p.user_id = $%d )", idx))
+			args = append(args, currentUserID)
+			idx++
+		}
+		goto BUILD
+	}
+
+	// =====================================================================
+	// CASE 2: ONLY projectID is provided
+	// =====================================================================
+	if projectID != -1 {
+		var owner int
+		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, nil, customerrors.ErrNoRecord
+			}
+			return nil, nil, err
+		}
+
+		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
+		args = append(args, projectID)
+		idx++
+		if visibility != "" {
+			if owner != currentUserID {
+				if visibility != "public" {
+					return nil, nil, customerrors.ErrNoRecord
+				} else {
+					conds = append(conds, "n.visibility = 'public'")
+				}
+			} else {
+				conds = append(conds, fmt.Sprintf("n.visibility = $%d", idx))
+				args = append(args, visibility)
+				idx++
+			}
+		} else {
+			conds = append(conds, fmt.Sprintf("(n.visibility = 'public' OR p.user_id = $%d)", idx))
+			args = append(args, currentUserID)
+			idx++
+		}
+
+		goto BUILD
+	}
+
+	if visibility != "" {
+		if visibility == "public" {
+			conds = append(conds, "n.visibility = 'public'")
+		} else {
+			conds = append(conds, fmt.Sprintf("n.visibility = 'private' AND p.user_id = $%d", idx))
+			args = append(args, currentUserID)
+			idx++
+		}
+	} else {
+		conds = append(conds, fmt.Sprintf("(n.visibility = 'public' OR p.user_id = $%d)", idx))
+		args = append(args, currentUserID)
+		idx++
+	}
+
+BUILD:
+	if len(conds) == 0 {
+		conds = []string{"1=1"}
+	}
+
+	query := baseQuery + " WHERE " + strings.Join(conds, " AND ")
+	query += fmt.Sprintf(`
+			AND (
+				$%d = ''
+				OR to_tsvector('simple', n.title) @@ to_tsquery('simple', $%d)
+			)
+			ORDER BY %s %s, id ASC
+			LIMIT $%d
+			OFFSET $%d
+		`, idx, idx, f.SortColumn(), f.SortDirection(), idx+1, idx+2)
+
+	// to_tsquery wont work directly if you pass spaces, like "go is great" because spaces are treated as operators so you need to convert to into "go&is&great"
+	// we add ':*' before the '&' so that partial word search is possible
+	words := strings.Fields(title) // splits by spaces
+	for i := range words {
+		words[i] += ":*" // add prefix operator
+	}
+	formattedTitle := strings.Join(words, " & ") // join with &
+	args = append(args, formattedTitle)
+	args = append(args, f.Limit())
+	args = append(args, f.Offset())
+
+	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
@@ -134,9 +279,11 @@ func (r *repository) getSavedNotes(userID int) ([]*note.Note, error) {
 	}()
 
 	var notes []*note.Note
+	var totalResources int
 	for rows.Next() {
 		var note note.Note
 		err := rows.Scan(
+			&totalResources,
 			&note.ID,
 			&note.ProjectID,
 			&note.CreatedAt,
@@ -150,16 +297,17 @@ func (r *repository) getSavedNotes(userID int) ([]*note.Note, error) {
 			&note.SavesCount,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		notes = append(notes, &note)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return notes, nil
+	metadata := filter.GenerateMetadata(f.Page, f.PageSize, totalResources)
+	return notes, metadata, nil
 }
 
 func (r *repository) delete(userID, noteID int) error {

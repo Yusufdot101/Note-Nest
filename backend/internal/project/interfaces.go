@@ -35,7 +35,7 @@ func (mr *MockRepo) insert(p *Project) error {
 	return nil
 }
 
-func (mr *MockRepo) get(currentUserID, userID int, title, visibility string, filter filter.Filter) ([]*Project, error) {
+func (mr *MockRepo) get(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error) {
 	mr.getCalled = true
 	projects := []*Project{}
 	for i := range 10 {
@@ -44,7 +44,7 @@ func (mr *MockRepo) get(currentUserID, userID int, title, visibility string, fil
 		}
 		projects = append(projects, project)
 	}
-	return projects, nil
+	return projects, &filter.Metadata{}, nil
 }
 
 func (mr *MockRepo) getOne(ID int) (*Project, error) {
@@ -84,7 +84,7 @@ func (mr *MockRepo) updateProjectColor(userID, projectID int, cleanedColor strin
 
 type Repo interface {
 	insert(p *Project) error
-	get(currentUserID, userID int, title, visibility string, filter filter.Filter) ([]*Project, error)
+	get(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error)
 	getOne(ID int) (*Project, error)
 	delete(projectID int) error
 	update(userID, projectID int, name, description, visibility, color *string) error

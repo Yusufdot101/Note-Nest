@@ -39,9 +39,9 @@ func (r *Repository) insert(p *Project) error {
 	return err
 }
 
-func (r *Repository) get(currentUserID, queryUserID int, title, visibility string, filter filter.Filter) ([]*Project, error) {
+func (r *Repository) get(currentUserID, queryUserID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error) {
 	baseQuery := `
-		SELECT 
+		SELECT  COUNT(*) OVER(),
 			id, created_at, updated_at, user_id, title, description, visibility, entries_count, likes_count, 
 			comments_count, color
 		FROM projects
@@ -67,7 +67,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 		} else {
 			// can only access public projects of others
 			if visibility != "public" && visibility != "" {
-				return nil, customerrors.ErrNoRecord
+				return nil, nil, customerrors.ErrNoRecord
 			}
 			conds = append(conds, "visibility = 'public'")
 		}
@@ -84,7 +84,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 				args = append(args, currentUserID)
 				idx++
 			default:
-				return nil, customerrors.ErrNoRecord
+				return nil, nil, customerrors.ErrNoRecord
 			}
 		} else {
 			conds = append(conds, fmt.Sprintf("( visibility = 'public' OR user_id = $%d )", idx))
@@ -103,7 +103,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 			ORDER BY %s %s, id ASC
 			LIMIT $%d
 			OFFSET $%d
-		`, idx, idx, filter.SortColumn(), filter.SortDirection(), idx+1, idx+2)
+		`, idx, idx, f.SortColumn(), f.SortDirection(), idx+1, idx+2)
 
 	words := strings.Fields(title)
 	for i := range words {
@@ -111,8 +111,8 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 	}
 	formattedTitle := strings.Join(words, " & ") // join with &
 	args = append(args, formattedTitle)
-	args = append(args, filter.Limit())
-	args = append(args, filter.Offset())
+	args = append(args, f.Limit())
+	args = append(args, f.Offset())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -120,16 +120,19 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 	projects := []*Project{}
 	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
 			log.Println("rows close error:", err)
 		}
 	}()
+
+	var totalResources int
 	for rows.Next() {
 		p := &Project{}
 		err = rows.Scan(
+			&totalResources,
 			&p.ID,
 			&p.CreatedAt,
 			&p.UpdatedAt,
@@ -143,15 +146,16 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 			&p.Color,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		projects = append(projects, p)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return projects, nil
+	metadata := filter.GenerateMetadata(f.Page, f.PageSize, totalResources)
+	return projects, metadata, nil
 }
 
 func (r *Repository) getOne(ID int) (*Project, error) {

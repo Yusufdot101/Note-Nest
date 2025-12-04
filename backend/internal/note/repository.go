@@ -110,12 +110,12 @@ func (r *Repository) get(noteID int) (*Note, error) {
 	return note, nil
 }
 
-func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, error) {
+func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*Note, *filter.Metadata, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	baseQuery := `
-		SELECT
+		SELECT COUNT(*) OVER(),
 			n.id, n.project_id, n.created_at, n.updated_at, n.title, n.content, n.color,
 			n.visibility, n.likes_count, n.comments_count, n.saves_count
 		FROM notes n
@@ -133,14 +133,14 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, customerrors.ErrNoRecord
+				return nil, nil, customerrors.ErrNoRecord
 			}
-			return nil, err
+			return nil, nil, err
 		}
 
 		// userId must match actual project owner
 		if owner != queryUserID {
-			return nil, customerrors.ErrNoRecord
+			return nil, nil, customerrors.ErrNoRecord
 		}
 
 		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
@@ -149,7 +149,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		if visibility != "" {
 			if queryUserID != currentUserID {
 				if visibility != "public" {
-					return nil, customerrors.ErrNoRecord
+					return nil, nil, customerrors.ErrNoRecord
 				}
 				conds = append(conds, "n.visibility = 'public'")
 			} else {
@@ -175,7 +175,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		idx++
 		if visibility != "" {
 			if queryUserID != currentUserID && visibility == "private" {
-				return nil, customerrors.ErrNoRecord
+				return nil, nil, customerrors.ErrNoRecord
 			}
 			conds = append(conds, "n.visibility = 'public'")
 		} else {
@@ -194,9 +194,9 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, customerrors.ErrNoRecord
+				return nil, nil, customerrors.ErrNoRecord
 			}
-			return nil, err
+			return nil, nil, err
 		}
 
 		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
@@ -205,7 +205,7 @@ func (r *Repository) getMany(currentUserID, queryUserID, projectID int, title, v
 		if visibility != "" {
 			if owner != currentUserID {
 				if visibility != "public" {
-					return nil, customerrors.ErrNoRecord
+					return nil, nil, customerrors.ErrNoRecord
 				} else {
 					conds = append(conds, "n.visibility = 'public'")
 				}
@@ -251,7 +251,7 @@ BUILD:
 			ORDER BY %s %s, id ASC
 			LIMIT $%d
 			OFFSET $%d
-		`, idx, idx, filter.SortColumn(), filter.SortDirection(), idx+1, idx+2)
+		`, idx, idx, f.SortColumn(), f.SortDirection(), idx+1, idx+2)
 
 	// to_tsquery wont work directly if you pass spaces, like "go is great" because spaces are treated as operators so you need to convert to into "go&is&great"
 	// we add ':*' before the '&' so that partial word search is possible
@@ -261,12 +261,12 @@ BUILD:
 	}
 	formattedTitle := strings.Join(words, " & ") // join with &
 	args = append(args, formattedTitle)
-	args = append(args, filter.Limit())
-	args = append(args, filter.Offset())
+	args = append(args, f.Limit())
+	args = append(args, f.Offset())
 
 	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
@@ -275,9 +275,11 @@ BUILD:
 	}()
 
 	var notes []*Note
+	var totalResources int
 	for rows.Next() {
 		var note Note
 		err := rows.Scan(
+			&totalResources,
 			&note.ID,
 			&note.ProjectID,
 			&note.CreatedAt,
@@ -291,16 +293,17 @@ BUILD:
 			&note.SavesCount,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		notes = append(notes, &note)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return notes, nil
+	metadata := filter.GenerateMetadata(f.Page, f.PageSize, totalResources)
+	return notes, metadata, nil
 }
 
 func (r *Repository) delete(noteID, projectID int) error {
