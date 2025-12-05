@@ -5,20 +5,31 @@ import type { Note } from "../components/NoteCard";
 import NoteCard from "../components/NoteCard";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import type { Metadata } from "../utilities/projects";
+import PageNumbers from "../components/PageNumbers";
 
 const Notes = () => {
     const [notes, setNotes] = useState<Note[]>([]);
+    const pageSize = 10;
+    const [metadata, setMetadata] = useState<Metadata>();
     const [options, setOptions] = useState<Map<string, number | string>>(
-        new Map<string, number | string>([["title", ""]]),
+        new Map<string, number | string>([
+            ["title", ""],
+            ["page", 1],
+            ["page_size", pageSize],
+        ]),
     );
 
     const setupNotes = useCallback(
         async (currentOptions: Map<string, string | number>) => {
-            const notes = await fetchNotes(currentOptions);
-            if (!notes) return;
+            const result = await fetchNotes(currentOptions);
+            if (!result) return;
+            const { notes, metadata } = result;
             setNotes(notes);
+            setMetadata(metadata);
+            options.set("page", metadata.PageNumber);
         },
-        [],
+        [options],
     );
 
     const handleSearch = async () => {
@@ -32,6 +43,16 @@ const Notes = () => {
         setupNotes(options);
     }, [accessToken, setupNotes, options]);
 
+    const updateOptions = (key: string, value: string | number) => {
+        setOptions((prev) => {
+            const newOptions = new Map<string, string | number>([
+                ...prev,
+                [key, value],
+            ]);
+            return newOptions;
+        });
+    };
+
     return (
         <div className="flex flex-col relative text-text bg-primary p-[12px] h-fit rounded-[8px] border-[1px] border-white">
             <div className="flex flex-col gap-y-[12px]">
@@ -40,17 +61,7 @@ const Notes = () => {
                 </h1>
 
                 <SearchBar
-                    handleOptionsChange={(
-                        key: string,
-                        value: string | number,
-                    ) => {
-                        setOptions((prev) => {
-                            const newOptions = new Map<string, string | number>(
-                                [...prev, [key, value]],
-                            );
-                            return newOptions;
-                        });
-                    }}
+                    handleOptionsChange={updateOptions}
                     options={options}
                     searchPlaceholder="Search notes"
                     handleSearch={handleSearch}
@@ -70,6 +81,12 @@ const Notes = () => {
                         />
                     ))}
                 </div>
+
+                <PageNumbers
+                    options={options}
+                    handleOptionsChange={updateOptions}
+                    metadata={metadata!}
+                />
             </div>
         </div>
     );

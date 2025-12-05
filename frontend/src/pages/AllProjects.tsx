@@ -2,13 +2,16 @@ import newResource from "../assets/newResource.svg";
 import { useCallback, useEffect, useState } from "react";
 import type { Project } from "../components/ProjectCard";
 import ProjectCard from "../components/ProjectCard";
-import { fetchProjects } from "../utilities/projects";
+import { fetchProjects, type Metadata } from "../utilities/projects";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import { useAuthStore } from "../store/useAuthStore";
+import PageNumbers from "../components/PageNumbers";
 
 const AllProjects = () => {
     const [projects, setProjects] = useState<Project[]>([]);
+    const pageSize = 10;
+    const [metadata, setMetadata] = useState<Metadata>();
 
     const params = new URLSearchParams(window.location.search);
     const user = params.get("user");
@@ -16,6 +19,8 @@ const AllProjects = () => {
         new Map<string, number | string>([
             ["user_id", user ?? -1],
             ["title", ""],
+            ["page", 1],
+            ["page_size", pageSize],
         ]),
     );
 
@@ -23,10 +28,14 @@ const AllProjects = () => {
 
     const setupProjects = useCallback(
         async (currentOptions: Map<string, string | number>) => {
-            const projects = await fetchProjects(currentOptions);
+            const result = await fetchProjects(currentOptions);
+            if (!result) return;
+            const { projects, metadata } = result;
             setProjects(projects);
+            setMetadata(metadata);
+            options.set("page", metadata.PageNumber);
         },
-        [],
+        [options],
     );
 
     const handleSearch = async () => {
@@ -51,21 +60,23 @@ const AllProjects = () => {
         navigate(`/projects/${projectID}`);
     };
 
+    const updateOptions = (key: string, value: string | number) => {
+        setOptions((prev) => {
+            const newOptions = new Map<string, string | number>([
+                ...prev,
+                [key, value],
+            ]);
+            return newOptions;
+        });
+    };
+
     return (
         <div className="flex flex-col relative text-text bg-primary p-[12px] h-fit rounded-[8px] border-[1px] border-white">
             <h1 className="text-text font-bold text-[32px] max-[629px]:text-[24px] text-center">
                 PROJECTS
             </h1>
             <SearchBar
-                handleOptionsChange={(key: string, value: string | number) => {
-                    setOptions((prev) => {
-                        const newOptions = new Map<string, string | number>([
-                            ...prev,
-                            [key, value],
-                        ]);
-                        return newOptions;
-                    });
-                }}
+                handleOptionsChange={updateOptions}
                 options={options}
                 searchPlaceholder="Search projects"
                 handleSearch={handleSearch}
@@ -96,6 +107,12 @@ const AllProjects = () => {
                 src={newResource}
                 alt="new project"
                 className="sticky ml-auto bottom-[32px] mt-[-20px] cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
+            />
+
+            <PageNumbers
+                options={options}
+                handleOptionsChange={updateOptions}
+                metadata={metadata!}
             />
         </div>
     );

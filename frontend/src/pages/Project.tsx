@@ -10,29 +10,41 @@ import type { Note } from "../components/NoteCard";
 import NoteCard from "../components/NoteCard";
 import { useAuthStore } from "../store/useAuthStore";
 import SearchBar from "../components/SearchBar";
+import type { Metadata } from "../utilities/projects";
+import PageNumbers from "../components/PageNumbers";
 
 const ProjectPage = () => {
     const [project, setProject] = useState<Project>();
     const [notes, setNotes] = useState<Note[]>([]);
+    const pageSize = 10;
+    const [metadata, setMetadata] = useState<Metadata>();
+
     const [showDialoge, setShowDialoge] = useState(false);
     const [color, setColor] = useState("#ffffff");
 
     const { id } = useParams();
     const userID = useAuthStore((state) => state.userID);
     const [options, setOptions] = useState<Map<string, number | string>>(
-        new Map<string, number | string>(
-            id ? [["project_id", id]] : [["title", ""]],
-        ),
+        new Map<string, number | string>([
+            ["project_id", id ?? -1],
+            ["title", ""],
+            ["title", ""],
+            ["page", 1],
+            ["page_size", pageSize],
+        ]),
     );
 
     const setupNotes = useCallback(
         async (currentOptions: Map<string, string | number>) => {
             if (!id) return;
-            const notes = await fetchNotes(currentOptions);
-            if (!notes) return;
+            const result = await fetchNotes(currentOptions);
+            if (!result) return;
+            const { notes, metadata } = result;
             setNotes(notes);
+            setMetadata(metadata);
+            options.set("page", metadata.PageNumber);
         },
-        [id],
+        [id, options],
     );
 
     const handleSearch = async () => {
@@ -54,6 +66,16 @@ const ProjectPage = () => {
         setupProject();
         setupNotes(options);
     }, [id, accessToken, setupNotes, options]);
+
+    const updateOptions = (key: string, value: string | number) => {
+        setOptions((prev) => {
+            const newOptions = new Map<string, string | number>([
+                ...prev,
+                [key, value],
+            ]);
+            return newOptions;
+        });
+    };
 
     return (
         <div className="flex flex-col gap-[12px]">
@@ -98,18 +120,7 @@ const ProjectPage = () => {
                     </h1>
 
                     <SearchBar
-                        handleOptionsChange={(
-                            key: string,
-                            value: string | number,
-                        ) => {
-                            setOptions((prev) => {
-                                const newOptions = new Map<
-                                    string,
-                                    string | number
-                                >([...prev, [key, value]]);
-                                return newOptions;
-                            });
-                        }}
+                        handleOptionsChange={updateOptions}
                         options={options}
                         searchPlaceholder="Search notes"
                         handleSearch={handleSearch}
@@ -143,6 +154,12 @@ const ProjectPage = () => {
                             className="sticky bottom-[32px] mt-[-8px] ml-auto cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
                         />
                     )}
+
+                    <PageNumbers
+                        options={options}
+                        handleOptionsChange={updateOptions}
+                        metadata={metadata!}
+                    />
                 </div>
             </div>
         </div>

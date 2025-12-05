@@ -1,5 +1,6 @@
 import type { Note } from "../components/NoteCard";
 import { api } from "./api";
+import type { Metadata } from "./projects";
 
 export const newNote = async (
     projectID: number,
@@ -45,7 +46,7 @@ export const newNote = async (
 
 export const fetchNotes = async (
     options: Map<string, string | number>,
-): Promise<Note[]> => {
+): Promise<{ notes: Note[]; metadata: Metadata } | undefined> => {
     try {
         const params = new URLSearchParams();
         for (const [key, value] of options) {
@@ -56,7 +57,7 @@ export const fetchNotes = async (
         const res = await api(`/notes${queryString ? `?${queryString}` : ""}`);
 
         if (!res) {
-            return [];
+            return;
         }
         const data = await res.json();
         if (!res.ok) {
@@ -64,11 +65,17 @@ export const fetchNotes = async (
             console.error(errors);
             throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return data.notes;
+        const notes = data.notes;
+        const metadata = data.metadata;
+        if (!Array.isArray(notes) || !metadata) {
+            return;
+        }
+
+        return { notes, metadata };
     } catch (error) {
         alert("an error occurred, please try again");
         console.error(error);
-        return [];
+        return;
     }
 };
 
