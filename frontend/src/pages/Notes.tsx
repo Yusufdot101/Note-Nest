@@ -27,9 +27,8 @@ const Notes = () => {
             const { notes, metadata } = result;
             setNotes(notes);
             setMetadata(metadata);
-            options.set("page", metadata.PageNumber);
         },
-        [options],
+        [],
     );
 
     const handleSearch = async () => {
@@ -82,11 +81,13 @@ const Notes = () => {
                     ))}
                 </div>
 
-                <PageNumbers
-                    options={options}
-                    handleOptionsChange={updateOptions}
-                    metadata={metadata!}
-                />
+                {metadata ? (
+                    <PageNumbers
+                        options={options}
+                        handleOptionsChange={updateOptions}
+                        metadata={metadata}
+                    />
+                ) : undefined}
             </div>
         </div>
     );

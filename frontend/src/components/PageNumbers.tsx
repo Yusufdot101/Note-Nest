@@ -11,7 +11,7 @@ function PageNumbers({ options, handleOptionsChange, metadata }: Props) {
         { length: metadata?.TotalPages ?? 1 },
         (_, i) => i + 1,
     );
-    const currentPageNumber = options.get("page") as number;
+    const currentPageNumber = Number(options.get("page")) || 1;
     const lastPage = metadata?.TotalPages;
     return (
         <div className="flex mx-auto gap-[4px]">

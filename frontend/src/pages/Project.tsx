@@ -28,7 +28,6 @@ const ProjectPage = () => {
         new Map<string, number | string>([
             ["project_id", id ?? -1],
             ["title", ""],
-            ["title", ""],
             ["page", 1],
             ["page_size", pageSize],
         ]),
@@ -42,9 +41,8 @@ const ProjectPage = () => {
             const { notes, metadata } = result;
             setNotes(notes);
             setMetadata(metadata);
-            options.set("page", metadata.PageNumber);
         },
-        [id, options],
+        [id],
     );
 
     const handleSearch = async () => {
@@ -155,11 +153,13 @@ const ProjectPage = () => {
                         />
                     )}
 
-                    <PageNumbers
-                        options={options}
-                        handleOptionsChange={updateOptions}
-                        metadata={metadata!}
-                    />
+                    {metadata ? (
+                        <PageNumbers
+                            options={options}
+                            handleOptionsChange={updateOptions}
+                            metadata={metadata}
+                        />
+                    ) : undefined}
                 </div>
             </div>
         </div>

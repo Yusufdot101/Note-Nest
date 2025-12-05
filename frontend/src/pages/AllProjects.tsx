@@ -33,9 +33,8 @@ const AllProjects = () => {
             const { projects, metadata } = result;
             setProjects(projects);
             setMetadata(metadata);
-            options.set("page", metadata.PageNumber);
         },
-        [options],
+        [],
     );
 
     const handleSearch = async () => {
@@ -109,11 +108,13 @@ const AllProjects = () => {
                 className="sticky ml-auto bottom-[32px] mt-[-20px] cursor-pointer w-[90px] h-[90px] max-[619px]:w-[75px] max-[619px]:h-[75px]"
             />
 
-            <PageNumbers
-                options={options}
-                handleOptionsChange={updateOptions}
-                metadata={metadata!}
-            />
+            {metadata ? (
+                <PageNumbers
+                    options={options}
+                    handleOptionsChange={updateOptions}
+                    metadata={metadata}
+                />
+            ) : undefined}
         </div>
     );
 };
