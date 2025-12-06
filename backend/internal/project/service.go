@@ -78,7 +78,6 @@ func (ps *ProjectService) deleteProject(userID, projectID int) error {
 				return err
 			}
 
-			utilities.SetRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID), project, 0)
 		} else {
 			return err
 		}

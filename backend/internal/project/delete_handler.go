@@ -2,7 +2,6 @@ package project
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -28,7 +27,6 @@ func (h *ProjectHandler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.svc.deleteProject(u.ID, projectID)
-	log.Println("here: ", err)
 	if err != nil {
 		switch {
 		case errors.Is(err, customerrors.ErrNoRecord):

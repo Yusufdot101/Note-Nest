@@ -78,18 +78,9 @@ func (ns *NoteService) GetNote(userID, noteID int) (*Note, error) {
 	}
 
 	// fetch the project
-	err = utilities.GetUnmarshalRedisKey(ns.RDB, ctx, fmt.Sprintf("project:%d", note.ProjectID), p)
+	p, err = ns.ProjectSvc.GetProject(userID, note.ProjectID)
 	if err != nil {
-		if err == redis.Nil {
-			p, err = ns.ProjectSvc.GetProject(userID, note.ProjectID)
-			if err != nil {
-				return nil, err
-			}
-
-			utilities.SetRedisKey(ns.RDB, ctx, fmt.Sprintf("project:%d", note.ProjectID), p, 0)
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 
 	// do checks:
@@ -119,7 +110,6 @@ func (ns *NoteService) deleteNote(userID, noteID int) error {
 				return err
 			}
 
-			utilities.SetRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID), note, 0)
 		} else {
 			return err
 		}

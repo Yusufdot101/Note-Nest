@@ -26,7 +26,7 @@ func configureRouter(router *httprouter.Router, cfg *config, DB *sql.DB, rdb *re
 	m := mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Sender, cfg.SMTP.Username, cfg.SMTP.Password)
 	auth.RegisterRoutes(router, DB, m)
 	user.RegisterRoutes(router, DB)
-	project.RegisterRoutes(router, DB)
+	project.RegisterRoutes(router, DB, rdb)
 	note.RegisterRoutes(router, DB, rdb)
 	like.RegisterRoutes(router, DB)
 	comment.RegisterRoutes(router, DB)

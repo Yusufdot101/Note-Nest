@@ -118,9 +118,16 @@ func NewApplication() (*Application, error) {
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
-		Password: "",
+		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0,
 	})
+
+	// Verify Redis connection
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("failed to connect to Redis: %w", err)
+	}
 
 	cfg := &config{
 		Port: PORT,

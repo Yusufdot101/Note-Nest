@@ -14,6 +14,7 @@ func SetRedisKey(rdb *redis.Client, ctx context.Context, key string, value any, 
 		data, err := json.Marshal(value)
 		if err != nil {
 			log.Println("error marshalling value", err)
+			return
 		}
 
 		err = rdb.Set(ctx, key, data, ttl).Err()
