@@ -86,7 +86,7 @@ func (ss *saveService) savedNotes(currentUserID, queryUserID, projectID int, tit
 	}
 
 	data.IDs = ids
-	data.Total = metadata.TotalPages
+	data.Total = metadata.TotalResources
 	utilities.SetRedisKey(ss.RDB, ctx, key, data, 60*time.Second)
 	return notes, metadata, nil
 }

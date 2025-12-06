@@ -110,7 +110,7 @@ func (r *repository) get(userID, noteID int) ([]*comment, []int, error) {
 		comments = append(comments, c)
 	}
 
-	ids := make([]int, len(comments))
+	ids := make([]int, 0, len(comments))
 	for _, c := range comments {
 		ids = append(ids, c.ID)
 	}

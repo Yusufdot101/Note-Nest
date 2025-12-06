@@ -154,7 +154,7 @@ func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID int, title
 	}
 
 	data.IDs = ids
-	data.Total = metadata.TotalPages
+	data.Total = metadata.TotalResources
 	utilities.SetRedisKey(ns.RDB, ctx, key, data, 60*time.Second)
 	return notes, metadata, nil
 }

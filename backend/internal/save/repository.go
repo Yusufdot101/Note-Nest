@@ -303,7 +303,7 @@ BUILD:
 		notes = append(notes, &note)
 	}
 
-	ids := make([]int, len(notes))
+	ids := make([]int, 0, len(notes))
 	for _, n := range notes {
 		ids = append(ids, n.ID)
 	}

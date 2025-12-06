@@ -153,7 +153,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 	}
 
 	// the ids that will be saved to cache
-	ids := make([]int, len(projects))
+	ids := make([]int, 0, len(projects))
 	for _, p := range projects {
 		ids = append(ids, p.ID)
 	}

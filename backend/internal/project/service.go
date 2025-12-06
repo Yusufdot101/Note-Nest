@@ -54,7 +54,7 @@ type projectsQueryKey struct {
 func (k projectsQueryKey) RedisKey() string {
 	b, _ := json.Marshal(k)
 	sum := sha1.Sum(b)
-	return "notes:list:" + hex.EncodeToString(sum[:])
+	return "projects:list:" + hex.EncodeToString(sum[:])
 }
 
 func (ps *ProjectService) getProjects(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error) {
@@ -95,7 +95,7 @@ func (ps *ProjectService) getProjects(currentUserID, userID int, title, visibili
 	}
 
 	data.IDs = ids
-	data.Total = metadata.TotalPages
+	data.Total = metadata.TotalResources
 	utilities.SetRedisKey(ps.RDB, ctx, key, data, 60*time.Second)
 	return projects, metadata, nil
 }
