@@ -1,11 +1,16 @@
 package note
 
 import (
+	"context"
+	"fmt"
 	"strings"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
+	"github.com/Yusufdot101/note-nest/internal/project"
+	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
+	"github.com/redis/go-redis/v9"
 )
 
 func (ns *NoteService) newNote(
@@ -54,24 +59,46 @@ func (ns *NoteService) newNote(
 
 func (ns *NoteService) GetNote(userID, noteID int) (*Note, error) {
 	// fetch the note
-	note, err := ns.Repo.get(noteID)
+	note := &Note{}
+	p := &project.Project{}
+	ctx := context.Background()
+
+	err := utilities.GetUnmarshalRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID), note)
 	if err != nil {
-		return nil, err
+		if err == redis.Nil {
+			note, err = ns.Repo.get(noteID)
+			if err != nil {
+				return nil, err
+			}
+
+			utilities.SetRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID), note, 0)
+		} else {
+			return nil, err
+		}
 	}
 
 	// fetch the project
-	project, err := ns.ProjectSvc.GetProject(userID, note.ProjectID)
+	err = utilities.GetUnmarshalRedisKey(ns.RDB, ctx, fmt.Sprintf("project:%d", note.ProjectID), p)
 	if err != nil {
-		return nil, err
+		if err == redis.Nil {
+			p, err = ns.ProjectSvc.GetProject(userID, note.ProjectID)
+			if err != nil {
+				return nil, err
+			}
+
+			utilities.SetRedisKey(ns.RDB, ctx, fmt.Sprintf("project:%d", note.ProjectID), p, 0)
+		} else {
+			return nil, err
+		}
 	}
 
 	// do checks:
 	// cannot see other's private projects/notes
-	if project.UserID != userID && (project.Visibility == "private" || note.Visibility == "private") {
+	if p.UserID != userID && (p.Visibility == "private" || note.Visibility == "private") {
 		return nil, customerrors.ErrNoRecord
 	}
 
-	// fetch and return notes
+	// return note
 	return note, nil
 }
 
@@ -80,25 +107,53 @@ func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID int, title
 }
 
 func (ns *NoteService) deleteNote(userID, noteID int) error {
-	note, err := ns.Repo.get(noteID)
+	note := &Note{}
+	p := &project.Project{}
+	ctx := context.Background()
+
+	err := utilities.GetUnmarshalRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID), note)
 	if err != nil {
-		return err
+		if err == redis.Nil {
+			note, err = ns.Repo.get(noteID)
+			if err != nil {
+				return err
+			}
+
+			utilities.SetRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID), note, 0)
+		} else {
+			return err
+		}
 	}
 
 	// fetch the project
-	project, err := ns.ProjectSvc.GetProject(userID, note.ProjectID)
+	err = utilities.GetUnmarshalRedisKey(ns.RDB, ctx, fmt.Sprintf("project:%d", note.ProjectID), p)
 	if err != nil {
-		return err
+		if err == redis.Nil {
+			p, err = ns.ProjectSvc.GetProject(userID, note.ProjectID)
+			if err != nil {
+				return err
+			}
+
+			utilities.SetRedisKey(ns.RDB, ctx, fmt.Sprintf("project:%d", note.ProjectID), p, 0)
+		} else {
+			return err
+		}
 	}
 
 	// do checks:
 	// cannot delete other user's notes
-	if project.UserID != userID {
+	if p.UserID != userID {
 		return customerrors.ErrNoRecord
 	}
 
+	// remove the stale note from the cache
+	err = utilities.DeleteRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID))
+	if err != nil {
+		return err
+	}
+
 	// delete the note
-	return ns.Repo.delete(noteID, project.ID)
+	return ns.Repo.delete(noteID, p.ID)
 }
 
 func (ns *NoteService) updateNoteTitleContent(
@@ -127,6 +182,13 @@ func (ns *NoteService) updateNoteTitleContent(
 		return validator.ErrFailedValidation
 	}
 
+	// remove the stale note from the cache
+	ctx := context.Background()
+	err := utilities.DeleteRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID))
+	if err != nil {
+		return err
+	}
+
 	return ns.Repo.updateNoteTitleContent(userID, noteID, cleanedTitle, cleanedContent)
 }
 
@@ -138,14 +200,38 @@ func (ns *NoteService) updateNoteVisibility(
 		return validator.ErrFailedValidation
 	}
 	// Fetch note and project to validate visibility constraints
-	note, err := ns.Repo.get(noteID)
+
+	note := &Note{}
+	p := &project.Project{}
+	ctx := context.Background()
+
+	err := utilities.GetUnmarshalRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID), note)
 	if err != nil {
-		return err
+		if err == redis.Nil {
+			note, err = ns.Repo.get(noteID)
+			if err != nil {
+				return err
+			}
+
+			utilities.SetRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID), note, 0)
+		} else {
+			return err
+		}
 	}
 
-	p, err := ns.ProjectSvc.GetProject(userID, note.ProjectID)
+	// fetch the project
+	err = utilities.GetUnmarshalRedisKey(ns.RDB, ctx, fmt.Sprintf("project:%d", note.ProjectID), p)
 	if err != nil {
-		return err
+		if err == redis.Nil {
+			p, err = ns.ProjectSvc.GetProject(userID, note.ProjectID)
+			if err != nil {
+				return err
+			}
+
+			utilities.SetRedisKey(ns.RDB, ctx, fmt.Sprintf("project:%d", note.ProjectID), p, 0)
+		} else {
+			return err
+		}
 	}
 
 	// Ensure note can't be more public than its project
@@ -159,6 +245,12 @@ func (ns *NoteService) updateNoteVisibility(
 		return customerrors.ErrNoRecord
 	}
 
+	// remove the stale note from the cache
+	err = utilities.DeleteRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID))
+	if err != nil {
+		return err
+	}
+
 	return ns.Repo.updateNoteVisibility(userID, noteID, cleanedVisibility)
 }
 
@@ -169,6 +261,14 @@ func (ns *NoteService) updateNoteColor(
 	if validateColor(v, cleanedColor); !v.IsValid() {
 		return validator.ErrFailedValidation
 	}
+
+	// remove the stale note from the cache
+	ctx := context.Background()
+	err := utilities.DeleteRedisKey(ns.RDB, ctx, fmt.Sprintf("note:%d", noteID))
+	if err != nil {
+		return err
+	}
+
 	return ns.Repo.updateNoteColor(userID, noteID, cleanedColor)
 }
 

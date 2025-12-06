@@ -16,9 +16,10 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/save"
 	"github.com/Yusufdot101/note-nest/internal/user"
 	"github.com/julienschmidt/httprouter"
+	"github.com/redis/go-redis/v9"
 )
 
-func configureRouter(router *httprouter.Router, cfg *config, DB *sql.DB) http.Handler {
+func configureRouter(router *httprouter.Router, cfg *config, DB *sql.DB, rdb *redis.Client) http.Handler {
 	router.NotFound = http.HandlerFunc(customerrors.NotFoundErrorResponse)
 	router.MethodNotAllowed = http.HandlerFunc(customerrors.MethodNotAllowedErrorResponse)
 
@@ -26,7 +27,7 @@ func configureRouter(router *httprouter.Router, cfg *config, DB *sql.DB) http.Ha
 	auth.RegisterRoutes(router, DB, m)
 	user.RegisterRoutes(router, DB)
 	project.RegisterRoutes(router, DB)
-	note.RegisterRoutes(router, DB)
+	note.RegisterRoutes(router, DB, rdb)
 	like.RegisterRoutes(router, DB)
 	comment.RegisterRoutes(router, DB)
 	save.RegisterRoutes(router, DB)

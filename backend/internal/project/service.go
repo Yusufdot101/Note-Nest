@@ -1,11 +1,15 @@
 package project
 
 import (
+	"context"
+	"fmt"
 	"strings"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
+	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
+	"github.com/redis/go-redis/v9"
 )
 
 func (ps *ProjectService) newProject(v *validator.Validator, userID int, title, description, visibility, color string) error {
@@ -37,9 +41,21 @@ func (ps *ProjectService) getProjects(currentUserID, userID int, title, visibili
 }
 
 func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {
-	project, err := ps.Repo.getOne(projectID)
+	project := &Project{}
+	ctx := context.Background()
+	// fetch the project
+	err := utilities.GetUnmarshalRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID), project)
 	if err != nil {
-		return nil, err
+		if err == redis.Nil {
+			project, err = ps.Repo.getOne(projectID)
+			if err != nil {
+				return nil, err
+			}
+
+			utilities.SetRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID), project, 0)
+		} else {
+			return nil, err
+		}
 	}
 
 	// only allow the owner to see private projects
@@ -51,13 +67,31 @@ func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {
 }
 
 func (ps *ProjectService) deleteProject(userID, projectID int) error {
-	project, err := ps.Repo.getOne(projectID)
+	project := &Project{}
+	ctx := context.Background()
+	// fetch the project
+	err := utilities.GetUnmarshalRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID), project)
 	if err != nil {
-		return err
+		if err == redis.Nil {
+			project, err = ps.Repo.getOne(projectID)
+			if err != nil {
+				return err
+			}
+
+			utilities.SetRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID), project, 0)
+		} else {
+			return err
+		}
 	}
 	// can only delete your projects
 	if project.UserID != userID {
 		return customerrors.ErrNoRecord
+	}
+
+	// remove the stale project from the cache
+	err = utilities.DeleteRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID))
+	if err != nil {
+		return err
 	}
 
 	return ps.Repo.delete(project.ID)
@@ -83,6 +117,13 @@ func (ps *ProjectService) updateProject(v *validator.Validator, userID, projectI
 		return validator.ErrFailedValidation
 	}
 
+	// remove the stale project from the cache
+	ctx := context.Background()
+	err := utilities.DeleteRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID))
+	if err != nil {
+		return err
+	}
+
 	return ps.Repo.update(userID, projectID, title, description, visibility, color)
 }
 
@@ -92,6 +133,13 @@ func (ps *ProjectService) updateProjectVisibility(
 	cleanedVisibility := strings.TrimSpace(visibility)
 	if validateVisibility(v, cleanedVisibility); !v.IsValid() {
 		return validator.ErrFailedValidation
+	}
+
+	// remove the stale project from the cache
+	ctx := context.Background()
+	err := utilities.DeleteRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID))
+	if err != nil {
+		return err
 	}
 
 	return ps.Repo.updateProjectVisibility(userID, projectID, cleanedVisibility)
@@ -104,5 +152,13 @@ func (ps *ProjectService) updateProjectColor(
 	if validateColor(v, cleanedColor); !v.IsValid() {
 		return validator.ErrFailedValidation
 	}
+
+	// remove the stale project from the cache
+	ctx := context.Background()
+	err := utilities.DeleteRedisKey(ps.RDB, ctx, fmt.Sprintf("project:%d", projectID))
+	if err != nil {
+		return err
+	}
+
 	return ps.Repo.updateProjectColor(userID, projectID, cleanedColor)
 }

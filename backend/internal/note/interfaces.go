@@ -3,9 +3,9 @@ package note
 import (
 	"time"
 
-	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/project"
 	"github.com/Yusufdot101/note-nest/internal/validator"
+	"github.com/redis/go-redis/v9"
 )
 
 type Note struct {
@@ -22,62 +22,10 @@ type Note struct {
 	SavesCount    uint16
 }
 
-type Repo interface {
-	insert(n *Note) error
-	get(noteID int) (*Note, error)
-	getMany(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*Note, *filter.Metadata, error)
-	delete(noteID, projectID int) error
-	updateNoteTitleContent(userID, noteID int, title, content *string) error
-	updateNoteVisibility(userID, noteID int, visibility string) error
-	updateNoteColor(userID, noteID int, color string) error
-	getOwner(userID, noteID int) (string, error)
-}
-
-type mockRepo struct {
-	updateNoteTitleContentCalled bool
-	updateNoteColorCalled        bool
-}
-
-func (mr *mockRepo) insert(n *Note) error {
-	return nil
-}
-
-func (mr *mockRepo) get(noteID int) (*Note, error) {
-	n := &Note{
-		ID: noteID,
-	}
-	return n, nil
-}
-
-func (mr *mockRepo) getMany(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, *filter.Metadata, error) {
-	return nil, nil, nil
-}
-
-func (mr *mockRepo) delete(noteID, projectID int) error {
-	return nil
-}
-
-func (mr *mockRepo) updateNoteTitleContent(userID, noteID int, title, content *string) error {
-	mr.updateNoteTitleContentCalled = true
-	return nil
-}
-
-func (mr *mockRepo) updateNoteVisibility(userID, noteID int, visibility string) error {
-	return nil
-}
-
-func (mr *mockRepo) updateNoteColor(userID, noteID int, color string) error {
-	mr.updateNoteColorCalled = true
-	return nil
-}
-
-func (mr *mockRepo) getOwner(userID, noteID int) (string, error) {
-	return "", nil
-}
-
 type NoteService struct {
-	Repo       Repo
+	Repo       *Repository
 	ProjectSvc *project.ProjectService
+	RDB        *redis.Client
 }
 
 type NoteHandler struct {

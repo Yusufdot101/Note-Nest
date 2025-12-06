@@ -6,6 +6,7 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/validator"
+	"github.com/redis/go-redis/v9"
 )
 
 type Project struct {
@@ -94,6 +95,7 @@ type Repo interface {
 
 type ProjectService struct {
 	Repo Repo
+	RDB  *redis.Client
 }
 
 type ProjectHandler struct {

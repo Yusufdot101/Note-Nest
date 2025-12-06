@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/redis/go-redis/v9"
 )
 
 // PORT is the api addr
@@ -45,6 +46,7 @@ type config struct {
 type Application struct {
 	Config config
 	DB     *sql.DB
+	RDB    *redis.Client
 }
 
 // NewApplication returns a new Application strcut with configured options read from .env files
@@ -57,6 +59,7 @@ func NewApplication() (*Application, error) {
 		"RESET_PASSWORD_TOKEN_EXPIRATION_TIME", "ACCESS_TOKEN_EXPIRATION_TIME", "FRONTEND_BASE_URL",
 		"REFRESH_TOKEN_EXPIRATION_TIME",
 		"GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REDIRECT_URL",
+		"REDIS_ADDR",
 	}
 
 	emailProvider := os.Getenv("EMAIL_PROVIDER")
@@ -111,6 +114,14 @@ func NewApplication() (*Application, error) {
 	username := os.Getenv("SMTP_USERNAME")
 	password := os.Getenv("SMTP_PASSWORD")
 
+	redisAddr := os.Getenv("REDIS_ADDR")
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: "",
+		DB:       0,
+	})
+
 	cfg := &config{
 		Port: PORT,
 		DB: struct {
@@ -154,10 +165,11 @@ func NewApplication() (*Application, error) {
 	}
 
 	app := &Application{
-		DB: DB,
+		DB:  DB,
+		RDB: rdb,
 	}
 	router := httprouter.New()
-	handler := configureRouter(router, cfg, app.DB)
+	handler := configureRouter(router, cfg, app.DB, app.RDB)
 	cfg.Handler = handler
 	app.Config = *cfg
 

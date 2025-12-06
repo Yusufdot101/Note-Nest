@@ -7,9 +7,10 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/Yusufdot101/note-nest/internal/project"
 	"github.com/julienschmidt/httprouter"
+	"github.com/redis/go-redis/v9"
 )
 
-func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
+func RegisterRoutes(router *httprouter.Router, DB *sql.DB, rdb *redis.Client) {
 	repo, err := NewRepository(DB)
 	if err != nil {
 		panic(err)
@@ -22,6 +23,7 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 				DB: DB,
 			},
 		},
+		RDB: rdb,
 	})
 
 	router.Handler(http.MethodPost, "/projects/:projectid/notes", middleware.RequireAccess(h.newNote))
