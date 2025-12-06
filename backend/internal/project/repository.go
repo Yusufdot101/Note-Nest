@@ -11,6 +11,7 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
+	"github.com/lib/pq"
 )
 
 type Repository struct {
@@ -39,7 +40,7 @@ func (r *Repository) insert(p *Project) error {
 	return err
 }
 
-func (r *Repository) get(currentUserID, queryUserID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error) {
+func (r *Repository) get(currentUserID, queryUserID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, []int, error) {
 	baseQuery := `
 		SELECT  COUNT(*) OVER(),
 			id, created_at, updated_at, user_id, title, description, visibility, entries_count, likes_count, 
@@ -67,7 +68,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 		} else {
 			// can only access public projects of others
 			if visibility != "public" && visibility != "" {
-				return nil, nil, customerrors.ErrNoRecord
+				return nil, nil, nil, customerrors.ErrNoRecord
 			}
 			conds = append(conds, "visibility = 'public'")
 		}
@@ -84,7 +85,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 				args = append(args, currentUserID)
 				idx++
 			default:
-				return nil, nil, customerrors.ErrNoRecord
+				return nil, nil, nil, customerrors.ErrNoRecord
 			}
 		} else {
 			conds = append(conds, fmt.Sprintf("( visibility = 'public' OR user_id = $%d )", idx))
@@ -120,7 +121,7 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 	projects := []*Project{}
 	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
@@ -146,16 +147,23 @@ func (r *Repository) get(currentUserID, queryUserID int, title, visibility strin
 			&p.Color,
 		)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 		projects = append(projects, p)
 	}
+
+	// the ids that will be saved to cache
+	ids := make([]int, len(projects))
+	for _, p := range projects {
+		ids = append(ids, p.ID)
+	}
+
 	if err = rows.Err(); err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	metadata := filter.GenerateMetadata(f.Page, f.PageSize, totalResources)
-	return projects, metadata, nil
+	return projects, metadata, ids, nil
 }
 
 func (r *Repository) getOne(ID int) (*Project, error) {
@@ -462,4 +470,55 @@ func (r *Repository) updateProjectVisibility(userID, projectID int, visibility s
 	}
 
 	return nil
+}
+
+func (r *Repository) getByIDs(ids []int) ([]*Project, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT 
+			id, created_at, updated_at, user_id, title, description, visibility, entries_count, likes_count, 
+			comments_count, color
+		FROM projects
+		WHERE id = ANY($1)
+		ORDER BY array_position($1, id);
+	`
+
+	projects := []*Project{}
+	rows, err := r.DB.QueryContext(ctx, query, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Println("rows close error:", err)
+		}
+	}()
+
+	for rows.Next() {
+		p := &Project{}
+		err = rows.Scan(
+			&p.ID,
+			&p.CreatedAt,
+			&p.UpdatedAt,
+			&p.UserID,
+			&p.Title,
+			&p.Description,
+			&p.Visibility,
+			&p.EntriesCount,
+			&p.LikesCount,
+			&p.CommentsCount,
+			&p.Color,
+		)
+		if err != nil {
+			return nil, err
+		}
+		projects = append(projects, p)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return projects, nil
 }

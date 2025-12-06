@@ -2,8 +2,12 @@ package project
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
@@ -36,8 +40,64 @@ func (ps *ProjectService) newProject(v *validator.Validator, userID int, title, 
 	return nil
 }
 
+type projectsQueryKey struct {
+	CurrentUserID int
+	QueryUserID   int
+	Title         string
+	Visibility    string
+	SortCol       string
+	SortDir       string
+	Limit         int
+	Offset        int
+}
+
+func (k projectsQueryKey) RedisKey() string {
+	b, _ := json.Marshal(k)
+	sum := sha1.Sum(b)
+	return "notes:list:" + hex.EncodeToString(sum[:])
+}
+
 func (ps *ProjectService) getProjects(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error) {
-	return ps.Repo.get(currentUserID, userID, title, visibility, f)
+	qk := projectsQueryKey{
+		CurrentUserID: currentUserID,
+		QueryUserID:   userID,
+		Title:         title,
+		Visibility:    visibility,
+		SortCol:       f.SortColumn(),
+		SortDir:       f.SortDirection(),
+		Limit:         f.Limit(),
+		Offset:        f.Offset(),
+	}
+
+	var data struct {
+		IDs   []int `json:"ids"`
+		Total int   `json:"total"`
+	}
+	key := qk.RedisKey()
+	ctx := context.Background()
+	err := utilities.GetUnmarshalRedisKey(ps.RDB, ctx, key, &data)
+	if err == nil {
+		projects, err := ps.Repo.getByIDs(data.IDs)
+		if err != nil {
+			return nil, nil, err
+		}
+		metadata := filter.GenerateMetadata(f.Page, f.PageSize, data.Total)
+		return projects, metadata, nil
+	}
+
+	if err != redis.Nil {
+		return nil, nil, err
+	}
+
+	projects, metadata, ids, err := ps.Repo.get(currentUserID, userID, title, visibility, f)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	data.IDs = ids
+	data.Total = metadata.TotalPages
+	utilities.SetRedisKey(ps.RDB, ctx, key, data, 60*time.Second)
+	return projects, metadata, nil
 }
 
 func (ps *ProjectService) GetProject(userID, projectID int) (*Project, error) {

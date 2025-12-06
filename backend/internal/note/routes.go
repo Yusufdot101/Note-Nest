@@ -22,6 +22,7 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB, rdb *redis.Client) {
 			Repo: &project.Repository{
 				DB: DB,
 			},
+			RDB: rdb,
 		},
 		RDB: rdb,
 	})

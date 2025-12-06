@@ -1,7 +1,15 @@
 package comment
 
 import (
+	"context"
+	"crypto/sha1"
+	"encoding/hex"
+	"encoding/json"
+	"time"
+
+	"github.com/Yusufdot101/note-nest/internal/utilities"
 	"github.com/Yusufdot101/note-nest/internal/validator"
+	"github.com/redis/go-redis/v9"
 )
 
 func (svc *commentService) newComment(v *validator.Validator, userID, noteID int, content string) error {
@@ -24,8 +32,49 @@ func (svc *commentService) newComment(v *validator.Validator, userID, noteID int
 	return svc.repo.insert(c, n.ProjectID)
 }
 
-func (svc *commentService) getComments(userID, noteID int) ([]*comment, error) {
-	return svc.repo.get(userID, noteID)
+type commentQueryKey struct {
+	UserID int
+	NoteID int
+}
+
+func (k commentQueryKey) RedisKey() string {
+	b, _ := json.Marshal(k)
+	sum := sha1.Sum(b)
+	return "comments:list:" + hex.EncodeToString(sum[:])
+}
+
+func (cs *commentService) getComments(userID, noteID int) ([]*comment, error) {
+	qk := commentQueryKey{
+		UserID: userID,
+		NoteID: noteID,
+	}
+
+	var data struct {
+		IDs []int `json:"ids"`
+	}
+	key := qk.RedisKey()
+	ctx := context.Background()
+	err := utilities.GetUnmarshalRedisKey(cs.RDB, ctx, key, &data)
+	if err == nil {
+		comments, err := cs.repo.getByIDs(data.IDs)
+		if err != nil {
+			return nil, err
+		}
+		return comments, nil
+	}
+
+	if err != redis.Nil {
+		return nil, err
+	}
+
+	comments, ids, err := cs.repo.get(userID, noteID)
+	if err != nil {
+		return nil, err
+	}
+
+	data.IDs = ids
+	utilities.SetRedisKey(cs.RDB, ctx, key, data, 60*time.Second)
+	return comments, nil
 }
 
 func (svc *commentService) updateComment(v *validator.Validator, userID, commentID int, content string) error {

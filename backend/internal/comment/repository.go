@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
+	"github.com/lib/pq"
 )
 
 type repository struct {
@@ -61,7 +62,7 @@ func (r *repository) insert(c *comment, projectID int) error {
 	return nil
 }
 
-func (r *repository) get(userID, noteID int) ([]*comment, error) {
+func (r *repository) get(userID, noteID int) ([]*comment, []int, error) {
 	query := `
 		SELECT c.id, c.created_at, c.is_edited, c.user_id, u.name, c.note_id, c.content, c.likes_count 
 		FROM comments c
@@ -80,7 +81,7 @@ func (r *repository) get(userID, noteID int) ([]*comment, error) {
 
 	rows, err := r.DB.QueryContext(ctx, query, noteID, userID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
@@ -103,17 +104,22 @@ func (r *repository) get(userID, noteID int) ([]*comment, error) {
 			&c.LikesCount,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		comments = append(comments, c)
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, err
+	ids := make([]int, len(comments))
+	for _, c := range comments {
+		ids = append(ids, c.ID)
 	}
 
-	return comments, nil
+	if err := rows.Err(); err != nil {
+		return nil, nil, err
+	}
+
+	return comments, ids, nil
 }
 
 func (r *repository) update(userID, commentID int, newContent string) error {
@@ -261,4 +267,54 @@ func (r *repository) delete(userID, commentID int) error {
 	}
 
 	return nil
+}
+
+func (r *repository) getByIDs(ids []int) ([]*comment, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT 
+			c.id, c.created_at, c.is_edited, c.user_id, u.name, c.note_id, c.content, c.likes_count 
+		FROM comments c
+		INNER JOIN users u
+		ON c.user_id = u.id
+		WHERE c.id = ANY($1)
+		ORDER BY array_position($1, c.id);
+	`
+
+	comments := []*comment{}
+	rows, err := r.DB.QueryContext(ctx, query, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Println("rows close error:", err)
+		}
+	}()
+
+	for rows.Next() {
+		c := &comment{}
+		err = rows.Scan(
+			&c.ID,
+			&c.CreatedAt,
+			&c.Edited,
+			&c.UserID,
+			&c.Username,
+			&c.NoteID,
+			&c.Content,
+			&c.LikesCount,
+		)
+		if err != nil {
+			return nil, err
+		}
+		comments = append(comments, c)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return comments, nil
 }

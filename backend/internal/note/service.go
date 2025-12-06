@@ -2,8 +2,12 @@ package note
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
@@ -93,8 +97,66 @@ func (ns *NoteService) GetNote(userID, noteID int) (*Note, error) {
 	return note, nil
 }
 
-func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID int, title, visibility string, filter *filter.Filter) ([]*Note, *filter.Metadata, error) {
-	return ns.Repo.getMany(currentUserID, queryUserID, projectID, title, visibility, filter)
+type noteQueryKey struct {
+	CurrentUserID int
+	QueryUserID   int
+	ProjectID     int
+	Title         string
+	Visibility    string
+	SortCol       string
+	SortDir       string
+	Limit         int
+	Offset        int
+}
+
+func (k noteQueryKey) RedisKey() string {
+	b, _ := json.Marshal(k)
+	sum := sha1.Sum(b)
+	return "notes:list:" + hex.EncodeToString(sum[:])
+}
+
+func (ns *NoteService) getNotes(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*Note, *filter.Metadata, error) {
+	qk := noteQueryKey{
+		CurrentUserID: currentUserID,
+		QueryUserID:   queryUserID,
+		ProjectID:     projectID,
+		Title:         title,
+		Visibility:    visibility,
+		SortCol:       f.SortColumn(),
+		SortDir:       f.SortDirection(),
+		Limit:         f.Limit(),
+		Offset:        f.Offset(),
+	}
+
+	var data struct {
+		IDs   []int `json:"ids"`
+		Total int   `json:"total"`
+	}
+	key := qk.RedisKey()
+	ctx := context.Background()
+	err := utilities.GetUnmarshalRedisKey(ns.RDB, ctx, key, &data)
+	if err == nil {
+		notes, err := ns.Repo.getByIDs(data.IDs)
+		if err != nil {
+			return nil, nil, err
+		}
+		metadata := filter.GenerateMetadata(f.Page, f.PageSize, data.Total)
+		return notes, metadata, nil
+	}
+
+	if err != redis.Nil {
+		return nil, nil, err
+	}
+
+	notes, metadata, ids, err := ns.Repo.getMany(currentUserID, queryUserID, projectID, title, visibility, f)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	data.IDs = ids
+	data.Total = metadata.TotalPages
+	utilities.SetRedisKey(ns.RDB, ctx, key, data, 60*time.Second)
+	return notes, metadata, nil
 }
 
 func (ns *NoteService) deleteNote(userID, noteID int) error {

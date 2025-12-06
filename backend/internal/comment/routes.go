@@ -8,10 +8,11 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/note"
 	"github.com/Yusufdot101/note-nest/internal/project"
 	"github.com/julienschmidt/httprouter"
+	"github.com/redis/go-redis/v9"
 )
 
 // RegisterRoutes registers the comments api routes
-func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
+func RegisterRoutes(router *httprouter.Router, DB *sql.DB, rdb *redis.Client) {
 	h := newHandler(&commentService{
 		repo: &repository{
 			DB: DB,
@@ -24,8 +25,11 @@ func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
 				Repo: &project.Repository{
 					DB: DB,
 				},
+				RDB: rdb,
 			},
+			RDB: rdb,
 		},
+		RDB: rdb,
 	})
 
 	router.Handler(http.MethodPost, "/notes/:id/comments", middleware.RequireAccess(h.newComment))

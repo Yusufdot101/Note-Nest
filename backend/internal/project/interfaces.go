@@ -36,7 +36,7 @@ func (mr *MockRepo) insert(p *Project) error {
 	return nil
 }
 
-func (mr *MockRepo) get(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error) {
+func (mr *MockRepo) get(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, []int, error) {
 	mr.getCalled = true
 	projects := []*Project{}
 	for i := range 10 {
@@ -45,7 +45,7 @@ func (mr *MockRepo) get(currentUserID, userID int, title, visibility string, f *
 		}
 		projects = append(projects, project)
 	}
-	return projects, &filter.Metadata{}, nil
+	return projects, &filter.Metadata{}, nil, nil
 }
 
 func (mr *MockRepo) getOne(ID int) (*Project, error) {
@@ -83,14 +83,19 @@ func (mr *MockRepo) updateProjectColor(userID, projectID int, cleanedColor strin
 	return nil
 }
 
+func (mr *MockRepo) getByIDs(ids []int) ([]*Project, error) {
+	return nil, nil
+}
+
 type Repo interface {
 	insert(p *Project) error
-	get(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, error)
+	get(currentUserID, userID int, title, visibility string, f *filter.Filter) ([]*Project, *filter.Metadata, []int, error)
 	getOne(ID int) (*Project, error)
 	delete(projectID int) error
 	update(userID, projectID int, name, description, visibility, color *string) error
 	updateProjectVisibility(userID, projectID int, cleanedVisibility string) error
 	updateProjectColor(userID, projectID int, cleanedColor string) error
+	getByIDs(ids []int) ([]*Project, error)
 }
 
 type ProjectService struct {

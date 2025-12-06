@@ -12,6 +12,7 @@ import (
 	"github.com/Yusufdot101/note-nest/internal/customerrors"
 	"github.com/Yusufdot101/note-nest/internal/filter"
 	"github.com/Yusufdot101/note-nest/internal/note"
+	"github.com/lib/pq"
 )
 
 var ErrNoteAlreadySaved = errors.New("note already saved")
@@ -109,7 +110,7 @@ func (r *repository) isSaved(userID, noteID int) (bool, error) {
 	return true, nil
 }
 
-func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*note.Note, *filter.Metadata, error) {
+func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, title, visibility string, f *filter.Filter) ([]*note.Note, *filter.Metadata, []int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -137,14 +138,14 @@ func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, ti
 		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, nil, customerrors.ErrNoRecord
+				return nil, nil, nil, customerrors.ErrNoRecord
 			}
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 
 		// userId must match actual project owner
 		if owner != queryUserID {
-			return nil, nil, customerrors.ErrNoRecord
+			return nil, nil, nil, customerrors.ErrNoRecord
 		}
 
 		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
@@ -153,7 +154,7 @@ func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, ti
 		if visibility != "" {
 			if queryUserID != currentUserID {
 				if visibility != "public" {
-					return nil, nil, customerrors.ErrNoRecord
+					return nil, nil, nil, customerrors.ErrNoRecord
 				}
 				conds = append(conds, "n.visibility = 'public'")
 			} else {
@@ -179,7 +180,7 @@ func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, ti
 		idx++
 		if visibility != "" {
 			if queryUserID != currentUserID && visibility == "private" {
-				return nil, nil, customerrors.ErrNoRecord
+				return nil, nil, nil, customerrors.ErrNoRecord
 			}
 			conds = append(conds, "n.visibility = 'public'")
 		} else {
@@ -198,9 +199,9 @@ func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, ti
 		err := r.DB.QueryRowContext(ctx, "SELECT user_id from projects where id = $1", projectID).Scan(&owner)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, nil, customerrors.ErrNoRecord
+				return nil, nil, nil, customerrors.ErrNoRecord
 			}
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 
 		conds = append(conds, fmt.Sprintf("n.project_id = $%d", idx))
@@ -209,7 +210,7 @@ func (r *repository) getSavedNotes(currentUserID, queryUserID, projectID int, ti
 		if visibility != "" {
 			if owner != currentUserID {
 				if visibility != "public" {
-					return nil, nil, customerrors.ErrNoRecord
+					return nil, nil, nil, customerrors.ErrNoRecord
 				} else {
 					conds = append(conds, "n.visibility = 'public'")
 				}
@@ -270,7 +271,7 @@ BUILD:
 
 	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
@@ -297,17 +298,22 @@ BUILD:
 			&note.SavesCount,
 		)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 		notes = append(notes, &note)
 	}
 
+	ids := make([]int, len(notes))
+	for _, n := range notes {
+		ids = append(ids, n.ID)
+	}
+
 	if err = rows.Err(); err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	metadata := filter.GenerateMetadata(f.Page, f.PageSize, totalResources)
-	return notes, metadata, nil
+	return notes, metadata, ids, nil
 }
 
 func (r *repository) delete(userID, noteID int) error {
@@ -365,4 +371,55 @@ func (r *repository) delete(userID, noteID int) error {
 	}
 
 	return nil
+}
+
+func (r *repository) getByIDs(ids []int) ([]*note.Note, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT 
+			id, project_id, created_at, updated_at, title, content, color, visibility, likes_count, 
+			comments_count, saves_count
+		FROM notes
+		WHERE id = ANY($1)
+		ORDER BY array_position($1, id);
+	`
+
+	notes := []*note.Note{}
+	rows, err := r.DB.QueryContext(ctx, query, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Println("rows close error:", err)
+		}
+	}()
+
+	for rows.Next() {
+		n := &note.Note{}
+		err = rows.Scan(
+			&n.ID,
+			&n.ProjectID,
+			&n.CreatedAt,
+			&n.UpdatedAt,
+			&n.Title,
+			&n.Content,
+			&n.Color,
+			&n.Visibility,
+			&n.LikesCount,
+			&n.CommentsCount,
+			&n.SavesCount,
+		)
+		if err != nil {
+			return nil, err
+		}
+		notes = append(notes, n)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return notes, nil
 }

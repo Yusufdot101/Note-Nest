@@ -6,13 +6,15 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/middleware"
 	"github.com/julienschmidt/httprouter"
+	"github.com/redis/go-redis/v9"
 )
 
-func RegisterRoutes(router *httprouter.Router, DB *sql.DB) {
+func RegisterRoutes(router *httprouter.Router, DB *sql.DB, rdb *redis.Client) {
 	h := newHandler(&saveService{
 		repo: &repository{
 			DB: DB,
 		},
+		RDB: rdb,
 	})
 
 	router.Handler(http.MethodPost, "/notes/:id/save", middleware.RequireAccess(h.saveNote))

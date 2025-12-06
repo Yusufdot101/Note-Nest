@@ -29,8 +29,8 @@ func configureRouter(router *httprouter.Router, cfg *config, DB *sql.DB, rdb *re
 	project.RegisterRoutes(router, DB, rdb)
 	note.RegisterRoutes(router, DB, rdb)
 	like.RegisterRoutes(router, DB)
-	comment.RegisterRoutes(router, DB)
-	save.RegisterRoutes(router, DB)
+	comment.RegisterRoutes(router, DB, rdb)
+	save.RegisterRoutes(router, DB, rdb)
 	oidc.RegisterRoutes(router, DB)
 
 	return middleware.EnableCORS(middleware.RecoverPanic(middleware.RateLimit(router, cfg.Limiter.Enabled, cfg.Limiter.Burst, cfg.Limiter.Rate)))

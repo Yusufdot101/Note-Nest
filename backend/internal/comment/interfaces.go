@@ -8,6 +8,7 @@ import (
 
 	"github.com/Yusufdot101/note-nest/internal/note"
 	"github.com/Yusufdot101/note-nest/internal/validator"
+	"github.com/redis/go-redis/v9"
 )
 
 type comment struct {
@@ -23,9 +24,10 @@ type comment struct {
 
 type repo interface {
 	insert(c *comment, projectID int) error
-	get(userID, noteID int) ([]*comment, error)
+	get(userID, noteID int) ([]*comment, []int, error)
 	update(userID, commentID int, content string) error
 	delete(userID, commentID int) error
+	getByIDs(ids []int) ([]*comment, error)
 }
 
 type mockRepo struct {
@@ -38,13 +40,13 @@ func (mr *mockRepo) insert(c *comment, projectID int) error {
 	return nil
 }
 
-func (mr *mockRepo) get(userID, noteID int) ([]*comment, error) {
+func (mr *mockRepo) get(userID, noteID int) ([]*comment, []int, error) {
 	mr.getCalled = true
 	c := &comment{
 		UserID: userID,
 		NoteID: noteID,
 	}
-	return []*comment{c}, nil
+	return []*comment{c}, []int{1}, nil
 }
 
 func (mr *mockRepo) update(userID, commentID int, content string) error {
@@ -57,9 +59,14 @@ func (mr *mockRepo) delete(userID, commentID int) error {
 	return nil
 }
 
+func (mr *mockRepo) getByIDs(ids []int) ([]*comment, error) {
+	return nil, nil
+}
+
 type commentService struct {
 	repo    repo
 	noteSvc *note.NoteService
+	RDB     *redis.Client
 }
 
 type commentHandler struct {
