@@ -348,12 +348,22 @@ export const noteIsSaved = async (noteID: number): Promise<boolean> => {
     }
 };
 
-export const fetchSavedNotes = async (): Promise<Note[]> => {
+export const fetchSavedNotes = async (
+    options: Map<string, string | number>,
+): Promise<{ notes: Note[]; metadata: Metadata } | undefined> => {
     try {
-        const res = await api(`/saved/notes`);
+        const params = new URLSearchParams();
+        for (const [key, value] of options) {
+            params.append(key, String(value));
+        }
+
+        const queryString = params.toString();
+        const res = await api(
+            `/saved/notes${queryString ? `?${queryString}` : ""}`,
+        );
 
         if (!res) {
-            return [];
+            return;
         }
         const data = await res.json();
         if (!res.ok) {
@@ -361,10 +371,17 @@ export const fetchSavedNotes = async (): Promise<Note[]> => {
             console.error(errors);
             throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return data.notes;
+
+        const notes = data.notes;
+        const metadata = data.metadata;
+        if (!Array.isArray(notes) || !metadata) {
+            return;
+        }
+
+        return { notes, metadata };
     } catch (error) {
         alert("an error occurred, please try again");
         console.error(error);
-        return [];
+        return;
     }
 };

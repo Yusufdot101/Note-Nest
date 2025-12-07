@@ -24,6 +24,7 @@ const ProjectPage = () => {
 
     const { id } = useParams();
     const userID = useAuthStore((state) => state.userID);
+    console.log("userid: ", userID);
     const [options, setOptions] = useState<Map<string, number | string>>(
         new Map<string, number | string>([
             ["project_id", id ?? -1],
@@ -133,7 +134,7 @@ const ProjectPage = () => {
                         />
                     ))}
 
-                    {project?.UserID === userID && (
+                    {project?.UserID === userID && userID && (
                         <img
                             tabIndex={0}
                             aria-label="new note"
