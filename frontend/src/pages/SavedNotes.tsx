@@ -35,6 +35,7 @@ const SavedNotes = () => {
 
     const accessToken = useAuthStore((state) => state.accessToken);
     useEffect(() => {
+        if (!accessToken) return;
         setupNotes(options);
     }, [accessToken, options, setupNotes]);
 
