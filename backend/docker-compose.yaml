@@ -9,6 +9,8 @@ services:
         depends_on:
             notenest-db:
                 condition: service_healthy
+            redis:
+                condition: service_healthy
         volumes:
             - ./app/docker.env:/app/docker.env
         networks:
@@ -51,6 +53,11 @@ services:
 
     redis:
         image: redis:8.4.0-alpine
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 3s
+            retries: 5
         ports:
             - "6378:6379" #optional, for host access.
         restart: unless-stopped
