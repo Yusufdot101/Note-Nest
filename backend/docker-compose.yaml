@@ -49,8 +49,19 @@ services:
         networks:
             - notenest-backend-net
 
+    redis:
+        image: redis:8.4.0-alpine
+        ports:
+            - "6378:6379" #optional, for host access.
+        restart: unless-stopped
+        volumes:
+            - redis_data:/data
+        networks:
+            - notenest-backend-net
+
 volumes:
     pgdata:
+    redis_data:
 
 networks:
     notenest-backend-net:

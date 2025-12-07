@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "dev-exposed": "vite --host",
+        "dev-exposed": "vite --host 0.0.0.0 --port 3000",
         "build": "vite build",
         "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}' --max-warnings=0",
         "preview": "vite preview",
