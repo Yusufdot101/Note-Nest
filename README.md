@@ -2,7 +2,7 @@
 
 A personal and social note-keeping platform where users store their thoughts, findings, and experiences — privately or for others to explore.
 
-## 🌟 Features (potentially)
+## 🌟 Features
 
 - **Organized content**: Create projects, folders, or groups to structure your notes.
 - **Privacy control**: Projects and entries can be public or private.
